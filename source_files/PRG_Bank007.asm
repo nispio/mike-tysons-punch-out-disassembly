@@ -691,7 +691,7 @@ L859C:  RTS
 L859D:  JSR $85C9
 L85A0:  LDA #$25
 L85A2:  STA PPUIOReg
-L85A5:  LDA $0306
+L85A5:  LDA HydrogenValue1      ;($0306)
 L85A8:  AND #$F0
 L85AA:  LSR
 L85AB:  LSR
@@ -891,12 +891,12 @@ L871F:  LDY #$FF
 L8721:  ADC #$01
 L8723:  BNE $870A
 
-L8725:  DEC $0307
+L8725:  DEC HydrogenValue2       ;($0307)
 L8728:  BNE $8758
 L872A:  LDA #$08
-L872C:  STA $0307
+L872C:  STA HydrogenValue2       ;($0307)
 L872F:  LDY #$00
-L8731:  DEC $0306
+L8731:  DEC HydrogenValue1      ;($0306)
 L8734:  BEQ $8750
 L8736:  LDA $030B
 L8739:  CMP #$04
@@ -928,36 +928,36 @@ L876E:  BNE $8758
 L8770:  LDA #$81
 L8772:  STA $0301
 L8775:  LDA #$10
-L8777:  STA $0306
+L8777:  STA HydrogenValue1      ;($0306)
 L877A:  LDA #$08
-L877C:  STA $0307
+L877C:  STA HydrogenValue2      ;($0307)
 L877F:  RTS
 
-L8780:  LDA $0307
+L8780:  LDA HydrogenValue2      ;($0307)
 L8783:  CLC
-L8784:  ADC $0309
-L8787:  STA $0307
-L878A:  LDA $0306
-L878D:  ADC $0308
-L8790:  STA $0306
+L8784:  ADC HeliumValue2
+L8787:  STA HydrogenValue2      ;($0307)
+L878A:  LDA HydrogenValue1      ;($0306)
+L878D:  ADC HeliumValue1
+L8790:  STA HydrogenValue1      ;($0306)
 L8793:  CMP #$64
 L8795:  BCC $87E9
 L8797:  SBC #$64
-L8799:  STA $0306
+L8799:  STA HydrogenValue1      ;($0306)
 L879C:  DEC $0311
-L879F:  INC $0305
-L87A2:  LDA $0305
+L879F:  INC RoundLowerSec       ;($0305)
+L87A2:  LDA RoundLowerSec       ;($0305)
 L87A5:  CMP #$0A
 L87A7:  BNE $87D6
 L87A9:  LDX #$00
-L87AB:  STX $0305
-L87AE:  INC $0304
-L87B1:  LDA $0304
+L87AB:  STX RoundLowerSec       ;($0305)
+L87AE:  INC RoundUpperSec       ;($0304)
+L87B1:  LDA RoundUpperSec       ;($0304)
 L87B4:  CMP #$06
 L87B6:  BNE $87D6
-L87B8:  STX $0304
-L87BB:  INC $0302
-L87BE:  LDA $0302
+L87B8:  STX RoundUpperSec       ;($0304)
+L87BB:  INC RoundMinute         ;($0302)
+L87BE:  LDA RoundMinute         ;($0302)
 L87C1:  CMP #$03
 L87C3:  BNE $87D6
 L87C5:  LDA #$02
@@ -986,7 +986,7 @@ L87F1:  STA $0300,X
 L87F4:  DEX
 L87F5:  BNE $87F1
 L87F7:  LDA #$2B
-L87F9:  STA $0303
+L87F9:  STA RoundColon          ;($0303)
 L87FC:  BNE $87D6
 
 L87FE:  .byte $04, $2C, $01, $01, $28, $28, $28, $28

@@ -13,10 +13,13 @@
 .alias FightVar01		$01		;An ID related to the current fight, TBD
 .alias FightBank		$02		;The memory bank containing the data for the current fight
 .alias FightOffset		$03		;Offset of the current fight within its memory bank
+.alias FightVar04		$04		;Fight-related variable, TBD
+.alias FightVar05		$05		;Fight-related variable, TBD (opponent down?)
 .alias RoundNumber		$06		;Current round number.
 .alias FightVar08		$08		;Fight-related variable, TBD
 .alias FightVar09		$09		;Fight-related variable, TBD
 .alias MacLosses		$0A		;Number of losses on Mac's record
+.alias FightVar0B		$0B		;Fight-related variable, TBD
 .alias BankVar0D		$0D		;Bank-related variable, TBD
 .alias BankVar0E		$0E		;Bank-related variable, TBD
 
@@ -136,6 +139,11 @@
 .alias RoundUpperSec    $0304   ;Current tens of seconds in round.
 .alias RoundLowerSec    $0305   ;Current second in round(base 10).
 
+.alias HydrogenValue1   $0306   ;TBD value that gets incremented by HeliumValue1
+.alias HydrogenValue2   $0307   ;TBD value that gets incremented by HeliumValue1
+.alias HeliumValue1     $0308   ;TBD value pulled from opponent data for each round
+.alias HeliumValue2     $0309   ;TBD value pulled from opponent data for each round
+
 .alias NewHeartsUD      $0321   ;New amount of hearts, upper digit(base 10).
 .alias NewHeartsLD      $0322   ;New amount of hearts, lower digit(base 10).
 .alias CurHeartsUD      $0323   ;Current amount of hearts, upper digit(base 10).
@@ -174,11 +182,18 @@
 
 .alias TimerVal0585     $0585   ;A variable used to load special timer values.
 
+.alias HeartTable       $05A3   ;Table of heart values for this fight. (Indexing starts at 3)
+
+.alias HeliumTable      $05D8   ;Table of values for this fight. (Indexing starts at 2)
+
 .alias StarCountReset   $05B0   ;Reset value for StarCountDown.
 
 .alias ReactTimer       $05B8   ;Opponents reaction time. Does not count on combos.
 
 .alias OppOutline       $05EC   ;Base address for determining the opponent's outline color.
+
+.alias OppMessages      $05F0   ;Table of message indices for current opponent
+.alias TrainerMessages  $05F8   ;Table of message indices from trainer for this fight
 
 .alias JoyRawReads      $06A0   ;Through $06A8. Raw reads from controller 1 and 2. Even values -->
                                 ;are from controller 1 while odd values are from controller 2. -->

@@ -1,19 +1,3 @@
-
-LoadPRGBank06: LAA38
-LoadPRGBank07: LAA3C
-LoadPRGBank08: LAA40
-LoadPRGBank0B: LAA44
-LoadFightBank: LAA48
-LoadPRGBank: LAA4A
-PushPRGBank06: LAA50
-PushPRGBank07: LAA54
-PushPRGBank08: LAA58
-PushPRGBank09: LAA5C
-PushPRGBank0A: LAA60
-PushPRGBank0C: LAA64
-PushPRGBank: LAA66
-PopPRGBank: LAA6A
-
 .org $A000
 
 .include "Mike_Tysons_Punchout_Defines.asm"
@@ -286,7 +270,7 @@ LA291:  BNE $A2AC
 LA293:  JSR PushPRGBank06
 LA296:  LDA #$02
 LA298:  STA GameStatus
-LA29A:  JSR $9000
+LA29A:  JSR $9000               ;06:$9000
 LA29D:  LDA #$FF
 LA29F:  STA GameStatus
 LA2A1:  JMP $A505
@@ -723,7 +707,7 @@ LA646:  LDA TransTimer
 LA648:  BEQ $A64C
 LA64A:  DEC TransTimer
 LA64C:  JSR LoadPRGBank07
-LA64F:  JSR $8012
+LA64F:  JSR $8012               ;07:$8012
 LA652:  LDA $04
 LA654:  BMI $A659
 LA656:  JMP $A73D
@@ -759,7 +743,7 @@ LA687:  JSR $A75B
 LA68A:  JSR $A750
 
 LA68D:  JSR LoadPRGBank08
-LA690:  JSR $8000
+LA690:  JSR $8000               ;08:$8000
 LA693:  JSR $A09A
 LA696:  JSR LoadFightBank
 LA699:  JSR $B069
@@ -770,10 +754,10 @@ LA6A5:  JSR $C3D9
 LA6A8:  JSR $C4E7
 LA6AB:  JSR LoadFightBank
 LA6AE:  JSR $C890
-LA6B1:  JSR $AA87
+LA6B1:  JSR $AA87               ;Calls graphics routines from bank 0B
 LA6B4:  JSR LoadPRGBank07
-LA6B7:  JSR $800F
-LA6BA:  JSR $8015
+LA6B7:  JSR $800F               ;(07:$800F)
+LA6BA:  JSR $8015               ;(07:$8015)
 LA6BD:  JSR LoadFightBank
 LA6C0:  JSR $B457
 LA6C3:  JSR SetOppOutlineClr    ;($C440)Set opponent outline color.
@@ -915,6 +899,7 @@ LA7BD:  STA $0233
 LA7C0:  JSR $A800
 LA7C3:  RTS
 LA7C4:  RTS
+
 LA7C5:  LDA $DB
 LA7C7:  BPL $A7FF
 LA7C9:  AND #$7F
@@ -938,6 +923,7 @@ LA7F6:  STA $03FE
 LA7F9:  LDA $03FC
 LA7FC:  STA $03FF
 LA7FF:  RTS
+
 LA800:  LDX RoundNumber
 LA802:  DEX
 LA803:  TXA
@@ -945,8 +931,8 @@ LA804:  ASL
 LA805:  ASL
 LA806:  ASL
 LA807:  STA $E8
-LA809:  LDA $18
-LA80B:  JSR $AEF1
+LA809:  LDA RNGValue          ;($18)
+LA80B:  JSR RotateRNG          ;($AEF1)
 LA80E:  AND #$07
 LA810:  CLC
 LA811:  ADC $E8
@@ -959,6 +945,7 @@ LA81E:  JSR LoadFightBank
 LA821:  LDA ($E8),Y
 LA823:  STA $03D9
 LA826:  JMP PopPRGBank
+
 LA829:  LDX #$FF
 LA82B:  TXS
 LA82C:  JSR $AA1D
@@ -1176,6 +1163,7 @@ LA9FE:  ORA PPU0Load
 LAA00:  STA PPU0Load
 LAA02:  STA PPUControl0
 LAA05:  RTS
+
 LAA06:  LDA #$01
 LAA08:  BNE $AA0C
 LAA0A:  LDA #$00
@@ -1188,11 +1176,13 @@ LAA16:  STA $16
 LAA18:  STA $20
 LAA1A:  STA $21
 LAA1C:  RTS
+
 LAA1D:  LDA #$01
 LAA1F:  STA $04
 LAA21:  STA GameEngStatus
 LAA23:  STA GameStatus
 LAA25:  RTS
+
 LAA26:  STA $04B0
 LAA29:  JSR $BE09
 LAA2C:  JSR $BE1A
@@ -1276,17 +1266,24 @@ LAA80:  RTS
 
 LAA81:  .byte $08, $01, $FF, $10, $02, $FE
 
-LAA87:  JSR LoadPRGBank0B
-LAA8A:  JSR $8003
-LAA8D:  JSR $8006
-LAA90:  JSR $8009
-LAA93:  JMP LoadFightBank
-LAA96:  JSR LoadPRGBank0B
-LAA99:  JSR $8009
-LAA9C:  JMP LoadFightBank
-LAA9F:  JSR LoadPRGBank0B
-LAAA2:  JSR $8000
-LAAA5:  JMP LoadFightBank
+;----------------------------------------------------------------------------------------------------
+
+LAA87:  JSR LoadPRGBank0B       ;Load PRG bank 0B in order to call its subroutines
+LAA8A:  JSR $8003               ;(0B:$8003)
+LAA8D:  JSR $8006               ;(0B:$8006)
+LAA90:  JSR $8009               ;(0B:$8009)
+LAA93:  JMP LoadFightBank       ;Load the PRG bank for this fight and then RTS
+
+LAA96:  JSR LoadPRGBank0B       ;Load PRG bank 0B in order to call its subroutines
+LAA99:  JSR $8009               ;(0B:$8009)
+LAA9C:  JMP LoadFightBank       ;Load the PRG bank for this fight and then RTS
+
+LAA9F:  JSR LoadPRGBank0B       ;Load PRG bank 0B in order to call its subroutines
+LAAA2:  JSR $8000               ;((0B:$8000)
+LAAA5:  JMP LoadFightBank       ;Load the PRG bank for this fight and then RTS
+
+;----------------------------------------------------------------------------------------------------
+
 LAAA8:  ROL $04C3
 LAAAB:  CLC
 LAAAC:  LDA #$01
@@ -1299,6 +1296,7 @@ LAAB9:  BCC $AABD
 LAABB:  LDA #$00
 LAABD:  STA $0170,Y
 LAAC0:  RTS
+
 LAAC1:  LDY #$00
 LAAC3:  LDX #$04
 LAAC5:  LDA $03E8,Y
@@ -1319,6 +1317,7 @@ LAADE:  STA $C1
 LAAE0:  LDX #$EA
 LAAE2:  STX CurrentCount
 LAAE4:  RTS
+
 LAAE5:  JSR $AA1D
 LAAE8:  STA RoundNumber
 LAAEA:  JSR $AE89
@@ -1329,7 +1328,7 @@ LAAF1:  LDA $A0D1,Y
 LAAF4:  STA FightBank          ;($02)
 LAAF6:  JSR LoadFightBank
 LAAF9:  LDA $A0D2,Y
-LAAFC:  STA FooBar ;($03)
+LAAFC:  STA FightOffset          ;($03)
 LAAFE:  LDY #$20
 LAB00:  LDA #$00
 LAB02:  STA $03C0,Y
@@ -1367,6 +1366,7 @@ LAB46:  STX $03E7
 LAB49:  INX
 LAB4A:  STX $0390
 LAB4D:  RTS
+
 LAB4E:  LDA #$00
 LAB50:  STA $8F
 LAB52:  STA $03CA
@@ -1413,7 +1413,7 @@ LABB3:  LDA #$C0
 LABB5:  STA $0311
 LABB8:  LDX #$00
 LABBA:  STX $0300
-LABBD:  STX FooBar ;($05)
+LABBD:  STX FightVar05        ;($05) opponent down?
 LABBF:  STX VulnerableTimer
 LABC2:  STX $04FE
 LABC5:  STX $04FF
@@ -1465,11 +1465,10 @@ LAC31:  LDA #$01
 LAC33:  STA $30
 LAC35:  STA $38
 LAC37:  RTS
-LAC38:  JSR $B88A
 
+LAC38:  JSR $B88A
 LAC3B:  LDA #SPRT_BKG_ON        ;Enable sprites and background.
 LAC3D:  STA SprtBkgUpdt         ;
-
 LAC3F:  LDA #$FF
 LAC41:  STA GameStatus
 LAC43:  LDA #$0E
@@ -1644,17 +1643,20 @@ LADBC:  JSR $BE09
 LADBF:  LDA $04B0
 LADC2:  BNE $ADB9
 LADC4:  RTS
+
 LADC5:  JSR $AF02
 LADC8:  LDA $D9
 LADCA:  BPL $ADC5
 LADCC:  AND #$7F
 LADCE:  STA $D9
 LADD0:  RTS
+
 LADD1:  LDA #$40
 LADD3:  JSR $AF04
 LADD6:  DEX
 LADD7:  BNE $ADD1
 LADD9:  RTS
+
 LADDA:  STA $04A3
 LADDD:  STY $04A2
 LADE0:  LDY $04A2
@@ -1690,9 +1692,10 @@ LAE30:  LDA $A10D,Y
 LAE33:  STA FightVar01
 LAE35:  JSR $AE89
 LAE38:  LDX #$00
-LAE3A:  STX FooBar ;($0A)
+LAE3A:  STX MacLosses          ;($0A)
 LAE3C:  RTS
-LAE3D:  LDA FooBar ;($0A)
+
+LAE3D:  LDA MacLosses          ;($0A)
 LAE3F:  BEQ $AE4B
 LAE41:  LDA $A10F,Y
 LAE44:  BMI $AE3C
@@ -1721,25 +1724,30 @@ LAE75:  STA $03D9
 LAE78:  LDA $0398
 LAE7B:  STA $039E
 LAE7E:  RTS
+
 LAE7F:  ADC MacNextHP
 LAE82:  BCC $AE70
 LAE84:  LDA #$80
 LAE86:  STA MusicInit
 LAE88:  RTS
+
 LAE89:  LDY FightVar01
 LAE8B:  LDA $A18D,Y
 LAE8E:  STA FightVar09        ;($09)
 LAE90:  RTS
+
 LAE91:  LDX #$06
 LAE93:  JSR $AF02
 LAE96:  LDA $F0,X
 LAE98:  BNE $AE93
 LAE9A:  RTS
+
 LAE9B:  LDA PPU0Load
 LAE9D:  AND #$FB
 LAE9F:  STA PPU0Load
 LAEA1:  STA PPUControl0
 LAEA4:  RTS
+
 LAEA5:  LDA PPU0Load
 LAEA7:  ORA #$04
 LAEA9:  BNE $AE9F
@@ -1750,8 +1758,8 @@ LAEAF:  STA $EE
 LAEB1:  LDA $EF
 LAEB3:  CMP $EE
 LAEB5:  BEQ $AEC7
-LAEB7:  LDA $18
-LAEB9:  JSR $AEF1
+LAEB7:  LDA RNGValue          ;($18)
+LAEB9:  JSR RotateRNG          ;($AEF1)
 LAEBC:  AND $EE
 LAEBE:  STA $EE
 LAEC0:  LDA $EF
@@ -1796,6 +1804,7 @@ LAEEE:  JMP (_IndJumpPtr)       ;Indirect jump do desired function.
 
 ;----------------------------------------------------------------------------------------------------
 
+RotateRNG:
 LAEF1:  ROR $18
 LAEF3:  ROR $18
 LAEF5:  ROR $18
@@ -1807,6 +1816,7 @@ LAEFD:  INY
 LAEFE:  DEX
 LAEFF:  BNE $AEFA
 LAF01:  RTS
+
 LAF02:  LDA #$01
 LAF04:  STA TransTimer
 LAF06:  LDA TransTimer
@@ -1840,6 +1850,7 @@ LAF3C:  STA $0200,X
 LAF3F:  INX
 LAF40:  BNE $AF3C
 LAF42:  RTS
+
 LAF43:  LDY #$0B
 LAF45:  LDA $AF4F,Y
 LAF48:  STA $0200,Y
@@ -2169,6 +2180,7 @@ LB11F:  BCS $B133
 LB121:  LSR
 LB122:  BCS $B137
 LB124:  RTS
+
 LB125:  LDA $37
 LB127:  BPL $B124
 LB129:  BMI $B139
@@ -2226,6 +2238,7 @@ LB18F:  BNE $B185
 LB191:  LDA #$80
 LB193:  STA $36
 LB195:  RTS
+
 LB196:  LDA $38
 LB198:  BEQ $B1CD
 LB19A:  LDX OppCurState
@@ -2255,6 +2268,7 @@ LB1C7:  STA OppCurState
 LB1C9:  LDA #$01
 LB1CB:  STA OppStateTimer
 LB1CD:  RTS
+
 LB1CE:  TXA
 LB1CF:  JSR $AEAB
 LB1D2:  BCC $B1DC
@@ -2265,8 +2279,8 @@ LB1D9:  JMP $B1A5
 LB1DC:  INY
 LB1DD:  BNE $B1D7
 LB1DF:  STX $39
-LB1E1:  LDA $18
-LB1E3:  JSR $AEF1
+LB1E1:  LDA RNGValue          ;($18)
+LB1E3:  JSR RotateRNG          ;($AEF1)
 LB1E6:  AND #$07
 LB1E8:  CLC
 LB1E9:  ADC $3A
@@ -2288,11 +2302,12 @@ LB205:  INY
 LB206:  STY $3A
 LB208:  STA $39
 LB20A:  RTS
+
 LB20B:  LDA ($3B),Y
 LB20D:  INY
 LB20E:  BNE $B205
-LB210:  LDA $18
-LB212:  JSR $AEF1
+LB210:  LDA RNGValue          ;($18)
+LB212:  JSR RotateRNG          ;($AEF1)
 LB215:  BMI $B20B
 LB217:  INY
 LB218:  BNE $B203
@@ -2351,12 +2366,12 @@ LB277:  JMP $B1D4
 LB27A:  JSR LoadFightBank
 LB27D:  JSR $B2EB
 LB280:  JMP LoadPRGBank07
+
 LB283:  JSR LoadFightBank
 LB286:  STA BankSelect
-
 LB289:  JSR $B3A3
-
 LB28C:  JMP LoadPRGBank07
+
 LB28F:  JSR LoadFightBank
 LB292:  JSR $B3EB
 LB295:  JMP LoadPRGBank07
@@ -2393,13 +2408,16 @@ LB2DA:  STY $03C1
 LB2DD:  LDA #$43
 LB2DF:  STA $70
 LB2E1:  RTS
+
 LB2E2:  LDA #$00
 LB2E4:  STA $C0
 LB2E6:  RTS
+
 LB2E7:  DEX
 LB2E8:  BEQ $B298
 LB2EA:  RTS
-LB2EB:  LDX FooBar ;($05)
+
+LB2EB:  LDX FightVar05        ;($05) opponent down?
 LB2ED:  DEX
 LB2EE:  BNE $B2E7
 LB2F0:  LDY #$0A
@@ -2440,8 +2458,8 @@ LB33B:  BEQ $B33F
 LB33D:  BCS $B342
 LB33F:  INY
 LB340:  BNE $B356
-LB342:  LDA $18
-LB344:  JSR $AEF1
+LB342:  LDA RNGValue          ;($18)
+LB344:  JSR RotateRNG          ;($AEF1)
 LB347:  AND #$07
 LB349:  CMP #$06
 LB34B:  BCC $B34F
@@ -2467,8 +2485,8 @@ LB372:  STA $03CB
 LB375:  CLC
 LB376:  ADC #$99
 LB378:  BNE $B387
-LB37A:  LDA $18
-LB37C:  JSR $AEF1
+LB37A:  LDA RNGValue          ;($18)
+LB37C:  JSR RotateRNG          ;($AEF1)
 LB37F:  JSR Div16               ;($BF99)Shift upper nibble to lower nibble.
 
 LB382:  LSR
@@ -2520,6 +2538,7 @@ LB3E5:  INY
 LB3E6:  LDA ($E6),Y
 LB3E8:  STA ComboCountDown
 LB3EA:  RTS
+
 LB3EB:  LDY $4D
 LB3ED:  LDA ($4E),Y
 LB3EF:  BMI $B408
@@ -2531,10 +2550,12 @@ LB3F9:  LDA $4C
 LB3FB:  AND #$FE
 LB3FD:  STA $4C
 LB3FF:  RTS
+
 LB400:  INC $4D
 LB402:  LDA MacPunchType
 LB404:  STA $03B0
 LB407:  RTS
+
 LB408:  TAX
 LB409:  INX
 LB40A:  BEQ $B412
@@ -2563,6 +2584,7 @@ LB433:  CLC
 LB434:  ADC $E7
 LB436:  STA OppCurState
 LB438:  RTS
+
 LB439:  LDA $0398
 LB43C:  STA $039E
 LB43F:  LDA MacNextHP
@@ -2575,6 +2597,7 @@ LB44B:  ASL
 LB44C:  STA MacMaxHP,X
 LB44F:  RTS
 LB450:  RTS
+
 LB451:  JMP $B4F4
 LB454:  JMP $B4FB
 LB457:  LDA $CF
@@ -2655,6 +2678,7 @@ LB4EC:  LDA #$81
 LB4EE:  STA $60
 LB4F0:  JSR $AA96
 LB4F3:  RTS
+
 LB4F4:  AND #$7F
 LB4F6:  STA $03C3
 LB4F9:  BPL $B4E4
@@ -2682,6 +2706,7 @@ LB529:  ORA #$80
 LB52B:  STA $03C3
 LB52E:  RTS
 LB52F:  RTS
+
 LB530:  LDA FightVar00      ;($00) Fight status flag?
 LB532:  BMI $B52F
 LB534:  AND #$0F
@@ -2699,7 +2724,7 @@ LB550:  BEQ $B580
 LB552:  LDA IncStars
 LB555:  BEQ $B559
 LB557:  BPL $B580
-LB559:  LDA FooBar ;($05)
+LB559:  LDA FightVar05        ;($05) opponent down?
 LB55B:  BNE $B586
 LB55D:  LDA OppStateStatus
 LB55F:  AND $51
@@ -2718,12 +2743,12 @@ LB576:  CMP #$83
 LB578:  BNE $B580
 LB57A:  JSR $B651
 LB57D:  JSR $B65A
-
 LB580:  RTS
 
 LB581:  LDA #$40
 LB583:  STA FightVar00      ;($00) Fight status flag?
 LB585:  RTS
+
 LB586:  CMP #$02
 LB588:  BEQ $B599
 LB58A:  LDA $51
@@ -2744,56 +2769,56 @@ LB5A1:  STA OppCurState
 LB5A3:  LDA #$81
 LB5A5:  STA OppStateStatus
 LB5A7:  RTS
-
 LB5A8:  RTS
+
 LB5A9:  LDA #$01
 LB5AB:  STA MacCanPunch
 LB5AD:  LDA RoundNumber
-LB5AF:  CMP #$04
-LB5B1:  BCC $B5B6
-LB5B3:  JMP $B621
+LB5AF:  CMP #$04                ;If RoundNumber < 4, then -->
+LB5B1:  BCC $B5B6               ; skip the following JMP -->
+LB5B3:  JMP $B621               ; else skip to the final portion of this function
 LB5B6:  ASL
-LB5B7:  ADC RoundNumber
+LB5B7:  ADC RoundNumber         ;X = 3*RoundNumber
 LB5B9:  TAX
-LB5BA:  CMP #$03
-LB5BC:  BEQ $B5CB
-LB5BE:  LDA $05A3,X
-LB5C1:  JSR Div16               ;($BF99)Shift upper nibble to lower nibble.
-LB5C4:  CMP CurHeartsUD
-LB5C7:  BEQ $B5DF
-LB5C9:  BCC $B5EC
-LB5CB:  LDA $05A3,X
-LB5CE:  JSR Div16               ;($BF99)Shift upper nibble to lower nibble.
-LB5D1:  STA CurHeartsUD
-LB5D4:  LDA $05A3,X
-LB5D7:  AND #$0F
-LB5D9:  STA CurHeartsLD
-LB5DC:  JMP $B5EC
-LB5DF:  LDA $05A3,X
-LB5E2:  AND #$0F
-LB5E4:  CMP CurHeartsLD
-LB5E7:  BCC $B5EC
-LB5E9:  STA CurHeartsLD
+LB5BA:  CMP #$03                ;If RoundNumber==1, then -->
+LB5BC:  BEQ $B5CB               ; skip to setting the upper digit for hearts
+LB5BE:  LDA HeartTable,X        ;Get initial hearts for this round
+LB5C1:  JSR Div16
+LB5C4:  CMP CurHeartsUD         ;If upper digit already matches current, then -->
+LB5C7:  BEQ $B5DF               ; skip to checking lower digit
+LB5C9:  BCC $B5EC               ;If lower digit less than current, then leave it alone
+LB5CB:  LDA HeartTable,X
+LB5CE:  JSR Div16
+LB5D1:  STA CurHeartsUD         ;Set UD of current hearts to initial value
+LB5D4:  LDA HeartTable,X
+LB5D7:  AND #LO_NIBBLE
+LB5D9:  STA CurHeartsLD         ;Set LD of current hearts to initial value
+LB5DC:  JMP $B5EC               ;Skip checking the lower digit
+LB5DF:  LDA HeartTable,X
+LB5E2:  AND #LO_NIBBLE
+LB5E4:  CMP CurHeartsLD         ;If lower digit is less than initial, then -->
+LB5E7:  BCC $B5EC               ;  do not modify the lower digit -->
+LB5E9:  STA CurHeartsLD         ;  else set LD of current hearts to initial value
 LB5EC:  INX
-LB5ED:  LDY #$00
-LB5EF:  LDA $05A3,X
-LB5F2:  JSR Div16               ;($BF99)Shift upper nibble to lower nibble.
-LB5F5:  STA HeartRecover,Y
+LB5ED:  LDY #$00                ;For Loop Y=0; Y<4; Y+=2
+LB5EF:  LDA HeartTable,X
+LB5F2:  JSR Div16
+LB5F5:  STA HeartRecover,Y      ;Set the upper digit of heart recovery for this round
 LB5F8:  INY
-LB5F9:  LDA $05A3,X
-LB5FC:  AND #$0F
-LB5FE:  STA HeartRecover,Y
+LB5F9:  LDA HeartTable,X
+LB5FC:  AND #LO_NIBBLE
+LB5FE:  STA HeartRecover,Y      ;Set the upper digit of heart recovery for this round
 LB601:  INY
 LB602:  INX
 LB603:  CPY #$04
-LB605:  BNE $B5EF
+LB605:  BNE $B5EF               ;End For Loop
 LB607:  LDA RoundNumber
 LB609:  ASL
 LB60A:  TAX
-LB60B:  LDA $05D8,X
-LB60E:  STA $0308
-LB611:  LDA $05D9,X
-LB614:  STA $0309
+LB60B:  LDA HeliumTable1,X
+LB60E:  STA HeliumValue1
+LB611:  LDA HeliumTable2,X
+LB614:  STA HeliumValue2
 LB617:  LDA $05C0
 LB61A:  STA $4E
 LB61C:  LDA $05C1
@@ -2812,20 +2837,23 @@ LB637:  STA OppStateStatus
 LB639:  LDA #$01
 LB63B:  STA FightVar00      ;($00) Fight status flag?
 LB63D:  RTS
-LB63E:  LDA $0306
+
+LB63E:  LDA HydrogenValue1      ;($0306)
 LB641:  BNE $B650
 LB643:  LDA $030A
 LB646:  BNE $B650
 LB648:  LDA #$03
-LB64A:  STA FooBar ;($05)
+LB64A:  STA FightVar05        ;($05) opponent down?
 LB64C:  LDA #$FF
 LB64E:  STA FightVar00      ;($00) Fight status flag?
 LB650:  RTS
+
 LB651:  LDA #STAT_NONE
 LB653:  STA OppStateStatus
 LB655:  LDA #$81
 LB657:  STA OppCurState
 LB659:  RTS
+
 LB65A:  LDA #$82
 LB65C:  SEC
 LB65D:  SBC MacCanPunch
@@ -2833,6 +2861,7 @@ LB65F:  STA MacStatus
 LB661:  LDA #$80
 LB663:  STA $51
 LB665:  RTS
+
 LB666:  JSR $BD9B
 LB669:  JSR $BF3C
 LB66C:  LDA #$03
@@ -2859,6 +2888,7 @@ LB69A:  STA $0208,Y
 LB69D:  DEY
 LB69E:  BPL $B697
 LB6A0:  RTS
+
 LB6A1:  JSR $B666
 LB6A4:  JSR PushPRGBank08
 LB6A7:  JSR $800E
@@ -2905,6 +2935,7 @@ LB703:  BNE $B6FD
 LB705:  LDA #$00
 LB707:  JSR $BC5F
 LB70A:  RTS
+
 LB70B:  JSR $BF36
 LB70E:  LDA #$00
 LB710:  LDX #$05
@@ -3226,7 +3257,7 @@ LB9EB:  INX
 LB9EC:  BEQ $B9FF
 LB9EE:  LDA #$3E
 LB9F0:  JSR $C113
-LB9F3:  LDA FooBar ;($0A)
+LB9F3:  LDA MacLosses          ;($0A)
 LB9F5:  BEQ $BA20
 LB9F7:  LDA #$3F
 LB9F9:  JSR $C113
@@ -3393,7 +3424,7 @@ LBB55:  BNE $BB5F
 LBB57:  LDA #$0C
 LBB59:  JSR $C113
 LBB5C:  JMP $BB68
-LBB5F:  LDA FooBar ;($0A)
+LBB5F:  LDA MacLosses          ;($0A)
 LBB61:  BEQ $BB68
 LBB63:  LDA #$0D
 LBB65:  JSR $C113
@@ -3438,6 +3469,7 @@ LBBB8:  JSR $BEC9
 LBBBB:  LDA #PAL_UPDATE
 LBBBD:  STA UpdatePalFlag
 LBBC0:  JMP PushPRGBank0C
+
 LBBC3:  LDA $03D0
 LBBC6:  BEQ $BBD2
 LBBC8:  LDA #$04
@@ -3453,20 +3485,21 @@ LBBDB:  LDX $03D0
 LBBDE:  BEQ $BBE2
 LBBE0:  LDA #$04
 LBBE2:  STA $E0
-LBBE4:  LDA $18
+LBBE4:  LDA RNGValue            ;($18)
 LBBE6:  AND #$03
 LBBE8:  ORA $E0
 LBBEA:  TAY
-LBBEB:  LDA $05F8,Y
+LBBEB:  LDA TrainerMessages,Y   ;($05F8)
 LBBEE:  STA $04BE
-LBBF1:  JSR $AEF1
-LBBF4:  LDA $18
+LBBF1:  JSR RotateRNG           ;($AEF1)
+LBBF4:  LDA RNGValue            ;($18)
 LBBF6:  AND #$07
 LBBF8:  TAY
-LBBF9:  LDA $05F0,Y
+LBBF9:  LDA OppMessages,Y       ;($05F0)
 LBBFC:  STA $04BF
-LBBFF:  JSR $AEF1
+LBBFF:  JSR RotateRNG           ;($AEF1)
 LBC02:  RTS
+
 LBC03:  AND #$7F
 LBC05:  STA $04B0
 LBC08:  LDX #$0E
@@ -3542,7 +3575,7 @@ LBC8E:  JSR $AF2E
 LBC91:  JSR $C0F2
 LBC94:  LDA #$25
 LBC96:  STA PPUIOReg
-LBC99:  LDA $0306
+LBC99:  LDA HydrogenValue1      ;($0306)
 LBC9C:  AND #$F0
 LBC9E:  LSR
 LBC9F:  LSR
@@ -3616,6 +3649,7 @@ LBD38:  LDA #$02
 LBD3A:  STA OppBaseAnimIndex
 LBD3C:  JSR $C85C
 LBD3F:  JMP PushPRGBank0C
+
 LBD42:  JSR $BF3C
 LBD45:  LDX #$00
 LBD47:  LDA #$00
@@ -3828,6 +3862,7 @@ LBEE7:  INX
 LBEE8:  DEC $E2
 LBEEA:  BNE $BEE1
 LBEEC:  RTS
+
 LBEED:  LDA ($E0),Y
 LBEEF:  CMP #$FF
 LBEF1:  BEQ $BEFE
@@ -3838,6 +3873,7 @@ LBEF7:  INY
 LBEF8:  JSR $BEFF
 LBEFB:  JMP $BEED
 LBEFE:  RTS
+
 LBEFF:  STA $E2
 LBF01:  LDA ($E0),Y
 LBF03:  STA $0200,X
@@ -3846,6 +3882,7 @@ LBF07:  INX
 LBF08:  DEC $E2
 LBF0A:  BNE $BF01
 LBF0C:  RTS
+
 LBF0D:  STA OppBaseAnimIndex
 LBF0F:  STX $06B1
 LBF12:  LDA OppBaseAnimIndex
@@ -3855,6 +3892,7 @@ LBF19:  INC OppBaseAnimIndex
 LBF1B:  DEC $06B1
 LBF1E:  BNE $BF12
 LBF20:  RTS
+
 LBF21:  STA $06B0
 LBF24:  STX $06B1
 LBF27:  LDA $06B0
@@ -3863,6 +3901,7 @@ LBF2D:  INC $06B0
 LBF30:  DEC $06B1
 LBF33:  BNE $BF27
 LBF35:  RTS
+
 LBF36:  JSR $AA06
 LBF39:  JMP $BF3F
 LBF3C:  JSR $AA0A
@@ -3875,6 +3914,7 @@ LBF4C:  LDA #$00
 LBF4E:  STA OppBaseXSprite
 LBF50:  STA OppBaseYSprite
 LBF52:  JMP PushPRGBank0C
+
 LBF55:  STA $E000
 LBF58:  LDA #$00
 LBF5A:  STA $D000
@@ -3882,6 +3922,7 @@ LBF5D:  STX $B000
 LBF60:  STX $C000
 LBF63:  STX $A9
 LBF65:  RTS
+
 LBF66:  STX $E0
 LBF68:  LDX #$05
 LBF6A:  STA $0413,Y
@@ -3896,6 +3937,7 @@ LBF78:  TXA
 LBF79:  DEC $E0
 LBF7B:  BNE $BF68
 LBF7D:  RTS
+
 LBF7E:  LDA #$40
 LBF80:  STA $04C8
 LBF83:  JSR $AF02
@@ -3923,6 +3965,7 @@ LBFA3:  INX
 LBFA4:  LDA $8000,X
 LBFA7:  STA $E1
 LBFA9:  RTS
+
 LBFAA:  LDY #$28
 LBFAC:  BNE $BFB4
 LBFAE:  LDY #$20
@@ -3939,6 +3982,7 @@ LBFC5:  BNE $BFC1
 LBFC7:  DEY
 LBFC8:  BNE $BFC1
 LBFCA:  RTS
+
 LBFCB:  LDY #$B0
 LBFCD:  LDA #$12
 LBFCF:  BNE $BFF6
@@ -3957,6 +4001,7 @@ LBFE9:  STA $0411
 LBFEC:  LDA #$4B
 LBFEE:  STA $0412
 LBFF1:  RTS
+
 LBFF2:  LDY #$53
 LBFF4:  LDA #$1B
 LBFF6:  STA $E2
@@ -3973,6 +4018,7 @@ LC00B:  BNE $C002
 LC00D:  LDA #$81
 LC00F:  STA $0410
 LC012:  RTS
+
 LC013:  LDA #$00
 LC015:  STA $06DE
 LC018:  JSR $A06F
@@ -3995,6 +4041,7 @@ LC03A:  BPL $C02D
 LC03C:  LDA #$81
 LC03E:  STA $17
 LC040:  RTS
+
 LC041:  LDA PPUStatus
 LC044:  LDX #$00
 LC046:  LDA $0394
@@ -4016,6 +4063,7 @@ LC06F:  LDA $039D
 LC072:  STA PPUIOReg
 LC075:  STX $039B
 LC078:  RTS
+
 LC079:  LDA PPUStatus
 LC07C:  LDA $0325
 LC07F:  BPL $C09C
@@ -4030,6 +4078,7 @@ LC094:  STA PPUIOReg
 LC097:  LDA #$00
 LC099:  STA $0325
 LC09C:  RTS
+
 LC09D:  LDA PPUStatus
 LC0A0:  LDA $0349
 LC0A3:  BPL $C0BA
@@ -4042,6 +4091,7 @@ LC0B2:  STA PPUIOReg
 LC0B5:  LDA #$00
 LC0B7:  STA $0349
 LC0BA:  RTS
+
 LC0BB:  LDA PPUStatus
 LC0BE:  LDA $03F0
 LC0C1:  BPL $C0DF
@@ -4058,6 +4108,7 @@ LC0D8:  BNE $C0CF
 LC0DA:  LDA #$00
 LC0DC:  STA $03F0
 LC0DF:  RTS
+
 LC0E0:  LDA PPUStatus
 LC0E3:  LDA $030A
 LC0E6:  BPL $C104
@@ -4074,6 +4125,7 @@ LC0FD:  BNE $C0F4
 LC0FF:  LDA #$00
 LC101:  STA $030A
 LC104:  RTS
+
 LC105:  ASL
 LC106:  TAY
 LC107:  LDX $06E0
@@ -4081,10 +4133,10 @@ LC10A:  STX $E0
 LC10C:  LDX $06E1
 LC10F:  STX $E1
 LC111:  BNE $C11F
-
 LC113:  LDX #$02
 LC115:  BNE $C11A
 LC117:  RTS
+
 LC118:  LDX #$00
 LC11A:  ASL
 LC11B:  TAY
@@ -4275,6 +4327,7 @@ LC274:  INX
 LC275:  LDA $0413,X
 LC278:  BNE $C251
 LC27A:  RTS
+
 LC27B:  LDX $AC
 LC27D:  BMI $C28E
 LC27F:  LDA #$00
@@ -4361,6 +4414,7 @@ LC330:  BNE $C336
 LC332:  TXA
 LC333:  BPL $C342
 LC335:  RTS
+
 LC336:  CMP #$07
 LC338:  BNE $C342
 LC33A:  TXA
@@ -4368,6 +4422,7 @@ LC33B:  BPL $C341
 LC33D:  LDA #$83
 LC33F:  STA OppCurState
 LC341:  RTS
+
 LC342:  TXA
 LC343:  BPL $C349
 LC345:  LDA #$89
@@ -4430,6 +4485,7 @@ LC3C1:  JSR $C3CA
 LC3C4:  ORA #$80
 LC3C6:  STA $04FF
 LC3C9:  RTS
+
 LC3CA:  LDA $04FF
 LC3CD:  AND #$7F
 LC3CF:  STA $E7
@@ -4565,7 +4621,7 @@ LC488:  INC OppStateTimer
 LC48A:  STA $5A
 LC48C:  STA $AF
 LC48E:  JSR LoadFightBank
-LC491:  LDY FooBar ;($03)
+LC491:  LDY FightOffset          ;($03)
 LC493:  LDA OppCurState
 LC495:  CMP #$40
 LC497:  BCS $C4A6
@@ -4992,7 +5048,7 @@ LC6FF:  ORA $E7
 LC701:  STA $0301
 LC704:  INC OppStateIndex
 LC706:  LDA #$64
-LC708:  STA $0306
+LC708:  STA HydrogenValue1      ;($0306)
 LC70B:  RTS
 
 ;----------------------------------------------------------------------------------------------------
@@ -5338,7 +5394,7 @@ LC892:  BEQ $C88F
 LC894:  TAX
 LC895:  LDA #$50
 LC897:  STA $E7
-LC899:  LDY FooBar ;($03)
+LC899:  LDY FightOffset          ;($03)
 LC89B:  LDA $8000,Y
 LC89E:  STA $E0
 LC8A0:  LDA $8001,Y
@@ -5787,6 +5843,7 @@ LCBED:  TXA
 LCBEE:  ADC #$04
 LCBF0:  TAX
 LCBF1:  RTS
+
 LCBF2:  STY $E1
 LCBF4:  LDY $0208,X
 LCBF7:  LDA $E2
@@ -6183,6 +6240,7 @@ LCED2:  BNE $CEC0
 LCED4:  BEQ $CE72
 LCED6:  JMP $CF38
 LCED9:  RTS
+
 LCEDA:  LDA $020C,X
 LCEDD:  CMP $E7
 LCEDF:  BCS $CEF0
@@ -6391,6 +6449,7 @@ LD056:  INX
 LD057:  INX
 LD058:  BNE $D045
 LD05A:  RTS
+
 LD05B:  LDA $020E,X
 LD05E:  TAY
 LD05F:  AND #$20
@@ -6404,6 +6463,7 @@ LD06B:  INX
 LD06C:  INX
 LD06D:  BNE $D05B
 LD06F:  RTS
+
 LD070:  CLC
 LD071:  LDA ($A6),Y
 LD073:  INY
@@ -6462,6 +6522,7 @@ LD0CD:  TXA
 LD0CE:  ADC #$04
 LD0D0:  TAX
 LD0D1:  RTS
+
 LD0D2:  CLC
 LD0D3:  LDA ($A6),Y
 LD0D5:  INY
@@ -6520,6 +6581,7 @@ LD12F:  TXA
 LD130:  ADC #$04
 LD132:  TAX
 LD133:  RTS
+
 LD134:  STA $020E,X
 LD137:  INX
 LD138:  INX
@@ -6562,6 +6624,7 @@ LD16A:  INX
 LD16B:  INX
 LD16C:  RTS
 LD16D:  RTS
+
 LD16E:  LDY $A5
 LD170:  LDA ($A3),Y
 LD172:  TAX
@@ -6847,6 +6910,7 @@ LD34A:  INX
 LD34B:  INX
 LD34C:  ADC $81
 LD34E:  RTS
+
 LD34F:  CLC
 LD350:  LDA ($A6),Y
 LD352:  INY
@@ -6897,6 +6961,7 @@ LD39C:  TXA
 LD39D:  ADC #$04
 LD39F:  TAX
 LD3A0:  RTS
+
 LD3A1:  STA $020D,X
 LD3A4:  INX
 LD3A5:  INX
@@ -6939,6 +7004,7 @@ LD3D7:  INX
 LD3D8:  INX
 LD3D9:  RTS
 LD3DA:  RTS
+
 LD3DB:  LDY #$00
 LD3DD:  LDA ($A3),Y
 LD3DF:  INY

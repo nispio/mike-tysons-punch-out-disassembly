@@ -1092,6 +1092,7 @@ L9306:  .byte $1C, $26, $30, $8F, $1C, $26, $2B, $8F, $1C, $2B, $30, $8F, $1C, $
 
 L9316:  .byte $E0, $E0, $E0, $00, $20, $00
 
+;** $05A6 **
 L931C:  .byte $20               ;Starting number of hearts, round 1(base 10).
 L931D:  .byte $15               ;Normal heart recovery, round 1(base 10).
 L931E:  .byte $09               ;Reduced heart recovery, round 1(base 10).
@@ -1104,34 +1105,56 @@ L9324:  .byte $05               ;Reduced heart recovery, round 3(base 10).
 L9325:  .byte $04               ;Base damage if opponent lands a hit on Little Mac.
 L9326:  .byte $14               ;Number of hits that must be landed before stars will be given.
 
+;** $05B1 **
 L9327:  .byte $08, $08, $08, $08, $00, $00, $00
 
+;** $05B8 **
 L932E:  .byte $40               ;Opponent reaction time to move guard up and down.
 
+;** $05B9 **
 L932F:  .byte $20, $9C, $8C, $80, $00, $06, $08
 
-L9336:  .word $0000, $9376      ;Combo data.
+;** $05C0 **
+L9336:  .word $0000             ;Pointer to combo 1 data
 
+;** $05C2 **
+L9338:  .word $9376             ;Pointer to combo 2 data
+
+;** $05C4 **
 L933A:  .byte $00, $03, $00, $00, $00, $00, $05, $00, $00, $00, $DF, $7A
 
+;** $05D0 **
 L9346:  .word $937E             ;Little Mac knock down data.
 
+;** $05D2 **
 L9348:  .byte $00, $08, $00
 
+;** $05D5 **
 L934B:  .word $93C6             ;Opponent knock down data.
 
-L934D:  .byte $1F, $00, $00, $04, $F9, $05, $6D, $05, $F8
+;** $05D7 **
+L934D:  .byte $1F, $00, $00,
 
+;** $05DA **
+L9350:  .byte $04, $F9          ;Round 1
+L9352:  .byte $05, $6D          ;Round 2
+L9354:  .byte $05, $F8          ;Round 3
+
+;** $05E0 **
 ;Random opponent stand up times after knock down. #$9B=2 through #$A1=8.
 L9356:  .byte $9B, $9C, $9D, $9E, $9F, $A1, $9C, $9D
 
+;** $05E8 **
 L935E:  .word $940E, $9452
 
-L9363:  .byte $26               ;Opponent outline color when Little Mac should dodge.
-L9364:  .byte $08               ;Normal opponent outline color.
+;** $05EC **
+L9362:  .byte $26               ;Opponent outline color when Little Mac should dodge.
+L9363:  .byte $08               ;Normal opponent outline color.
 
-L9365:  .word $93F6
+;** $05EE **
+L9364:  .word $93F6             ;Pointer to round-specific random refill tables?
 
+;** $05F0 **
 ;Opponent messages.
 L9366:  .byte $A1               ;"This is my last match! I'm too old for fighting!"
 L9367:  .byte $A2               ;"Make it quick! I want to retire..."
@@ -1142,6 +1165,7 @@ L936B:  .byte $A3               ;"Watch the jaw!! Don't hit my jaw!"
 L936C:  .byte $A2               ;"Make it quick! I want to retire..."
 L936D:  .byte $A1               ;"This is my last match! I'm too old for fighting!"
 
+;** $05F8 **
 ;Trainer and Little Mac messages.
 L936E:  .byte $8A               ;"Listen Mac!! Dodge his punch then counter-punch!"
 L936F:  .byte $82               ;"Put him away!"
@@ -1169,15 +1193,19 @@ L93BC:  .byte $7F, $00, $00, $00, $00, $00, $00, $00, $00, $00
 L93C6:  .byte $E0, $1C, $0A, $0A, $0A, $0A
 L93CC:  .byte $0A, $0A, $60, $1C, $06, $06, $06, $06, $06, $06, $00, $1C, $05, $05, $05, $05
 L93DC:  .byte $05, $05, $00, $1C, $01, $01, $01, $01, $01, $01, $00, $1C, $01, $00, $01, $00
-L93EC:  .byte $01, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00
-L93FC:  .byte $00, $00
+L93EC:  .byte $01, $00, $00, $00, $00, $00, $00, $00, $00, $00,
 
-L93FE:  .byte $20, $20, $20, $08, $20, $40, $10, $10, $10, $10, $20, $20, $40, $40
-L940C:  .byte $40, $08, $C0, $FF, $00, $0D, $00, $FF, $20, $0D, $00, $FF, $20, $04, $02, $FF
+L93F6:  .byte $00, $00, $00, $00, $00, $00, $00, $00 ;Round 1
+L93FE:  .byte $20, $20, $20, $08, $20, $40, $10, $10 ;Round 2   Between-round random refills?
+L9406:  .byte $10, $10, $20, $20, $40, $40, $40, $08 ;Round 3
+
+L940E:  .byte $C0, $FF, $00, $0D, $00, $FF, $20, $0D, $00, $FF, $20, $04, $02, $FF
 L941C:  .byte $60, $0D, $00, $FF, $60, $02, $08, $D0, $98, $D3, $FF, $00, $02, $04, $E2, $BA
 L942C:  .byte $05, $8C, $8C, $0C, $E0, $C0, $FF, $00, $02, $06, $FE, $06, $82, $FE, $26, $82
 L943C:  .byte $FE, $66, $82, $D0, $A2, $D3, $0C, $E0, $C0, $FE, $06, $84, $FE, $26, $84, $FE
-L944C:  .byte $66, $84, $D0, $A2, $D3, $0B, $5C, $94, $69, $94, $6D, $94, $6F, $94, $71, $94
+L944C:  .byte $66, $84, $D0, $A2, $D3, $0B,
+
+L9452:  .byte $5C, $94, $69, $94, $6D, $94, $6F, $94, $71, $94
 L945C:  .byte $73, $94, $9A, $94, $00, $18, $81, $50, $80, $FF, $80, $00, $00, $9A, $94, $96
 L946C:  .byte $94, $78, $94, $9B, $94, $B9, $94, $F1, $80, $FF, $1F, $01, $F1, $80, $40, $1A
 L947C:  .byte $0F, $04, $95, $8F, $04, $96, $87, $04, $95, $1F, $17, $04, $95, $8F, $04, $95
@@ -1202,7 +1230,48 @@ L94F3:  .word $95AA
 
 L94F5:  .byte $00, $5F, $00, $3A, $96, $1F, $00, $00, $04, $F9, $05, $6D, $05, $F8
 L9503:  .byte $9B, $9C, $9E, $9E, $9F, $A1, $9C, $9C, $CA, $96, $45, $97, $16, $8F, $9A, $96
-L9513:  .byte $C5, $C6, $C7, $C8, $C8, $C7, $C6, $C5, $85, $86, $82, $83, $82, $83, $85, $86
+
+;Opponent messages.
+L9513:  .byte $C5
+L9513:  .byte $C6
+L9513:  .byte $C7
+L9513:  .byte $C8
+L9513:  .byte $C8
+L9513:  .byte $C7
+L9513:  .byte $C6
+L9513:  .byte $C5
+
+
+;Trainer and Little Mac messages.
+L9513:  .byte $85               ;"One two, one two punch Mac!"
+L9513:  .byte $86
+L9513:  .byte $82               ;"Put him away!"
+L9513:  .byte $83               ;"Stick and move, stick and move!"
+L9513:  .byte $82               ;"Put him away!"
+L9513:  .byte $83               ;"Stick and move, stick and move!"
+L9513:  .byte $85               ;"One two, one two punch Mac!"
+L9513:  .byte $86
+
+;Opponent messages.
+L9366:  .byte $A1               ;"This is my last match! I'm too old for fighting!"
+L9367:  .byte $A2               ;"Make it quick! I want to retire..."
+L9368:  .byte $A3               ;"Watch the jaw!! Don't hit my jaw!"
+L9369:  .byte $A4               ;"Do I have time to take a nap before the fight?"
+L936A:  .byte $A4               ;"Do I have time to take a nap before the fight?"
+L936B:  .byte $A3               ;"Watch the jaw!! Don't hit my jaw!"
+L936C:  .byte $A2               ;"Make it quick! I want to retire..."
+L936D:  .byte $A1               ;"This is my last match! I'm too old for fighting!"
+
+;Trainer and Little Mac messages.
+L936E:  .byte $8A               ;"Listen Mac!! Dodge his punch then counter-punch!"
+L936F:  .byte $82               ;"Put him away!"
+L9370:  .byte $83               ;"Stick and move, stick and move!"
+L9371:  .byte $84               ;"Watch his left!"
+L9372:  .byte $85               ;"One two, one two punch Mac!"
+L9373:  .byte $8C               ;"Listen Mac!! Catch him off-guard to stun him! Then unload on him!"
+L9374:  .byte $8B               ;"Listen Mac!! Give him a fast upper-cut when he's stunned!"
+L9375:  .byte $8A               ;"Listen Mac!! Dodge his punch then counter-punch!"
+
 
 ;----------------------------------------------------------------------------------------------------
 
