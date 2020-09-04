@@ -50,7 +50,7 @@ LA028:  JSR $A9D1
 _ExitNMI:
 LA02B:  JMP ExitNMI             ;($A6DF)Exit NMI interrupt routine.
 
-LA02E:  JSR LoadPRGBank08
+LA02E:  JSR PushPRGBank08
 LA031:  JSR $8000
 
 LA034:  JSR PopPRGBank
@@ -170,7 +170,7 @@ LA1DA:  STA PPUControl0         ;
 LA1DD:  LDA #%00000110          ;Turn off screen, enable bg and sprites on left 8 pixel columns.
 LA1DF:  STA PPUControl1         ;
 
-LA1E2:  JSR PushPRGBank07
+LA1E2:  JSR ZapPRGBank07
 
 LA1E5:  LDA #$00
 LA1E7:  STA $013E
@@ -267,7 +267,7 @@ LA289:  STA GameStatus
 LA28B:  JSR $AF02
 LA28E:  LDA $013F
 LA291:  BNE $A2AC
-LA293:  JSR PushPRGBank06
+LA293:  JSR ZapPRGBank06
 LA296:  LDA #$02
 LA298:  STA GameStatus
 LA29A:  JSR $9000               ;06:$9000
@@ -329,24 +329,24 @@ LA30C:  LDA #$00
 LA30E:  STA $04
 LA310:  JSR $BF7E
 LA313:  JMP $A4CC
-LA316:  JSR PushPRGBank0C
+LA316:  JSR ZapPRGBank0C
 LA319:  LDA #$05
 LA31B:  JSR $BC5F
 LA31E:  LDY #$97
 LA320:  LDA #$0D
 LA322:  JSR $BFF6
-LA325:  JSR PushPRGBank07
+LA325:  JSR ZapPRGBank07
 LA328:  JSR $801B
 LA32B:  LDX #$00
 LA32D:  STX $04C0
 LA330:  BEQ $A2FA
-LA332:  JSR PushPRGBank0C
+LA332:  JSR ZapPRGBank0C
 LA335:  LDA #$06
 LA337:  JSR $BC5F
 LA33A:  LDY #$6E
 LA33C:  LDA #$0D
 LA33E:  JSR $BFF6
-LA341:  JSR PushPRGBank07
+LA341:  JSR ZapPRGBank07
 LA344:  JSR $8024
 LA347:  JSR $8021
 LA34A:  LDX #$00
@@ -385,7 +385,7 @@ LA393:  LDA #$09
 LA395:  LDY #$0B
 LA397:  STA $0120,X
 LA39A:  STY $F0
-LA39C:  JSR PushPRGBank07
+LA39C:  JSR ZapPRGBank07
 LA39F:  JSR $8027
 LA3A2:  JMP $A2FA
 LA3A5:  INC $04C2
@@ -421,7 +421,7 @@ LA3E7:  LDA $04C0
 LA3EA:  BEQ $A3DC
 LA3EC:  LDA $04C2
 LA3EF:  BNE $A400
-LA3F1:  JSR PushPRGBank07
+LA3F1:  JSR ZapPRGBank07
 
 LA3F4:  JSR DoCircuitPassword   ;($8042)Check if user entered another world circuit password.
 LA3F7:  BEQ $A46A
@@ -463,7 +463,7 @@ LA43F:  BEQ $A457
 
 LA441:  BNE $A427
 
-LA443:  JSR PushPRGBank07
+LA443:  JSR ZapPRGBank07
 LA446:  JSR $8033
 LA449:  BNE $A42D
 LA44B:  JSR $8036
@@ -495,7 +495,7 @@ LA47C:  LDA #SND_OFF            ;Stop any playing music.
 LA47E:  STA MusicInit           ;
 
 LA480:  JSR $AEA5
-LA483:  JSR PushPRGBank0C
+LA483:  JSR ZapPRGBank0C
 LA486:  LDA #$81
 LA488:  STA $04B0
 LA48B:  JSR $AF02
@@ -706,7 +706,7 @@ LA644:  INC FrameCounter
 LA646:  LDA TransTimer
 LA648:  BEQ $A64C
 LA64A:  DEC TransTimer
-LA64C:  JSR LoadPRGBank07
+LA64C:  JSR PushPRGBank07
 LA64F:  JSR $8012               ;07:$8012
 LA652:  LDA $04
 LA654:  BMI $A659
@@ -742,23 +742,23 @@ LA685:  BEQ $A68D
 LA687:  JSR $A75B
 LA68A:  JSR $A750
 
-LA68D:  JSR LoadPRGBank08
+LA68D:  JSR PushPRGBank08
 LA690:  JSR $8000               ;08:$8000
 LA693:  JSR $A09A
-LA696:  JSR LoadFightBank
+LA696:  JSR PushFightBank
 LA699:  JSR $B069
 LA69C:  JSR $B10A
 LA69F:  JSR $C291
 LA6A2:  JSR $B196
 LA6A5:  JSR $C3D9
 LA6A8:  JSR $C4E7
-LA6AB:  JSR LoadFightBank
+LA6AB:  JSR PushFightBank
 LA6AE:  JSR $C890
 LA6B1:  JSR $AA87               ;Calls graphics routines from bank 0B
-LA6B4:  JSR LoadPRGBank07
+LA6B4:  JSR PushPRGBank07
 LA6B7:  JSR $800F               ;(07:$800F)
 LA6BA:  JSR $8015               ;(07:$8015)
-LA6BD:  JSR LoadFightBank
+LA6BD:  JSR PushFightBank
 LA6C0:  JSR $B457
 LA6C3:  JSR SetOppOutlineClr    ;($C440)Set opponent outline color.
 LA6C6:  JSR $B530
@@ -823,10 +823,10 @@ LA71C:  LDA #$00
 LA71E:  STA UpdatePalFlag
 
 LA721:  JSR $A9DF
-LA724:  JSR LoadPRGBank07
+LA724:  JSR PushPRGBank07
 LA727:  JSR $8012
 
-LA72A:  JSR LoadPRGBank08
+LA72A:  JSR PushPRGBank08
 LA72D:  JSR $8000
 
 LA730:  JSR PopPRGBank
@@ -941,7 +941,7 @@ LA814:  LDA $05EE
 LA817:  STA $E8
 LA819:  LDA $05EF
 LA81C:  STA $E9
-LA81E:  JSR LoadFightBank
+LA81E:  JSR PushFightBank
 LA821:  LDA ($E8),Y
 LA823:  STA $03D9
 LA826:  JMP PopPRGBank
@@ -1193,60 +1193,60 @@ LAA37:  RTS
 
 ;----------------------------------------------------------------------------------------------------
 
-LoadPRGBank06:
+PushPRGBank06:
 LAA38:  LDA #$06
-LAA3A:  BNE LoadPRGBank
+LAA3A:  BNE PushPRGBank
 
-LoadPRGBank07:
+PushPRGBank07:
 LAA3C:  LDA #$07
-LAA3E:  BNE LoadPRGBank
+LAA3E:  BNE PushPRGBank
 
-LoadPRGBank08:
+PushPRGBank08:
 LAA40:  LDA #$08
-LAA42:  BNE LoadPRGBank
+LAA42:  BNE PushPRGBank
 
-LoadPRGBank0B:
+PushPRGBank0B:
 LAA44:  LDA #$0B
-LAA46:  BNE LoadPRGBank
+LAA46:  BNE PushPRGBank
 
-LoadFightBank:
+PushFightBank:
 LAA48:  LDA FightBank          ;($02)
 
-LoadPRGBank:
+PushPRGBank:
 LAA4A:  STA BankSelect
 LAA4D:  STA BankVar0D          ;($0D)
 LAA4F:  RTS
 
-PushPRGBank06:
+LoadPRGBank06:
 LAA50:  LDA #$06
-LAA52:  BNE PushPRGBank
+LAA52:  BNE LoadPRGBank
 
-PushPRGBank07:
+LoadPRGBank07:
 LAA54:  LDA #$07
-LAA56:  BNE PushPRGBank
+LAA56:  BNE LoadPRGBank
 
-PushPRGBank08:                  ;Unused?
+LoadPRGBank08:                  ;Unused?
 LAA58:  LDA #$08
-LAA5A:  BNE PushPRGBank
+LAA5A:  BNE LoadPRGBank
 
-PushPRGBank09:
+LoadPRGBank09:
 LAA5C:  LDA #$09
-LAA5E:  BNE PushPRGBank
+LAA5E:  BNE LoadPRGBank
 
-PushPRGBank0A:
+LoadPRGBank0A:
 LAA60:  LDA #$0A
-LAA62:  BNE PushPRGBank
+LAA62:  BNE LoadPRGBank
 
-PushPRGBank0C:
+LoadPRGBank0C:
 LAA64:  LDA #$0C
 
-PushPRGBank:
+LoadPRGBank:
 LAA66:  STA BankVar0E          ;($0E)
-LAA68:  BNE LoadPRGBank
+LAA68:  BNE PushPRGBank
 
 PopPRGBank:
 LAA6A:  LDA BankVar0E          ;($0E)
-LAA6C:  BNE LoadPRGBank
+LAA6C:  BNE PushPRGBank
 
 ;----------------------------------------------------------------------------------------------------
 
@@ -1268,19 +1268,19 @@ LAA81:  .byte $08, $01, $FF, $10, $02, $FE
 
 ;----------------------------------------------------------------------------------------------------
 
-LAA87:  JSR LoadPRGBank0B       ;Load PRG bank 0B in order to call its subroutines
+LAA87:  JSR PushPRGBank0B       ;Load PRG bank 0B in order to call its subroutines
 LAA8A:  JSR $8003               ;(0B:$8003)
 LAA8D:  JSR $8006               ;(0B:$8006)
 LAA90:  JSR $8009               ;(0B:$8009)
-LAA93:  JMP LoadFightBank       ;Load the PRG bank for this fight and then RTS
+LAA93:  JMP PushFightBank       ;Load the PRG bank for this fight and then RTS
 
-LAA96:  JSR LoadPRGBank0B       ;Load PRG bank 0B in order to call its subroutines
+LAA96:  JSR PushPRGBank0B       ;Load PRG bank 0B in order to call its subroutines
 LAA99:  JSR $8009               ;(0B:$8009)
-LAA9C:  JMP LoadFightBank       ;Load the PRG bank for this fight and then RTS
+LAA9C:  JMP PushFightBank       ;Load the PRG bank for this fight and then RTS
 
-LAA9F:  JSR LoadPRGBank0B       ;Load PRG bank 0B in order to call its subroutines
+LAA9F:  JSR PushPRGBank0B       ;Load PRG bank 0B in order to call its subroutines
 LAAA2:  JSR $8000               ;((0B:$8000)
-LAAA5:  JMP LoadFightBank       ;Load the PRG bank for this fight and then RTS
+LAAA5:  JMP PushFightBank       ;Load the PRG bank for this fight and then RTS
 
 ;----------------------------------------------------------------------------------------------------
 
@@ -1326,7 +1326,7 @@ LAAEF:  ASL
 LAAF0:  TAY
 LAAF1:  LDA $A0D1,Y
 LAAF4:  STA FightBank          ;($02)
-LAAF6:  JSR LoadFightBank
+LAAF6:  JSR PushFightBank
 LAAF9:  LDA $A0D2,Y
 LAAFC:  STA FightOffset          ;($03)
 LAAFE:  LDY #$20
@@ -1428,7 +1428,7 @@ LABD5:  DEX
 LABD6:  STX $37
 LABD8:  LDX #$01
 LABDA:  STX PointsStatus
-LABDD:  JSR PushPRGBank07
+LABDD:  JSR LoadPRGBank07
 LABE0:  JSR $8006
 LABE3:  LDA #$00
 LABE5:  STA MacCurrentHP
@@ -1455,7 +1455,7 @@ LAC1A:  LDA #$03
 LAC1C:  CLC
 LAC1D:  ADC #$BF
 LAC1F:  STA PPUIOReg
-LAC22:  JSR LoadFightBank
+LAC22:  JSR PushFightBank
 LAC25:  JSR $AF5B
 LAC28:  LDA #PAL_UPDATE
 LAC2A:  STA UpdatePalFlag
@@ -1491,7 +1491,7 @@ LAC64:  STA GameStatus
 LAC66:  JSR $AE91
 LAC69:  JSR $BF7E
 LAC6C:  JMP $A2AC
-LAC6F:  JSR PushPRGBank07
+LAC6F:  JSR LoadPRGBank07
 LAC72:  JSR $803C
 LAC75:  JSR $802A
 LAC78:  JSR $802D
@@ -1604,7 +1604,7 @@ LAD5E:  STA $0410
 LAD61:  JSR $C013
 LAD64:  LDX #$F3
 LAD66:  JSR $ADB6
-LAD69:  JSR PushPRGBank07
+LAD69:  JSR LoadPRGBank07
 LAD6C:  JSR $803C
 LAD6F:  JSR $802A
 LAD72:  JSR $802D
@@ -2363,18 +2363,18 @@ LB273:  DEC $3D
 LB275:  BEQ $B267
 LB277:  JMP $B1D4
 
-LB27A:  JSR LoadFightBank
+LB27A:  JSR PushFightBank
 LB27D:  JSR $B2EB
-LB280:  JMP LoadPRGBank07
+LB280:  JMP PushPRGBank07
 
-LB283:  JSR LoadFightBank
+LB283:  JSR PushFightBank
 LB286:  STA BankSelect
 LB289:  JSR $B3A3
-LB28C:  JMP LoadPRGBank07
+LB28C:  JMP PushPRGBank07
 
-LB28F:  JSR LoadFightBank
+LB28F:  JSR PushFightBank
 LB292:  JSR $B3EB
-LB295:  JMP LoadPRGBank07
+LB295:  JMP PushPRGBank07
 LB298:  LDY #$04
 LB29A:  LDA $B39E,Y
 LB29D:  STA $00C0,Y
@@ -2890,7 +2890,7 @@ LB69E:  BPL $B697
 LB6A0:  RTS
 
 LB6A1:  JSR $B666
-LB6A4:  JSR PushPRGBank08
+LB6A4:  JSR LoadPRGBank08
 LB6A7:  JSR $800E
 LB6AA:  LDX #$20
 LB6AC:  LDY #$09
@@ -2903,7 +2903,7 @@ LB6BA:  JSR $BF21
 LB6BD:  LDA #$00
 LB6BF:  LDX #$02
 LB6C1:  JSR $BF0D
-LB6C4:  JMP PushPRGBank0C
+LB6C4:  JMP LoadPRGBank0C
 
 LB6C7:  .byte $00, $FE, $00, $00
 
@@ -2973,7 +2973,7 @@ LB754:  STA PPU1Load
 LB756:  RTS
 
 LB757:  JSR $B666
-LB75A:  JSR PushPRGBank08
+LB75A:  JSR LoadPRGBank08
 LB75D:  LDA #$FF
 LB75F:  JSR $BFAE
 LB762:  JSR $BFB2
@@ -2985,9 +2985,9 @@ LB76E:  JSR $C113
 LB771:  LDA #$00
 LB773:  LDX #$01
 LB775:  JSR $BF0D
-LB778:  JSR PushPRGBank07
+LB778:  JSR LoadPRGBank07
 LB77B:  JSR $805A
-LB77E:  JSR PushPRGBank0C
+LB77E:  JSR LoadPRGBank0C
 
 LB781:  LDA #SPRT_BKG_ON        ;Enable sprites and background.
 LB783:  STA SprtBkgUpdt         ;
@@ -3023,7 +3023,7 @@ LB7C6:  STY $03D4
 LB7C9:  LDA #$03
 LB7CB:  STA GameStatus
 LB7CD:  JSR $AF38
-LB7D0:  JSR PushPRGBank08
+LB7D0:  JSR LoadPRGBank08
 LB7D3:  LDA #$0B
 LB7D5:  LDX #$04
 LB7D7:  JSR $BF21
@@ -3072,7 +3072,7 @@ LB832:  JSR $B695
 LB835:  LDA #$1A
 LB837:  LDX #$01
 LB839:  JSR $BF0D
-LB83C:  JSR PushPRGBank08
+LB83C:  JSR LoadPRGBank08
 LB83F:  LDA #$0F
 LB841:  JSR $C113
 LB844:  LDX #$26
@@ -3459,7 +3459,7 @@ LBBA0:  JSR $C113
 LBBA3:  LDA #$00
 LBBA5:  LDX #$03
 LBBA7:  JMP $BF0D
-LBBAA:  JSR PushPRGBank08
+LBBAA:  JSR LoadPRGBank08
 LBBAD:  LDA #$04
 LBBAF:  JSR $C105
 LBBB2:  LDA #$0B
@@ -3468,7 +3468,7 @@ LBBB6:  LDX #$0D
 LBBB8:  JSR $BEC9
 LBBBB:  LDA #PAL_UPDATE
 LBBBD:  STA UpdatePalFlag
-LBBC0:  JMP PushPRGBank0C
+LBBC0:  JMP LoadPRGBank0C
 
 LBBC3:  LDA $03D0
 LBBC6:  BEQ $BBD2
@@ -3590,7 +3590,7 @@ LBCAF:  RTS
 
 LBCB0:  .byte $01, $01, $03, $06, $05, $09, $07, $02, $09, $03, $0A, $08, $0A, $0A
 
-LBCBE:  JSR PushPRGBank08
+LBCBE:  JSR LoadPRGBank08
 LBCC1:  LDX #$00
 LBCC3:  JSR $BF9E
 LBCC6:  LDY $05CD
@@ -3648,7 +3648,7 @@ LBD35:  JSR $C85C
 LBD38:  LDA #$02
 LBD3A:  STA OppBaseAnimIndex
 LBD3C:  JSR $C85C
-LBD3F:  JMP PushPRGBank0C
+LBD3F:  JMP LoadPRGBank0C
 
 LBD42:  JSR $BF3C
 LBD45:  LDX #$00
@@ -3743,7 +3743,7 @@ LBE02:  STA $20
 LBE04:  LDA #$01
 LBE06:  STA $17
 LBE08:  RTS
-LBE09:  JSR PushPRGBank0A
+LBE09:  JSR LoadPRGBank0A
 LBE0C:  LDA $04B0
 LBE0F:  BEQ $BE14
 LBE11:  JMP $8000
@@ -3913,7 +3913,7 @@ LBF49:  JSR $AF38
 LBF4C:  LDA #$00
 LBF4E:  STA OppBaseXSprite
 LBF50:  STA OppBaseYSprite
-LBF52:  JMP PushPRGBank0C
+LBF52:  JMP LoadPRGBank0C
 
 LBF55:  STA $E000
 LBF58:  LDA #$00
@@ -4006,7 +4006,7 @@ LBFF1:  RTS
 LBFF2:  LDY #$53
 LBFF4:  LDA #$1B
 LBFF6:  STA $E2
-LBFF8:  JSR PushPRGBank0C
+LBFF8:  JSR LoadPRGBank0C
 LBFFB:  LDX #$06
 LBFFD:  JSR $BF9E
 LC000:  LDX #$00
@@ -4621,7 +4621,7 @@ LC486:  STA $AF
 LC488:  INC OppStateTimer
 LC48A:  STA $5A
 LC48C:  STA $AF
-LC48E:  JSR LoadFightBank
+LC48E:  JSR PushFightBank
 LC491:  LDY FightOffset          ;($03)
 LC493:  LDA OppCurState
 LC495:  CMP #$40
@@ -4710,7 +4710,7 @@ LC533:  BNE $C52A
 LC535:  INC OppStateTimer
 LC537:  LDA $AF
 LC539:  BEQ $C53E
-LC53B:  JSR LoadPRGBank06
+LC53B:  JSR PushPRGBank06
 LC53E:  LDA OppAnimSeg
 LC540:  BEQ OppStateUpdate      ;($C550)Advance to the opponent's next state.
 

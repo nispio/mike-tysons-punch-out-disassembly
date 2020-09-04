@@ -695,7 +695,7 @@ L859C:  RTS
 L859D:  JSR $85C9
 L85A0:  LDA #$25
 L85A2:  STA PPUIOReg
-L85A5:  LDA HydrogenValue1      ;($0306)
+L85A5:  LDA ChronoUB      ;($0306)
 L85A8:  AND #$F0
 L85AA:  LSR
 L85AB:  LSR
@@ -895,12 +895,13 @@ L871F:  LDY #$FF
 L8721:  ADC #$01
 L8723:  BNE $870A
 
-L8725:  DEC HydrogenValue2      ;($0307)
+FlashRoundClock:
+L8725:  DEC ChronoLB            ;($0307)
 L8728:  BNE $8758
 L872A:  LDA #$08
-L872C:  STA HydrogenValue2      ;($0307)
+L872C:  STA ChronoLB            ;($0307)
 L872F:  LDY #$00
-L8731:  DEC HydrogenValue1      ;($0306)
+L8731:  DEC ChronoUB            ;($0306)
 L8734:  BEQ $8750
 L8736:  LDA ClockDispMin        ;($030B)
 L8739:  CMP #$04
@@ -908,7 +909,7 @@ L873B:  BNE $873F
 L873D:  LDY #$04
 L873F:  LDX #$00
 L8741:  LDA $87FE,Y
-L8744:  STA ClockDispMin,X    ;($030B)
+L8744:  STA ClockDispMin,X      ;($030B)
 L8747:  INY
 L8748:  INX
 L8749:  CPX #$04
@@ -916,38 +917,40 @@ L874B:  BNE $8741
 L874D:  JMP $87E4
 L8750:  STY RoundClkStart       ;($0300)
 L8753:  BEQ $873D
-L8755:  JMP $87EA
+L8755:  JMP ResetRoundClock
 L8758:  RTS
 
+UpdateClock:
 L8759:  LDA RoundClkStart       ;($0300)
-L875C:  BEQ $8758
-L875E:  BMI $8755
+L875C:  BEQ $8758               ;If the clock is not started, then return
+L875E:  BMI $8755               ;If MSB set, then reset the clock and return
 L8760:  LDA RoundClkPause       ;($0301)
-L8763:  BEQ $8780
-L8765:  BMI $8725
+L8763:  BEQ ChronoTick          ;If the clock is not paused, then tick
+L8765:  BMI FlashRoundClock     ;If MSB is set, then flash 3:00
 L8767:  CMP #$01
-L8769:  BEQ $8758
-L876B:  LDA $030A
-L876E:  BNE $8758
+L8769:  BEQ $8758               ;If the clock is paused, then return
+L876B:  LDA ClockDispStatus
+L876E:  BNE $8758               ;If the clock display requires an update, then return
 L8770:  LDA #$81
-L8772:  STA RoundClkPause       ;($0301)
-L8775:  LDA #$10
-L8777:  STA HydrogenValue1      ;($0306)
-L877A:  LDA #$08
-L877C:  STA HydrogenValue2      ;($0307)
+L8772:  STA RoundClkPause       ;Initiate clock flash sequence
+L8775:  LDA #$10                ; Flash sequence has 16 steps
+L8777:  STA ChronoUB            ; 8 times "3:00" and 8 times "----", alternating
+L877A:  LDA #$08                ; One flash step every 8 frames
+L877C:  STA ChronoLB            ; Use Chrono to track where we are in the sequence
 L877F:  RTS
 
-L8780:  LDA HydrogenValue2      ;($0307)
+ChronoTick:
+L8780:  LDA ChronoLB            ;($0307)
 L8783:  CLC
 L8784:  ADC HeliumValue2
-L8787:  STA HydrogenValue2      ;($0307)
-L878A:  LDA HydrogenValue1      ;($0306)
+L8787:  STA ChronoLB            ;($0307)
+L878A:  LDA ChronoUB            ;($0306)
 L878D:  ADC HeliumValue1
-L8790:  STA HydrogenValue1      ;($0306)
+L8790:  STA ChronoUB            ;($0306)
 L8793:  CMP #$64
 L8795:  BCC $87E9
 L8797:  SBC #$64
-L8799:  STA HydrogenValue1      ;($0306)
+L8799:  STA ChronoUB            ;($0306)
 L879C:  DEC $0311
 L879F:  INC RoundLowerSec       ;($0305)
 L87A2:  LDA RoundLowerSec       ;($0305)

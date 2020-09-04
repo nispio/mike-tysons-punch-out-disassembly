@@ -9,6 +9,8 @@
 
 ;-----------------------------------------[Variable Defines]-----------------------------------------
 
+.alias BankSelect		$AFFF   ;Fight Status Flag, TBD
+
 .alias FightVar00		$00		;Fight Status Flag, TBD
 .alias FightVar01		$01		;An ID related to the current fight, TBD
 .alias FightBank		$02		;The memory bank containing the data for the current fight
@@ -20,7 +22,7 @@
 .alias FightVar09		$09		;Fight-related variable, TBD
 .alias MacLosses		$0A		;Number of losses on Mac's record
 .alias FightVar0B		$0B		;Fight-related variable, TBD
-.alias BankVar0D		$0D		;Bank-related variable, TBD
+.alias CurrPRGBank		$0D		;
 .alias BankVar0E		$0E		;Bank-related variable, TBD
 
 .alias PPU0Load         $10     ;Value to load next into PPU control register 0.
