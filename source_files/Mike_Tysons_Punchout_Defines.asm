@@ -14,7 +14,7 @@
 .alias FightBank		$02		;The memory bank containing the data for the current fight
 .alias FightOffset		$03		;Offset of the current fight within its memory bank
 .alias FightVar04		$04		;Fight-related variable, TBD
-.alias FightVar05		$05		;Fight-related variable, TBD (opponent down?)
+.alias KnockdownSts		$05		;Knockdown status #$01=Opp down, #$02=Mac down
 .alias RoundNumber		$06		;Current round number.
 .alias FightVar08		$08		;Fight-related variable, TBD
 .alias FightVar09		$09		;Fight-related variable, TBD
@@ -134,6 +134,10 @@
                                 ;that after A+B+select were pressed. The second 10 bytes are normal
                                 ;password data entered by the user.
 
+
+.alias RoundClkStart    $0300   ;Clock started flag
+.alias RoundClkPause    $0301   ;
+.alias RoundClock       $0301   ;Base address for clock values
 .alias RoundMinute      $0302   ;Current minute in round.
 .alias RoundColon       $0303   ;Colon tile pointer used to separate minutes from seconds.
 .alias RoundUpperSec    $0304   ;Current tens of seconds in round.
@@ -143,6 +147,13 @@
 .alias HydrogenValue2   $0307   ;TBD value that gets incremented by HeliumValue1
 .alias HeliumValue1     $0308   ;TBD value pulled from opponent data for each round
 .alias HeliumValue2     $0309   ;TBD value pulled from opponent data for each round
+
+.alias ClockDispStatus  $030A   ;
+.alias ClockDisplay     $030A   ;
+.alias ClockDispMin     $030B   ;
+.alias ClockDispColon   $030C   ;
+.alias ClockDispSecUD   $030D   ;
+.alias ClockDispSecLD   $030E   ;
 
 .alias NewHeartsUD      $0321   ;New amount of hearts, upper digit(base 10).
 .alias NewHeartsLD      $0322   ;New amount of hearts, lower digit(base 10).
@@ -160,6 +171,7 @@
 
 .alias StarCountDown    $0347   ;Must count down to 1 before stars will be given.
 
+.alias HealthPoints     $0390   ;Base address for HP for both Mac and Opponent
 .alias MacNextHP        $0391   ;Next value to assign to Little Mac HP.
 .alias MacCurrentHP     $0392   ;Current vlaue of Little Mac's HP.
 .alias MacDisplayedHP   $0393   ;Displayed HP for Little Mac.
@@ -169,6 +181,14 @@
 .alias OppNextHP        $0398   ;Next value to assign to opponent's HP.
 .alias OppCurrentHP     $0399   ;Current value of opponents HP.
 .alias OppDisplayedHP   $039A   ;Displayed value of opponent's HP.
+
+.alias MacKDs           $03D0   ;Number of times Mac has been knocked down in this fight
+.alias OppKDs           $03D1   ;Number of times Mac has been knocked down in this fight
+.alias LastPunchSts     $03D2   ;Who made the last punch? #$81=Mac #$82=Opp
+
+.alias PointsStatus     $03E0   ;Status of points
+.alias PointsNew        $03E1   ;New points that should be added to the total (base 10)
+.alias PointsTotal      $03E8   ;Total points for this round (base 10)
 
 .alias ThisBkgPalette   $0480   ;Through $048F. Current background palette data.
 .alias ThisSprtPalette  $0490   ;Through $049F. Current sprite palette data.
@@ -184,12 +204,19 @@
 
 .alias HeartTable       $05A3   ;Table of heart values for this fight. (Indexing starts at 3)
 
-.alias HeliumTable      $05D8   ;Table of values for this fight. (Indexing starts at 2)
-
 .alias StarCountReset   $05B0   ;Reset value for StarCountDown.
-
 .alias ReactTimer       $05B8   ;Opponents reaction time. Does not count on combos.
 
+.alias ComboDataPtrLB   $05C2   ;Pointer to combo data for the current opponent, lower byte
+.alias ComboDataPtrUB   $05C3   ;Pointer to combo data for the current opponent, upper byte
+
+.alias OppRefillPtr     $05D5   ;Pointer to beginning of table of random refill values
+.alias OppRefillPtrLB   $05D5   ;Pointer to random refill table, lower byte
+.alias OppRefillPtrUB   $05D6   ;Pointer to random refill table, upper byte
+.alias OppHPBoostCap    $05D7   ;Soft cap for HP boosts
+.alias HeliumTable      $05D8   ;Table of values for this fight. (Indexing starts at 2)
+
+.alias OppGetUpTable    $05E0   ;Base address for opponent stand up times after knock down
 .alias OppOutline       $05EC   ;Base address for determining the opponent's outline color.
 
 .alias OppMessages      $05F0   ;Table of message indices for current opponent

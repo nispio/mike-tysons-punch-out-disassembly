@@ -5,7 +5,7 @@
 
 L8000:  JMP $8974
 L8003:  JMP $890D
-L8006:  JMP $881E
+L8006:  JMP $881E               ;Reset HP
 L8009:  JMP $8759
 L800C:  JMP $86D0
 L800F:  JMP $8A6F
@@ -179,7 +179,7 @@ L8168:  JMP $80F8
 L816B:  JMP $80E8
 
 L816E:  LDA #$00
-L8170:  STA $0391
+L8170:  STA MacNextHP
 L8173:  JMP $80F8
 
 L8176:  LDA #PUNCH_NONE
@@ -226,7 +226,7 @@ L81CF:  LDA OppHitDefense,X
 L81D1:  BEQ $81E0
 L81D3:  CMP #$08
 L81D5:  BNE $81DD
-L81D7:  JSR $8435
+L81D7:  JSR ResetCombo
 L81DA:  JMP $8297
 L81DD:  JMP $8267
 L81E0:  LDA $0580
@@ -249,13 +249,13 @@ L8202:  BNE $8240
 L8204:  LDA $4C
 L8206:  AND #$01
 L8208:  BNE $823E
-L820A:  JSR $8435
+L820A:  JSR ResetCombo
 L820D:  LDA #$03
 L820F:  STA $58
 L8211:  LDA #$8D
 L8213:  JSR $8562
 L8216:  JSR $8550
-L8219:  JSR $842A
+L8219:  JSR $842A               ;Decrement the StarCountDown, but no lower than 1
 L821C:  LDA #$81
 L821E:  LDX $03CB
 L8221:  CPX #$09
@@ -285,7 +285,7 @@ L8254:  JSR $8562
 L8257:  BNE $8219
 L8259:  LDA MacPunchType
 L825B:  BPL $8260
-L825D:  JSR $8435
+L825D:  JSR ResetCombo
 L8260:  AND #$03
 L8262:  TAX
 L8263:  LDA OppHitDefense,X
@@ -473,38 +473,42 @@ L83EB:  LDA #$80
 L83ED:  STA $0320
 L83F0:  STA $0340
 L83F3:  STA GameStatusBB
-L83F5:  JSR $8421
+L83F5:  JSR PauseClock
 L83F8:  LDX #$02
-L83FA:  STX $05
+L83FA:  STX KnockdownSts
 L83FC:  DEX
 L83FD:  STX MacCanPunch
 L83FF:  DEX
 L8400:  STX $03C5
 L8403:  RTS
 
-L8404:  JSR $8435
-L8407:  JSR $8421
+L8404:  JSR ResetCombo
+L8407:  JSR PauseClock
 L840A:  LDA #$01
 L840C:  STA $03E3
 L840F:  LDA #$80
 L8411:  STA $03E0
 L8414:  LDX #$01
-L8416:  STX $05
+L8416:  STX KnockdownSts
 L8418:  STX $36
 L841A:  DEX
 L841B:  STX GameStatusBB
 L841D:  STX $03CB
 L8420:  RTS
 
-L8421:  LDA $0301
+PauseClock:
+L8421:  LDA RoundClkPause          ;($0301)
 L8424:  ORA #$01
-L8426:  STA $0301
+L8426:  STA RoundClkPause          ;($0301)
 L8429:  RTS
+
 L842A:  DEC StarCountDown
 L842D:  BNE $8434
 L842F:  LDA #$01
 L8431:  STA StarCountDown
 L8434:  RTS
+
+ResetCombo:
 L8435:  LDY #$00
 L8437:  STY ComboTimer
 L8439:  STY ComboCountDown
@@ -603,41 +607,41 @@ L84F8:  LDA $032A
 L84FB:  STA $0328
 L84FE:  RTS
 
-L84FF:  LDX #$09
+L84FF:  LDX #$09                ;We will be updating opponent's HP
 L8501:  BNE $8505
 
-L8503:  LDX #$02
+L8503:  LDX #$02                ;We will be updating Mac's HP
 L8505:  STA $E7
-L8507:  LDA $0390,X
+L8507:  LDA HPStatus,X          ;Get current HP for Mac/Opp
 L850A:  DEX
 L850B:  SEC
-L850C:  SBC $E7
+L850C:  SBC $E7                 ;Subtract damage from current HP
 L850E:  BEQ $8512
-L8510:  BPL $851F
-L8512:  LDY $03D2
-L8515:  BEQ $851D
+L8510:  BPL $851F               ;If there is still HP remaining, then branch
+L8512:  LDY LastPunchSts        ;($03D2)
+L8515:  BEQ $851D               ;If no punches have been thrown, then branch
 L8517:  LDA #$00
-L8519:  STA $0390,X
+L8519:  STA HPStatus,X          ;($0390)
 L851C:  RTS
 
-L851D:  LDA #$00
+L851D:  LDA #$00                ;Set HP to zero
 
-L851F:  STA $0390,X
-L8522:  LDA #$01
+L851F:  STA HPStatus,X          ;Set current HP for Mac/Opp
+L8522:  LDA #$01                ;Return value of 1?
 L8524:  RTS
 
 L8525:  LDA #$0F
 L8527:  LDX #$02
 L8529:  BNE $8530
-L852B:  LDA $05D7
+L852B:  LDA $05D7               ;Max health boost
 L852E:  LDX #$09
-L8530:  CMP $0390,X
+L8530:  CMP HPStatus,X          ;($0390)
 L8533:  BCC $853F
-L8535:  LDA $0390,X
+L8535:  LDA HPStatus,X          ;($0390)
 L8538:  DEX
 L8539:  CLC
 L853A:  ADC #$04
-L853C:  STA $0390,X
+L853C:  STA HPStatus,X          ;($0390)
 L853F:  RTS
 L8540:  LDA #$00
 L8542:  LDX #$04
@@ -837,14 +841,14 @@ L86B1:  CMP #$80
 L86B3:  BEQ $86C1
 L86B5:  LDA #$00
 L86B7:  LDX #$05
-L86B9:  STA $03E1,X
+L86B9:  STA PointsNew,X         ;($03E1)
 L86BC:  DEX
 L86BD:  BPL $86B9
 L86BF:  BMI $86DC
 L86C1:  LDA #$00
 L86C3:  LDX #$05
-L86C5:  STA $03E8,X
-L86C8:  STA $03E1,X
+L86C5:  STA PointsTotal,X       ;($03E8)
+L86C8:  STA PointsNew,X         ;($03E1)
 L86CB:  DEX
 L86CC:  BPL $86C5
 L86CE:  BMI $86DC
@@ -855,12 +859,12 @@ L86D7:  LDA $03E0
 L86DA:  BEQ $871E
 L86DC:  CLC
 L86DD:  LDX #$05
-L86DF:  LDA $03E8,X
-L86E2:  ADC $03E1,X
+L86DF:  LDA PointsTotal,X       ;($03E8)
+L86E2:  ADC PointsNew,X         ;($03E1)
 L86E5:  CMP #$0A
 L86E7:  BCC $86EB
 L86E9:  SBC #$0A
-L86EB:  STA $03E8,X
+L86EB:  STA PointsTotal,X       ;($03E8)
 L86EE:  DEX
 L86EF:  BPL $86DF
 L86F1:  LDX #$06
@@ -871,7 +875,7 @@ L86F9:  BPL $86F5
 L86FB:  LDX #$00
 L86FD:  LDY #$06
 L86FF:  CLC
-L8700:  LDA $03E8,X
+L8700:  LDA PointsTotal,X       ;($03E8)
 L8703:  BNE $871F
 L8705:  DEY
 L8706:  BMI $8721
@@ -891,34 +895,34 @@ L871F:  LDY #$FF
 L8721:  ADC #$01
 L8723:  BNE $870A
 
-L8725:  DEC HydrogenValue2       ;($0307)
+L8725:  DEC HydrogenValue2      ;($0307)
 L8728:  BNE $8758
 L872A:  LDA #$08
-L872C:  STA HydrogenValue2       ;($0307)
+L872C:  STA HydrogenValue2      ;($0307)
 L872F:  LDY #$00
 L8731:  DEC HydrogenValue1      ;($0306)
 L8734:  BEQ $8750
-L8736:  LDA $030B
+L8736:  LDA ClockDispMin        ;($030B)
 L8739:  CMP #$04
 L873B:  BNE $873F
 L873D:  LDY #$04
 L873F:  LDX #$00
 L8741:  LDA $87FE,Y
-L8744:  STA $030B,X
+L8744:  STA ClockDispMin,X    ;($030B)
 L8747:  INY
 L8748:  INX
 L8749:  CPX #$04
 L874B:  BNE $8741
 L874D:  JMP $87E4
-L8750:  STY $0300
+L8750:  STY RoundClkStart       ;($0300)
 L8753:  BEQ $873D
 L8755:  JMP $87EA
 L8758:  RTS
 
-L8759:  LDA $0300
+L8759:  LDA RoundClkStart       ;($0300)
 L875C:  BEQ $8758
 L875E:  BMI $8755
-L8760:  LDA $0301
+L8760:  LDA RoundClkPause       ;($0301)
 L8763:  BEQ $8780
 L8765:  BMI $8725
 L8767:  CMP #$01
@@ -926,7 +930,7 @@ L8769:  BEQ $8758
 L876B:  LDA $030A
 L876E:  BNE $8758
 L8770:  LDA #$81
-L8772:  STA $0301
+L8772:  STA RoundClkPause       ;($0301)
 L8775:  LDA #$10
 L8777:  STA HydrogenValue1      ;($0306)
 L877A:  LDA #$08
@@ -948,65 +952,71 @@ L879C:  DEC $0311
 L879F:  INC RoundLowerSec       ;($0305)
 L87A2:  LDA RoundLowerSec       ;($0305)
 L87A5:  CMP #$0A
-L87A7:  BNE $87D6
+L87A7:  BNE UpdateClockDisplay
 L87A9:  LDX #$00
 L87AB:  STX RoundLowerSec       ;($0305)
 L87AE:  INC RoundUpperSec       ;($0304)
 L87B1:  LDA RoundUpperSec       ;($0304)
 L87B4:  CMP #$06
-L87B6:  BNE $87D6
+L87B6:  BNE UpdateClockDisplay
 L87B8:  STX RoundUpperSec       ;($0304)
 L87BB:  INC RoundMinute         ;($0302)
 L87BE:  LDA RoundMinute         ;($0302)
 L87C1:  CMP #$03
-L87C3:  BNE $87D6
+L87C3:  BNE UpdateClockDisplay
 L87C5:  LDA #$02
-L87C7:  STA $0301
+L87C7:  STA RoundClkPause       ;($0301)
 L87CA:  LDA #$00
 L87CC:  STA OppCurState
 L87CE:  STA OppStateStatus
 L87D0:  STA $51
 L87D2:  LDA #$C2
 L87D4:  STA $50
+
+UpdateClockDisplay:
 L87D6:  CLC
 L87D7:  LDX #$04
-L87D9:  LDA $0301,X
+L87D9:  LDA RoundClock,X
 L87DC:  ADC #$01
-L87DE:  STA $030A,X
+L87DE:  STA ClockDisplay,X
 L87E1:  DEX
 L87E2:  BNE $87D9
 L87E4:  LDY #$80
-L87E6:  STY $030A
+L87E6:  STY ClockDispStatus     ;Set flag to update clock display
 L87E9:  RTS
 
+ResetRoundClock:
 L87EA:  LDA #$00
-L87EC:  STA $0300
+L87EC:  STA RoundClkStart       ;($0300)
 L87EF:  LDX #$07
-L87F1:  STA $0300,X
+L87F1:  STA RoundClkStart,X     ;($0300) Used as base address for clock values here
 L87F4:  DEX
 L87F5:  BNE $87F1
 L87F7:  LDA #$2B
 L87F9:  STA RoundColon          ;($0303)
-L87FC:  BNE $87D6
+L87FC:  BNE UpdateClockDisplay
 
+;Clock diplay values representing "3:00" and "----"
 L87FE:  .byte $04, $2C, $01, $01, $28, $28, $28, $28
 
+ResetHP:
 L8806:  AND #$7F
-L8808:  STA $0390
+L8808:  STA HPStatus
 L880B:  LDA #$00
 L880D:  LDX #$0E
-L880F:  STA $0391,X
+L880F:  STA HPData,X
 L8812:  DEX
 L8813:  BPL $880F
 L8815:  LDA #$60
-L8817:  STA $0391
-L881A:  STA $0398
+L8817:  STA MacNextHP
+L881A:  STA OppNextHP
 L881D:  RTS
 
-L881E:  LDA $0390
-L8821:  BEQ $881D
-L8823:  BMI $8806
-L8825:  LDA $0391
+CheckHP:
+L881E:  LDA HPStatus
+L8821:  BEQ $881D               ;If HPStatus==0, then nothing to do; return
+L8823:  BMI $8806               ;If HPStatus has MSB set, then reset HP
+L8825:  LDA MacNextHP
 L8828:  CMP MacCurrentHP
 L882B:  BEQ $8830
 L882D:  STA MacCurrentHP

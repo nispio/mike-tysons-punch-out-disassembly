@@ -908,14 +908,14 @@ LA7CD:  LDA OppCurState
 LA7CF:  STA $03FA
 LA7D2:  LDA MacStatus
 LA7D4:  STA $03FB
-LA7D7:  LDA $0300
+LA7D7:  LDA RoundClkStart          ;($0300)
 LA7DA:  STA $03FC
 LA7DD:  LDA $03FD
 LA7E0:  STA OppCurState
 LA7E2:  LDA $03FE
 LA7E5:  STA MacStatus
 LA7E7:  LDA $03FF
-LA7EA:  STA $0300
+LA7EA:  STA RoundClkStart          ;($0300)
 LA7ED:  LDA $03FA
 LA7F0:  STA $03FD
 LA7F3:  LDA $03FB
@@ -1299,7 +1299,7 @@ LAAC0:  RTS
 
 LAAC1:  LDY #$00
 LAAC3:  LDX #$04
-LAAC5:  LDA $03E8,Y
+LAAC5:  LDA PointsTotal,Y       ;($03E8)
 LAAC8:  CMP $05C8,Y
 LAACB:  BNE $AAD1
 LAACD:  INY
@@ -1337,14 +1337,14 @@ LAB06:  BNE $AB02
 LAB08:  STA $03B1
 LAB0B:  CLC
 LAB0C:  LDA #$0E
-LAB0E:  ADC $03
+LAB0E:  ADC FightOffset
 LAB10:  TAX
-LAB11:  JSR $BF9E
+LAB11:  JSR $BF9E               ;Set E0 to point to data table for current opponent
 LAB14:  LDX #$60
 LAB16:  LDY #$00
-LAB18:  LDA ($E0),Y
-LAB1A:  STA $05A0,Y
-LAB1D:  INY
+LAB18:  LDA ($E0),Y             ;
+LAB1A:  STA $05A0,Y             ;Copy 96 bytes of opponent data into $05A0-$05FF
+LAB1D:  INY                     ;
 LAB1E:  DEX
 LAB1F:  BNE $AB18
 LAB21:  LDA $05E8,X
@@ -1412,8 +1412,8 @@ LABB0:  DEC $0310
 LABB3:  LDA #$C0
 LABB5:  STA $0311
 LABB8:  LDX #$00
-LABBA:  STX $0300
-LABBD:  STX FightVar05        ;($05) opponent down?
+LABBA:  STX RoundClkStart          ;($0300)
+LABBD:  STX KnockdownSts        ;($05) opponent down?
 LABBF:  STX VulnerableTimer
 LABC2:  STX $04FE
 LABC5:  STX $04FF
@@ -1427,7 +1427,7 @@ LABD3:  STX $40
 LABD5:  DEX
 LABD6:  STX $37
 LABD8:  LDX #$01
-LABDA:  STX $03E0
+LABDA:  STX PointsStatus
 LABDD:  JSR PushPRGBank07
 LABE0:  JSR $8006
 LABE3:  LDA #$00
@@ -2417,7 +2417,7 @@ LB2E7:  DEX
 LB2E8:  BEQ $B298
 LB2EA:  RTS
 
-LB2EB:  LDX FightVar05        ;($05) opponent down?
+LB2EB:  LDX KnockdownSts          ;($05) opponent down?
 LB2ED:  DEX
 LB2EE:  BNE $B2E7
 LB2F0:  LDY #$0A
@@ -2435,11 +2435,11 @@ LB30A:  LDX $BA
 LB30C:  STA $BA
 LB30E:  INX
 LB30F:  BEQ $B2EA
-LB311:  LDA $05D5
+LB311:  LDA OppRefillPtrLB      ;($05D5)
 LB314:  STA $E6
-LB316:  LDA $05D6
+LB316:  LDA OppRefillPtrUB      ;($05D6)
 LB319:  STA $E7
-LB31B:  LDY $03C9
+LB31B:  LDY OppRefillOffset     ;($03C9)
 LB31E:  LDA ($E6),Y
 LB320:  BNE $B32A
 LB322:  LDX MacStatus
@@ -2459,14 +2459,14 @@ LB33D:  BCS $B342
 LB33F:  INY
 LB340:  BNE $B356
 LB342:  LDA RNGValue          ;($18)
-LB344:  JSR RotateRNG          ;($AEF1)
+LB344:  JSR RotateRNG         ;($AEF1)
 LB347:  AND #$07
 LB349:  CMP #$06
 LB34B:  BCC $B34F
 LB34D:  AND #$01
 LB34F:  CLC
 LB350:  ADC #$02
-LB352:  ADC $03C9
+LB352:  ADC OppRefillOffset     ;($03C9)
 LB355:  TAY
 LB356:  LDA ($E6),Y
 LB358:  BEQ $B2EA
@@ -2491,12 +2491,12 @@ LB37F:  JSR Div16               ;($BF99)Shift upper nibble to lower nibble.
 
 LB382:  LSR
 LB383:  TAY
-LB384:  LDA $05E0,Y
-LB387:  STA OppGetUpCount
-LB389:  LDA $03C9
+LB384:  LDA OppGetUpTable,Y     ;($05EO)
+LB387:  STA OppGetUpCount       ;($C4)
+LB389:  LDA OppRefillOffset        ;($03C9)
 LB38C:  CLC
 LB38D:  ADC #$08
-LB38F:  STA $03C9
+LB38F:  STA OppRefillOffset        ;($03C9)
 LB392:  RTS
 
 LB393:  .byte $0F, $99, $E3, $C1, $00, $07, $EA, $FA, $7D, $05, $EA, $0F, $99, $80, $05, $EA
@@ -2522,9 +2522,9 @@ LB3C5:  LDA MacPunchType
 LB3C7:  STA $03B0
 LB3CA:  INX
 LB3CB:  STX $4C
-LB3CD:  LDA $05C2
+LB3CD:  LDA ComboDataPtrLB
 LB3D0:  STA $E6
-LB3D2:  LDA $05C3
+LB3D2:  LDA ComboDataPtrUB
 LB3D5:  STA $E7
 LB3D7:  LDY #$00
 LB3D9:  LDA ComboTimer
@@ -2717,14 +2717,14 @@ LB53C:  JSR IndFuncJump         ;($AED4)Indirect jump to desired function below.
 
 LB53F:  .word $B549, $B5A8, $B5A8, $B5A9, $B63E
 
-LB549:  LDA $0301
+LB549:  LDA CarbonValue          ;($0301)
 LB54C:  BMI $B581
 LB54E:  LDA OppCurState
 LB550:  BEQ $B580
 LB552:  LDA IncStars
 LB555:  BEQ $B559
 LB557:  BPL $B580
-LB559:  LDA FightVar05        ;($05) opponent down?
+LB559:  LDA KnockdownSts        ;($05) opponent down?
 LB55B:  BNE $B586
 LB55D:  LDA OppStateStatus
 LB55F:  AND $51
@@ -2824,7 +2824,7 @@ LB61A:  STA $4E
 LB61C:  LDA $05C1
 LB61F:  STA $4F
 LB621:  LDX #$80
-LB623:  STX $0300
+LB623:  STX RoundClkStart          ;($0300)
 LB626:  STX $0340
 LB629:  INX
 LB62A:  STX $0320
@@ -2843,7 +2843,7 @@ LB641:  BNE $B650
 LB643:  LDA $030A
 LB646:  BNE $B650
 LB648:  LDA #$03
-LB64A:  STA FightVar05        ;($05) opponent down?
+LB64A:  STA KnockdownSts        ;($05) opponent down?
 LB64C:  LDA #$FF
 LB64E:  STA FightVar00      ;($00) Fight status flag?
 LB650:  RTS
@@ -3959,6 +3959,7 @@ LBF9B:  LSR                     ;
 LBF9C:  LSR                     ;
 LBF9D:  RTS                     ;
 
+SetDataPtr:
 LBF9E:  LDA $8000,X
 LBFA1:  STA $E0
 LBFA3:  INX
@@ -5037,15 +5038,15 @@ LC6E7:  JMP $C78B
 
 LC6EA:  LDA (OppStBasePtr),Y
 LC6EC:  BEQ $C6F6
-LC6EE:  LDX $0300
+LC6EE:  LDX RoundClkStart          ;($0300)
 LC6F1:  BNE $C6F6
-LC6F3:  STA $0300
+LC6F3:  STA RoundClkStart          ;($0300)
 LC6F6:  EOR #$01
 LC6F8:  STA $E7
-LC6FA:  LDA $0301
+LC6FA:  LDA CarbonValue          ;($0301)
 LC6FD:  AND #$FE
 LC6FF:  ORA $E7
-LC701:  STA $0301
+LC701:  STA CarbonValue          ;($0301)
 LC704:  INC OppStateIndex
 LC706:  LDA #$64
 LC708:  STA HydrogenValue1      ;($0306)

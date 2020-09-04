@@ -1115,13 +1115,19 @@ L932E:  .byte $40               ;Opponent reaction time to move guard up and dow
 L932F:  .byte $20, $9C, $8C, $80, $00, $06, $08
 
 ;** $05C0 **
-L9336:  .word $0000             ;Pointer to combo 1 data
+L9336:  .word $0000
 
 ;** $05C2 **
-L9338:  .word $9376             ;Pointer to combo 2 data
+L9338:  .word $9376             ;Pointer to combo data
 
 ;** $05C4 **
-L933A:  .byte $00, $03, $00, $00, $00, $00, $05, $00, $00, $00, $DF, $7A
+L933A:  .byte $00, $03, $00, $00
+
+;** $05C8 **
+L933E:  .byte $00, $00, $05, $00, $00, $00 ;
+
+;** $05CE **
+L9344:  .byte $DF, $7A
 
 ;** $05D0 **
 L9346:  .word $937E             ;Little Mac knock down data.
@@ -1133,9 +1139,10 @@ L9348:  .byte $00, $08, $00
 L934B:  .word $93C6             ;Opponent knock down data.
 
 ;** $05D7 **
-L934D:  .byte $1F, $00, $00,
+L934D:  .byte $1F               ;Opponent HP boost threshold
 
-;** $05DA **
+;** $05D8 **
+L934E:  .byte $00, $00
 L9350:  .byte $04, $F9          ;Round 1
 L9352:  .byte $05, $6D          ;Round 2
 L9354:  .byte $05, $F8          ;Round 3
@@ -1190,10 +1197,13 @@ L939C:  .byte $33, $02, $33, $02, $33, $02, $0E, $00, $09, $01, $32, $01, $32, $
 L93AC:  .byte $32, $01, $01, $00, $7F, $00, $00, $00, $00, $00, $00, $00, $00, $00, $01, $00
 L93BC:  .byte $7F, $00, $00, $00, $00, $00, $00, $00, $00, $00
 
-L93C6:  .byte $E0, $1C, $0A, $0A, $0A, $0A
-L93CC:  .byte $0A, $0A, $60, $1C, $06, $06, $06, $06, $06, $06, $00, $1C, $05, $05, $05, $05
-L93DC:  .byte $05, $05, $00, $1C, $01, $01, $01, $01, $01, $01, $00, $1C, $01, $00, $01, $00
-L93EC:  .byte $01, $00, $00, $00, $00, $00, $00, $00, $00, $00,
+;Random refill values after knockdown
+L93C6:  .byte $E0, $1C, $0A, $0A, $0A, $0A, $0A, $0A ;After knockdown 1
+L93CE:  .byte $60, $1C, $06, $06, $06, $06, $06, $06 ;After knockdown 2
+L93D6:  .byte $00, $1C, $05, $05, $05, $05, $05, $05 ;After knockdown 3
+L93DE:  .byte $00, $1C, $01, $01, $01, $01, $01, $01 ;After knockdown 4
+L93E6:  .byte $00, $1C, $01, $00, $01, $00, $01, $00 ;After knockdown 5
+L93EE:  .byte $00, $00, $00, $00, $00, $00, $00, $00 ;After knockdown 6 (Always KO)
 
 L93F6:  .byte $00, $00, $00, $00, $00, $00, $00, $00 ;Round 1
 L93FE:  .byte $20, $20, $20, $08, $20, $40, $10, $10 ;Round 2   Between-round random refills?
@@ -1233,45 +1243,23 @@ L9503:  .byte $9B, $9C, $9E, $9E, $9F, $A1, $9C, $9C, $CA, $96, $45, $97, $16, $
 
 ;Opponent messages.
 L9513:  .byte $C5
-L9513:  .byte $C6
-L9513:  .byte $C7
-L9513:  .byte $C8
-L9513:  .byte $C8
-L9513:  .byte $C7
-L9513:  .byte $C6
-L9513:  .byte $C5
-
-
-;Trainer and Little Mac messages.
-L9513:  .byte $85               ;"One two, one two punch Mac!"
-L9513:  .byte $86
-L9513:  .byte $82               ;"Put him away!"
-L9513:  .byte $83               ;"Stick and move, stick and move!"
-L9513:  .byte $82               ;"Put him away!"
-L9513:  .byte $83               ;"Stick and move, stick and move!"
-L9513:  .byte $85               ;"One two, one two punch Mac!"
-L9513:  .byte $86
-
-;Opponent messages.
-L9366:  .byte $A1               ;"This is my last match! I'm too old for fighting!"
-L9367:  .byte $A2               ;"Make it quick! I want to retire..."
-L9368:  .byte $A3               ;"Watch the jaw!! Don't hit my jaw!"
-L9369:  .byte $A4               ;"Do I have time to take a nap before the fight?"
-L936A:  .byte $A4               ;"Do I have time to take a nap before the fight?"
-L936B:  .byte $A3               ;"Watch the jaw!! Don't hit my jaw!"
-L936C:  .byte $A2               ;"Make it quick! I want to retire..."
-L936D:  .byte $A1               ;"This is my last match! I'm too old for fighting!"
+L9514:  .byte $C6
+L9515:  .byte $C7
+L9516:  .byte $C8
+L9517:  .byte $C8
+L9518:  .byte $C7
+L9519:  .byte $C6
+L951A:  .byte $C5
 
 ;Trainer and Little Mac messages.
-L936E:  .byte $8A               ;"Listen Mac!! Dodge his punch then counter-punch!"
-L936F:  .byte $82               ;"Put him away!"
-L9370:  .byte $83               ;"Stick and move, stick and move!"
-L9371:  .byte $84               ;"Watch his left!"
-L9372:  .byte $85               ;"One two, one two punch Mac!"
-L9373:  .byte $8C               ;"Listen Mac!! Catch him off-guard to stun him! Then unload on him!"
-L9374:  .byte $8B               ;"Listen Mac!! Give him a fast upper-cut when he's stunned!"
-L9375:  .byte $8A               ;"Listen Mac!! Dodge his punch then counter-punch!"
-
+L951B:  .byte $85               ;"One two, one two punch Mac!"
+L951C:  .byte $86
+L951D:  .byte $82               ;"Put him away!"
+L951E:  .byte $83               ;"Stick and move, stick and move!"
+L951F:  .byte $82               ;"Put him away!"
+L9520:  .byte $83               ;"Stick and move, stick and move!"
+L9521:  .byte $85               ;"One two, one two punch Mac!"
+L9522:  .byte $86
 
 ;----------------------------------------------------------------------------------------------------
 
