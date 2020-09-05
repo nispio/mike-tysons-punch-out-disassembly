@@ -22,8 +22,8 @@
 .alias FightVar09		$09		;Fight-related variable, TBD
 .alias MacLosses		$0A		;Number of losses on Mac's record
 .alias FightVar0B		$0B		;Fight-related variable, TBD
-.alias CurrPRGBank		$0D		;
-.alias BankVar0E		$0E		;Bank-related variable, TBD
+.alias CurrPRGBank		$0D		;The current PRG bank mapped to $8000-$9FFF
+.alias SavedPRGBank		$0E		;The last PRG bank to
 
 .alias PPU0Load         $10     ;Value to load next into PPU control register 0.
 .alias PPU1Load         $11     ;Value to load next into PPU control register 1.
@@ -137,18 +137,18 @@
                                 ;password data entered by the user.
 
 
-.alias RoundClkStart    $0300   ;Clock started flag
-.alias RoundClkPause    $0301   ;
+.alias RoundClkStart    $0300   ;Clock started flag: 0=Not started, 1=Started, MSB=needs reset
+.alias RoundClkPause    $0301   ;Clock paused flag: 0=Running, 1=Paused, 2=clock flash animation
 .alias RoundClock       $0301   ;Base address for clock values
 .alias RoundMinute      $0302   ;Current minute in round.
 .alias RoundColon       $0303   ;Colon tile pointer used to separate minutes from seconds.
 .alias RoundUpperSec    $0304   ;Current tens of seconds in round.
 .alias RoundLowerSec    $0305   ;Current second in round(base 10).
 
-.alias HydrogenValue1   $0306   ;TBD value that gets incremented by HeliumValue1
-.alias HydrogenValue2   $0307   ;TBD value that gets incremented by HeliumValue1
-.alias HeliumValue1     $0308   ;TBD value pulled from opponent data for each round
-.alias HeliumValue2     $0309   ;TBD value pulled from opponent data for each round
+.alias ChronoUB         $0306   ;Underlying timekeeper behind round clock, upper byte
+.alias ChronoLB         $0307   ;Underlying timekeeper behind round clock, lower byte
+.alias ClockRateUB      $0308   ;Rate which the Chrono value advances per frame, upper byte
+.alias ClockRateLB      $0309   ;Rate which the Chrono value advances per frame, lower byte
 
 .alias ClockDispStatus  $030A   ;
 .alias ClockDisplay     $030A   ;

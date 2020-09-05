@@ -1195,58 +1195,58 @@ LAA37:  RTS
 
 PushPRGBank06:
 LAA38:  LDA #$06
-LAA3A:  BNE PushPRGBank
+LAA3A:  BNE LoadPRGBank
 
 PushPRGBank07:
 LAA3C:  LDA #$07
-LAA3E:  BNE PushPRGBank
+LAA3E:  BNE LoadPRGBank
 
 PushPRGBank08:
 LAA40:  LDA #$08
-LAA42:  BNE PushPRGBank
+LAA42:  BNE LoadPRGBank
 
 PushPRGBank0B:
 LAA44:  LDA #$0B
-LAA46:  BNE PushPRGBank
+LAA46:  BNE LoadPRGBank
 
 PushFightBank:
-LAA48:  LDA FightBank          ;($02)
+LAA48:  LDA FightBank           ;($02)
 
-PushPRGBank:
+LoadPRGBank:
 LAA4A:  STA BankSelect
-LAA4D:  STA BankVar0D          ;($0D)
+LAA4D:  STA CurrPRGBank         ;($0D)
 LAA4F:  RTS
 
 LoadPRGBank06:
 LAA50:  LDA #$06
-LAA52:  BNE LoadPRGBank
+LAA52:  BNE SetPRGBank
 
 LoadPRGBank07:
 LAA54:  LDA #$07
-LAA56:  BNE LoadPRGBank
+LAA56:  BNE SetPRGBank
 
-LoadPRGBank08:                  ;Unused?
+LoadPRGBank08:
 LAA58:  LDA #$08
-LAA5A:  BNE LoadPRGBank
+LAA5A:  BNE SetPRGBank
 
 LoadPRGBank09:
 LAA5C:  LDA #$09
-LAA5E:  BNE LoadPRGBank
+LAA5E:  BNE SetPRGBank
 
 LoadPRGBank0A:
 LAA60:  LDA #$0A
-LAA62:  BNE LoadPRGBank
+LAA62:  BNE SetPRGBank
 
 LoadPRGBank0C:
 LAA64:  LDA #$0C
 
-LoadPRGBank:
-LAA66:  STA BankVar0E          ;($0E)
-LAA68:  BNE PushPRGBank
+SetPRGBank:
+LAA66:  STA SavedPRGBank        ;($0E)
+LAA68:  BNE LoadPRGBank
 
 PopPRGBank:
-LAA6A:  LDA BankVar0E          ;($0E)
-LAA6C:  BNE PushPRGBank
+LAA6A:  LDA SavedPRGBank        ;($0E)
+LAA6C:  BNE LoadPRGBank
 
 ;----------------------------------------------------------------------------------------------------
 
