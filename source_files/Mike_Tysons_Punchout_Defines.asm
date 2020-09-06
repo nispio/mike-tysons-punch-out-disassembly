@@ -9,19 +9,11 @@
 
 ;-----------------------------------------[Variable Defines]-----------------------------------------
 
-.alias BankSelect		$AFFF   ;Fight Status Flag, TBD
-
-.alias FightVar00		$00		;Fight Status Flag, TBD
-.alias FightVar01		$01		;An ID related to the current fight, TBD
 .alias FightBank		$02		;The memory bank containing the data for the current fight
 .alias FightOffset		$03		;Offset of the current fight within its memory bank
-.alias FightVar04		$04		;Fight-related variable, TBD
 .alias KnockdownSts		$05		;Knockdown status #$01=Opp down, #$02=Mac down
 .alias RoundNumber		$06		;Current round number.
-.alias FightVar08		$08		;Fight-related variable, TBD
-.alias FightVar09		$09		;Fight-related variable, TBD
 .alias MacLosses		$0A		;Number of losses on Mac's record
-.alias FightVar0B		$0B		;Fight-related variable, TBD
 .alias CurrPRGBank		$0D		;The current PRG bank mapped to $8000-$9FFF
 .alias SavedPRGBank		$0E		;The last PRG bank to
 
@@ -150,17 +142,20 @@
 .alias ClockRateUB      $0308   ;Rate which the Chrono value advances per frame, upper byte
 .alias ClockRateLB      $0309   ;Rate which the Chrono value advances per frame, lower byte
 
-.alias ClockDispStatus  $030A   ;
-.alias ClockDisplay     $030A   ;
-.alias ClockDispMin     $030B   ;
-.alias ClockDispColon   $030C   ;
-.alias ClockDispSecUD   $030D   ;
-.alias ClockDispSecLD   $030E   ;
+.alias ClockDispStatus  $030A   ;Whether the clock display requires an update, MSB=needs update
+.alias ClockDisplay     $030A   ;Base address for clock display values
+.alias ClockDispMin     $030B   ;Clock digit index for minutes
+.alias ClockDispColon   $030C   ;Clock digit index for the colon
+.alias ClockDispSecUD   $030D   ;Clock digit index for tens of seconds
+.alias ClockDispSecLD   $030E   ;Clock digit index for seconds
 
 .alias NewHeartsUD      $0321   ;New amount of hearts, upper digit(base 10).
 .alias NewHeartsLD      $0322   ;New amount of hearts, lower digit(base 10).
 .alias CurHeartsUD      $0323   ;Current amount of hearts, upper digit(base 10).
 .alias CurHeartsLD      $0324   ;Current amount of hearts, lower digit(base 10).
+.alias HeartDispStatus  $0325   ;Hearts display status, MSB=needs update
+.alias HeartDisplayUD   $0326   ;Hearts display digit index, upper digit
+.alias HeartDisplayLD   $0327   ;Hearts display digit index, lower digit
 
 .alias HeartRecover     $032D   ;recover hearts this round, base address.
 .alias HeartNormRecUD   $032D   ;recover hearts this round, normal amount, upper digit(base 10).
@@ -216,7 +211,7 @@
 .alias OppRefillPtrLB   $05D5   ;Pointer to random refill table, lower byte
 .alias OppRefillPtrUB   $05D6   ;Pointer to random refill table, upper byte
 .alias OppHPBoostCap    $05D7   ;Soft cap for HP boosts
-.alias HeliumTable      $05D8   ;Table of values for this fight. (Indexing starts at 2)
+.alias ClockRateTable   $05D8   ;Table of values for this fight. (Indexing starts at 2)
 
 .alias OppGetUpTable    $05E0   ;Base address for opponent stand up times after knock down
 .alias OppOutline       $05EC   ;Base address for determining the opponent's outline color.
@@ -228,6 +223,8 @@
                                 ;are from controller 1 while odd values are from controller 2. -->
                                 ;The controllers are polled 4 times each per frame. Used to -->
                                 ;DPCM conflict.
+
+.alias BankSelect		$AFFF   ;The address to write to select a PRG bank to map
 
 ;--------------------------------------[Sound Engine Variables]--------------------------------------
 

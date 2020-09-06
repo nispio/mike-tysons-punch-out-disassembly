@@ -147,7 +147,8 @@ LA141:  .byte $0E, $0E, $00, $00, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $
 LA151:  .byte $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $0E, $0E, $00, $00, $15, $1D, $00, $00
 LA161:  .byte $16, $1D, $00, $00, $17, $1D, $00, $00, $18, $1D, $00, $00, $19, $1D, $00, $00
 LA171:  .byte $1A, $1D, $00, $00, $1B, $1D, $00, $00, $1C, $1D, $00, $00, $1D, $1D, $00, $00
-LA181:  .byte $FF, $FF, $FF, $FF, $00, $03, $07, $0C, $14, $0D, $00, $80, $32, $31, $30, $23
+LA181:  .byte $FF, $FF, $FF, $FF, $00
+LA186:  .byte $03, $07, $0C, $14, $0D, $00, $80, $32, $31, $30, $23
 LA191:  .byte $22, $21, $20, $15, $14, $13, $12, $11, $10, $00, $FF, $FF, $FF, $FF, $FF, $20
 LA1A1:  .byte $48, $47, $46, $45, $44, $43, $42, $41, $40, $FF, $4E, $49, $4E, $54, $45, $4E
 LA1B1:  .byte $44, $4F, $2E, $31, $39, $38, $37, $52, $44, $33, $FF, $02, $E0, $FF, $04, $E0
@@ -170,7 +171,7 @@ LA1DA:  STA PPUControl0         ;
 LA1DD:  LDA #%00000110          ;Turn off screen, enable bg and sprites on left 8 pixel columns.
 LA1DF:  STA PPUControl1         ;
 
-LA1E2:  JSR ZapPRGBank07
+LA1E2:  JSR LoadPRGBank07
 
 LA1E5:  LDA #$00
 LA1E7:  STA $013E
@@ -267,7 +268,7 @@ LA289:  STA GameStatus
 LA28B:  JSR $AF02
 LA28E:  LDA $013F
 LA291:  BNE $A2AC
-LA293:  JSR ZapPRGBank06
+LA293:  JSR LoadPRGBank06
 LA296:  LDA #$02
 LA298:  STA GameStatus
 LA29A:  JSR $9000               ;06:$9000
@@ -329,24 +330,24 @@ LA30C:  LDA #$00
 LA30E:  STA $04
 LA310:  JSR $BF7E
 LA313:  JMP $A4CC
-LA316:  JSR ZapPRGBank0C
+LA316:  JSR LoadPRGBank0C
 LA319:  LDA #$05
 LA31B:  JSR $BC5F
 LA31E:  LDY #$97
 LA320:  LDA #$0D
 LA322:  JSR $BFF6
-LA325:  JSR ZapPRGBank07
+LA325:  JSR LoadPRGBank07
 LA328:  JSR $801B
 LA32B:  LDX #$00
 LA32D:  STX $04C0
 LA330:  BEQ $A2FA
-LA332:  JSR ZapPRGBank0C
+LA332:  JSR LoadPRGBank0C
 LA335:  LDA #$06
 LA337:  JSR $BC5F
 LA33A:  LDY #$6E
 LA33C:  LDA #$0D
 LA33E:  JSR $BFF6
-LA341:  JSR ZapPRGBank07
+LA341:  JSR LoadPRGBank07
 LA344:  JSR $8024
 LA347:  JSR $8021
 LA34A:  LDX #$00
@@ -385,7 +386,7 @@ LA393:  LDA #$09
 LA395:  LDY #$0B
 LA397:  STA $0120,X
 LA39A:  STY $F0
-LA39C:  JSR ZapPRGBank07
+LA39C:  JSR LoadPRGBank07
 LA39F:  JSR $8027
 LA3A2:  JMP $A2FA
 LA3A5:  INC $04C2
@@ -421,7 +422,7 @@ LA3E7:  LDA $04C0
 LA3EA:  BEQ $A3DC
 LA3EC:  LDA $04C2
 LA3EF:  BNE $A400
-LA3F1:  JSR ZapPRGBank07
+LA3F1:  JSR LoadPRGBank07
 
 LA3F4:  JSR DoCircuitPassword   ;($8042)Check if user entered another world circuit password.
 LA3F7:  BEQ $A46A
@@ -463,7 +464,7 @@ LA43F:  BEQ $A457
 
 LA441:  BNE $A427
 
-LA443:  JSR ZapPRGBank07
+LA443:  JSR LoadPRGBank07
 LA446:  JSR $8033
 LA449:  BNE $A42D
 LA44B:  JSR $8036
@@ -495,7 +496,7 @@ LA47C:  LDA #SND_OFF            ;Stop any playing music.
 LA47E:  STA MusicInit           ;
 
 LA480:  JSR $AEA5
-LA483:  JSR ZapPRGBank0C
+LA483:  JSR LoadPRGBank0C
 LA486:  LDA #$81
 LA488:  STA $04B0
 LA48B:  JSR $AF02
@@ -1195,24 +1196,24 @@ LAA37:  RTS
 
 PushPRGBank06:
 LAA38:  LDA #$06
-LAA3A:  BNE LoadPRGBank
+LAA3A:  BNE PushPRGBank
 
 PushPRGBank07:
 LAA3C:  LDA #$07
-LAA3E:  BNE LoadPRGBank
+LAA3E:  BNE PushPRGBank
 
 PushPRGBank08:
 LAA40:  LDA #$08
-LAA42:  BNE LoadPRGBank
+LAA42:  BNE PushPRGBank
 
 PushPRGBank0B:
 LAA44:  LDA #$0B
-LAA46:  BNE LoadPRGBank
+LAA46:  BNE PushPRGBank
 
 PushFightBank:
 LAA48:  LDA FightBank           ;($02)
 
-LoadPRGBank:
+PushPRGBank:
 LAA4A:  STA BankSelect
 LAA4D:  STA CurrPRGBank         ;($0D)
 LAA4F:  RTS
@@ -1223,30 +1224,30 @@ LAA52:  BNE SetPRGBank
 
 LoadPRGBank07:
 LAA54:  LDA #$07
-LAA56:  BNE SetPRGBank
+LAA56:  BNE LoadPRGBank
 
 LoadPRGBank08:
 LAA58:  LDA #$08
-LAA5A:  BNE SetPRGBank
+LAA5A:  BNE LoadPRGBank
 
 LoadPRGBank09:
 LAA5C:  LDA #$09
-LAA5E:  BNE SetPRGBank
+LAA5E:  BNE LoadPRGBank
 
 LoadPRGBank0A:
 LAA60:  LDA #$0A
-LAA62:  BNE SetPRGBank
+LAA62:  BNE LoadPRGBank
 
 LoadPRGBank0C:
 LAA64:  LDA #$0C
 
-SetPRGBank:
+LoadPRGBank:
 LAA66:  STA SavedPRGBank        ;($0E)
-LAA68:  BNE LoadPRGBank
+LAA68:  BNE PushPRGBank
 
 PopPRGBank:
 LAA6A:  LDA SavedPRGBank        ;($0E)
-LAA6C:  BNE LoadPRGBank
+LAA6C:  BNE PushPRGBank
 
 ;----------------------------------------------------------------------------------------------------
 
@@ -2717,7 +2718,7 @@ LB53C:  JSR IndFuncJump         ;($AED4)Indirect jump to desired function below.
 
 LB53F:  .word $B549, $B5A8, $B5A8, $B5A9, $B63E
 
-LB549:  LDA CarbonValue          ;($0301)
+LB549:  LDA RoundClkPause          ;($0301)
 LB54C:  BMI $B581
 LB54E:  LDA OppCurState
 LB550:  BEQ $B580
@@ -2815,10 +2816,10 @@ LB605:  BNE $B5EF               ;End For Loop
 LB607:  LDA RoundNumber
 LB609:  ASL
 LB60A:  TAX
-LB60B:  LDA HeliumTable1,X
-LB60E:  STA HeliumValue1
-LB611:  LDA HeliumTable2,X
-LB614:  STA HeliumValue2
+LB60B:  LDA ClockRateTable1,X
+LB60E:  STA ClockRateUB
+LB611:  LDA ClockRateTable2,X
+LB614:  STA ClockRateLB
 LB617:  LDA $05C0
 LB61A:  STA $4E
 LB61C:  LDA $05C1
@@ -2838,7 +2839,7 @@ LB639:  LDA #$01
 LB63B:  STA FightVar00      ;($00) Fight status flag?
 LB63D:  RTS
 
-LB63E:  LDA HydrogenValue1      ;($0306)
+LB63E:  LDA ChronoUB      ;($0306)
 LB641:  BNE $B650
 LB643:  LDA $030A
 LB646:  BNE $B650
@@ -3575,7 +3576,7 @@ LBC8E:  JSR $AF2E
 LBC91:  JSR $C0F2
 LBC94:  LDA #$25
 LBC96:  STA PPUIOReg
-LBC99:  LDA HydrogenValue1      ;($0306)
+LBC99:  LDA ChronoUB      ;($0306)
 LBC9C:  AND #$F0
 LBC9E:  LSR
 LBC9F:  LSR
@@ -3820,6 +3821,7 @@ LBE8D:  ASL
 LBE8E:  ORA $E7
 LBE90:  STA $0200,X
 LBE93:  JMP $BE49
+
 LBE96:  JSR $AF2E
 LBE99:  LDA #$70
 LBE9B:  STA $E0
@@ -5043,13 +5045,13 @@ LC6F1:  BNE $C6F6
 LC6F3:  STA RoundClkStart          ;($0300)
 LC6F6:  EOR #$01
 LC6F8:  STA $E7
-LC6FA:  LDA CarbonValue          ;($0301)
+LC6FA:  LDA RoundClkPause          ;($0301)
 LC6FD:  AND #$FE
 LC6FF:  ORA $E7
-LC701:  STA CarbonValue          ;($0301)
+LC701:  STA RoundClkPause          ;($0301)
 LC704:  INC OppStateIndex
 LC706:  LDA #$64
-LC708:  STA HydrogenValue1      ;($0306)
+LC708:  STA ChronoUB      ;($0306)
 LC70B:  RTS
 
 ;----------------------------------------------------------------------------------------------------

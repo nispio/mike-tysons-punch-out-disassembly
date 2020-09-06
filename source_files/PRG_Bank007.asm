@@ -921,7 +921,7 @@ L8755:  JMP ResetRoundClock
 L8758:  RTS
 
 UpdateClock:
-L8759:  LDA RoundClkStart       ;($0300)
+L8759:  LDA RoundClkStart
 L875C:  BEQ $8758               ;If the clock is not started, then return
 L875E:  BMI $8755               ;If MSB set, then reset the clock and return
 L8760:  LDA RoundClkPause       ;($0301)
@@ -940,41 +940,41 @@ L877C:  STA ChronoLB            ; Use Chrono to track where we are in the sequen
 L877F:  RTS
 
 ChronoTick:
-L8780:  LDA ChronoLB            ;($0307)
-L8783:  CLC
-L8784:  ADC HeliumValue2
-L8787:  STA ChronoLB            ;($0307)
-L878A:  LDA ChronoUB            ;($0306)
-L878D:  ADC HeliumValue1
-L8790:  STA ChronoUB            ;($0306)
+L8780:  LDA ChronoLB            ;Binary addition of 16-bit ClockRate into Chrono.     -->
+L8783:  CLC                     ;The clock rate is the number of chrono counts that   -->
+L8784:  ADC ClockRateLB         ;the chronometer advances each frame.  This is a more -->
+L8787:  STA ChronoLB            ;fine-grained timekeeper than the round clock, which  -->
+L878A:  LDA ChronoUB            ;derives its time from the chronometer. It is worth   -->
+L878D:  ADC ClockRateUB         ;noting that clock rate changes from round to round.
+L8790:  STA ChronoUB
 L8793:  CMP #$64
-L8795:  BCC $87E9
-L8797:  SBC #$64
-L8799:  STA ChronoUB            ;($0306)
+L8795:  BCC $87E9               ;If chronometer hasn't ticked past #$6400 counts, return
+L8797:  SBC #$64                ;Else subtract #$6400 from the current count
+L8799:  STA ChronoUB
 L879C:  DEC $0311
-L879F:  INC RoundLowerSec       ;($0305)
-L87A2:  LDA RoundLowerSec       ;($0305)
-L87A5:  CMP #$0A
-L87A7:  BNE UpdateClockDisplay
+L879F:  INC RoundLowerSec       ;Each time the chronometer ticks past $#6400, the  -->
+L87A2:  LDA RoundLowerSec       ;round clock is advanced by one second.
+L87A5:  CMP #$0A                ;If the lower digit of the second clock has not    -->
+L87A7:  BNE UpdateClockDisplay  ;reached 10 yet, then we are done.
 L87A9:  LDX #$00
-L87AB:  STX RoundLowerSec       ;($0305)
-L87AE:  INC RoundUpperSec       ;($0304)
-L87B1:  LDA RoundUpperSec       ;($0304)
+L87AB:  STX RoundLowerSec       ;If the lower digit has reached 10, then it wraps  -->
+L87AE:  INC RoundUpperSec       ;back around to zero and the digit in the tens     -->
+L87B1:  LDA RoundUpperSec       ;place is incremented
 L87B4:  CMP #$06
-L87B6:  BNE UpdateClockDisplay
-L87B8:  STX RoundUpperSec       ;($0304)
-L87BB:  INC RoundMinute         ;($0302)
-L87BE:  LDA RoundMinute         ;($0302)
+L87B6:  BNE UpdateClockDisplay  ;If the tens digit has not reached 6, then we are done
+L87B8:  STX RoundUpperSec       ;Else the tens digit wraps back around to zero    -->
+L87BB:  INC RoundMinute         ;and the minute is incremented.
+L87BE:  LDA RoundMinute
 L87C1:  CMP #$03
-L87C3:  BNE UpdateClockDisplay
-L87C5:  LDA #$02
-L87C7:  STA RoundClkPause       ;($0301)
+L87C3:  BNE UpdateClockDisplay  ;If the round hasn't reached 3 minutes, then we are done
+L87C5:  LDA #$02                ;Else we have reached the end of the round, so    -->
+L87C7:  STA RoundClkPause       ;set RoundClkPause=2 to signal the clock flash sequence
 L87CA:  LDA #$00
 L87CC:  STA OppCurState
 L87CE:  STA OppStateStatus
 L87D0:  STA $51
 L87D2:  LDA #$C2
-L87D4:  STA $50
+L87D4:  STA MacStatus
 
 UpdateClockDisplay:
 L87D6:  CLC
@@ -1154,12 +1154,12 @@ L8932:  CLC
 L8933:  LDA CurHeartsUD
 L8936:  BEQ $894B
 L8938:  ADC #$40
-L893A:  STA $0326
+L893A:  STA HeartDisplayUD
 L893D:  LDA CurHeartsLD
 L8940:  ADC #$40
-L8942:  STA $0327
+L8942:  STA HeartDisplayLD
 L8945:  LDX #$80
-L8947:  STX $0325
+L8947:  STX HeartDispStatus
 L894A:  RTS
 
 L894B:  LDA #$FC
