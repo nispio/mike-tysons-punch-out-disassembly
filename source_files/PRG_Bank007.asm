@@ -496,10 +496,9 @@ L841B:  STX GameStatusBB
 L841D:  STX $03CB
 L8420:  RTS
 
-PauseClock:
-L8421:  LDA RoundClkPause          ;($0301)
+L8421:  LDA RoundTmrCntrl       ;($0301)
 L8424:  ORA #$01
-L8426:  STA RoundClkPause          ;($0301)
+L8426:  STA RoundTmrCntrl       ;($0301)
 L8429:  RTS
 
 L842A:  DEC StarCountDown
@@ -924,7 +923,7 @@ UpdateClock:
 L8759:  LDA RoundClkStart
 L875C:  BEQ $8758               ;If the clock is not started, then return
 L875E:  BMI $8755               ;If MSB set, then reset the clock and return
-L8760:  LDA RoundClkPause       ;($0301)
+L8760:  LDA RoundTmrCntrl       ;($0301)
 L8763:  BEQ ChronoTick          ;If the clock is not paused, then tick
 L8765:  BMI FlashRoundClock     ;If MSB is set, then flash 3:00
 L8767:  CMP #$01
@@ -932,7 +931,7 @@ L8769:  BEQ $8758               ;If the clock is paused, then return
 L876B:  LDA ClockDispStatus
 L876E:  BNE $8758               ;If the clock display requires an update, then return
 L8770:  LDA #$81
-L8772:  STA RoundClkPause       ;Initiate clock flash sequence
+L8772:  STA RoundTmrCntrl       ;Initiate clock flash sequence
 L8775:  LDA #$10                ; Flash sequence has 16 steps
 L8777:  STA ChronoUB            ; 8 times "3:00" and 8 times "----", alternating
 L877A:  LDA #$08                ; One flash step every 8 frames
@@ -968,7 +967,7 @@ L87BE:  LDA RoundMinute
 L87C1:  CMP #$03
 L87C3:  BNE UpdateClockDisplay  ;If the round hasn't reached 3 minutes, then we are done
 L87C5:  LDA #$02                ;Else we have reached the end of the round, so    -->
-L87C7:  STA RoundClkPause       ;set RoundClkPause=2 to signal the clock flash sequence
+L87C7:  STA RoundTmrCntrl       ;set RoundClkPause=2 to signal the clock flash sequence
 L87CA:  LDA #$00
 L87CC:  STA OppCurState
 L87CE:  STA OppStateStatus

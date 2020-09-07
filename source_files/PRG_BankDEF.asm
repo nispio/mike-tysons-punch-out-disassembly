@@ -50,10 +50,10 @@ LA028:  JSR $A9D1
 _ExitNMI:
 LA02B:  JMP ExitNMI             ;($A6DF)Exit NMI interrupt routine.
 
-LA02E:  JSR PushPRGBank08
+LA02E:  JSR PushPRGBank08       ;($AA40)
 LA031:  JSR $8000
 
-LA034:  JSR PopPRGBank
+LA034:  JSR PopPRGBank          ;($AA6A)
 LA037:  JMP ExitNMI             ;($A6DF)Exit NMI interrupt routine.
 
 LA03A:  JSR $A06B
@@ -171,7 +171,7 @@ LA1DA:  STA PPUControl0         ;
 LA1DD:  LDA #%00000110          ;Turn off screen, enable bg and sprites on left 8 pixel columns.
 LA1DF:  STA PPUControl1         ;
 
-LA1E2:  JSR LoadPRGBank07
+LA1E2:  JSR PushPRGBank07       ;($AA54)
 
 LA1E5:  LDA #$00
 LA1E7:  STA $013E
@@ -268,7 +268,7 @@ LA289:  STA GameStatus
 LA28B:  JSR $AF02
 LA28E:  LDA $013F
 LA291:  BNE $A2AC
-LA293:  JSR LoadPRGBank06
+LA293:  JSR PushPRGBank06       ;($AA50)
 LA296:  LDA #$02
 LA298:  STA GameStatus
 LA29A:  JSR $9000               ;06:$9000
@@ -330,24 +330,24 @@ LA30C:  LDA #$00
 LA30E:  STA $04
 LA310:  JSR $BF7E
 LA313:  JMP $A4CC
-LA316:  JSR LoadPRGBank0C
+LA316:  JSR PushPRGBank0C       ;($AA64)
 LA319:  LDA #$05
 LA31B:  JSR $BC5F
 LA31E:  LDY #$97
 LA320:  LDA #$0D
 LA322:  JSR $BFF6
-LA325:  JSR LoadPRGBank07
+LA325:  JSR PushPRGBank07       ;($AA54)
 LA328:  JSR $801B
 LA32B:  LDX #$00
 LA32D:  STX $04C0
 LA330:  BEQ $A2FA
-LA332:  JSR LoadPRGBank0C
+LA332:  JSR PushPRGBank0C       ;($AA64)
 LA335:  LDA #$06
 LA337:  JSR $BC5F
 LA33A:  LDY #$6E
 LA33C:  LDA #$0D
 LA33E:  JSR $BFF6
-LA341:  JSR LoadPRGBank07
+LA341:  JSR PushPRGBank07       ;($AA54)
 LA344:  JSR $8024
 LA347:  JSR $8021
 LA34A:  LDX #$00
@@ -386,7 +386,7 @@ LA393:  LDA #$09
 LA395:  LDY #$0B
 LA397:  STA $0120,X
 LA39A:  STY $F0
-LA39C:  JSR LoadPRGBank07
+LA39C:  JSR PushPRGBank07       ;($AA54)
 LA39F:  JSR $8027
 LA3A2:  JMP $A2FA
 LA3A5:  INC $04C2
@@ -422,7 +422,7 @@ LA3E7:  LDA $04C0
 LA3EA:  BEQ $A3DC
 LA3EC:  LDA $04C2
 LA3EF:  BNE $A400
-LA3F1:  JSR LoadPRGBank07
+LA3F1:  JSR PushPRGBank07       ;($AA54)
 
 LA3F4:  JSR DoCircuitPassword   ;($8042)Check if user entered another world circuit password.
 LA3F7:  BEQ $A46A
@@ -464,7 +464,7 @@ LA43F:  BEQ $A457
 
 LA441:  BNE $A427
 
-LA443:  JSR LoadPRGBank07
+LA443:  JSR PushPRGBank07       ;($AA54)
 LA446:  JSR $8033
 LA449:  BNE $A42D
 LA44B:  JSR $8036
@@ -496,7 +496,7 @@ LA47C:  LDA #SND_OFF            ;Stop any playing music.
 LA47E:  STA MusicInit           ;
 
 LA480:  JSR $AEA5
-LA483:  JSR LoadPRGBank0C
+LA483:  JSR PushPRGBank0C       ;($AA64)
 LA486:  LDA #$81
 LA488:  STA $04B0
 LA48B:  JSR $AF02
@@ -707,8 +707,8 @@ LA644:  INC FrameCounter
 LA646:  LDA TransTimer
 LA648:  BEQ $A64C
 LA64A:  DEC TransTimer
-LA64C:  JSR PushPRGBank07
-LA64F:  JSR $8012               ;07:$8012
+LA64C:  JSR PushPRGBank07       ;($AA3C)
+LA64F:  JSR $8012               ;(07:$8012)
 LA652:  LDA $04
 LA654:  BMI $A659
 LA656:  JMP $A73D
@@ -743,23 +743,23 @@ LA685:  BEQ $A68D
 LA687:  JSR $A75B
 LA68A:  JSR $A750
 
-LA68D:  JSR PushPRGBank08
-LA690:  JSR $8000               ;08:$8000
+LA68D:  JSR PushPRGBank08       ;($AA40)
+LA690:  JSR $8000               ;(08:$8000)
 LA693:  JSR $A09A
-LA696:  JSR PushFightBank
+LA696:  JSR PushFightBank        ;($AA48)
 LA699:  JSR $B069
 LA69C:  JSR $B10A
 LA69F:  JSR $C291
 LA6A2:  JSR $B196
 LA6A5:  JSR $C3D9
 LA6A8:  JSR $C4E7
-LA6AB:  JSR PushFightBank
+LA6AB:  JSR PushFightBank        ;($AA48)
 LA6AE:  JSR $C890
 LA6B1:  JSR $AA87               ;Calls graphics routines from bank 0B
-LA6B4:  JSR PushPRGBank07
+LA6B4:  JSR PushPRGBank07       ;($AA3C)
 LA6B7:  JSR $800F               ;(07:$800F)
 LA6BA:  JSR $8015               ;(07:$8015)
-LA6BD:  JSR PushFightBank
+LA6BD:  JSR PushFightBank       ;($AA48)
 LA6C0:  JSR $B457
 LA6C3:  JSR SetOppOutlineClr    ;($C440)Set opponent outline color.
 LA6C6:  JSR $B530
@@ -824,13 +824,13 @@ LA71C:  LDA #$00
 LA71E:  STA UpdatePalFlag
 
 LA721:  JSR $A9DF
-LA724:  JSR PushPRGBank07
+LA724:  JSR PushPRGBank07       ;($AA3C)
 LA727:  JSR $8012
 
-LA72A:  JSR PushPRGBank08
+LA72A:  JSR PushPRGBank08       ;($AA40)
 LA72D:  JSR $8000
 
-LA730:  JSR PopPRGBank
+LA730:  JSR PopPRGBank          ;($AA6A)
 LA733:  LDA $04
 LA735:  BMI $A6D9
 LA737:  CMP #$02
@@ -942,11 +942,10 @@ LA814:  LDA $05EE
 LA817:  STA $E8
 LA819:  LDA $05EF
 LA81C:  STA $E9
-LA81E:  JSR PushFightBank
+LA81E:  JSR PushFightBank       ;($AA48)
 LA821:  LDA ($E8),Y
 LA823:  STA $03D9
-LA826:  JMP PopPRGBank
-
+LA826:  JMP PopPRGBank          ;($AA6A)
 LA829:  LDX #$FF
 LA82B:  TXS
 LA82C:  JSR $AA1D
@@ -1269,19 +1268,19 @@ LAA81:  .byte $08, $01, $FF, $10, $02, $FE
 
 ;----------------------------------------------------------------------------------------------------
 
-LAA87:  JSR PushPRGBank0B       ;Load PRG bank 0B in order to call its subroutines
+LAA87:  JSR PushPRGBank0B       ;($AA44) Load PRG bank 0B in order to call its subroutines
 LAA8A:  JSR $8003               ;(0B:$8003)
 LAA8D:  JSR $8006               ;(0B:$8006)
 LAA90:  JSR $8009               ;(0B:$8009)
-LAA93:  JMP PushFightBank       ;Load the PRG bank for this fight and then RTS
+LAA93:  JMP PushFightBank       ;($AA48) Load the PRG bank for this fight, then return
 
-LAA96:  JSR PushPRGBank0B       ;Load PRG bank 0B in order to call its subroutines
+LAA96:  JSR PushPRGBank0B       ;($AA44) Load PRG bank 0B in order to call its subroutines
 LAA99:  JSR $8009               ;(0B:$8009)
-LAA9C:  JMP PushFightBank       ;Load the PRG bank for this fight and then RTS
+LAA9C:  JMP PushFightBank       ;($AA48) Load the PRG bank for this fight, then return
 
-LAA9F:  JSR PushPRGBank0B       ;Load PRG bank 0B in order to call its subroutines
+LAA9F:  JSR PushPRGBank0B       ;($AA44) Load PRG bank 0B in order to call its subroutines
 LAAA2:  JSR $8000               ;((0B:$8000)
-LAAA5:  JMP PushFightBank       ;Load the PRG bank for this fight and then RTS
+LAAA5:  JMP PushFightBank       ;($AA48) Load the PRG bank for this fight, then return
 
 ;----------------------------------------------------------------------------------------------------
 
@@ -1326,10 +1325,10 @@ LAAED:  LDA FightVar01
 LAAEF:  ASL
 LAAF0:  TAY
 LAAF1:  LDA $A0D1,Y
-LAAF4:  STA FightBank          ;($02)
-LAAF6:  JSR PushFightBank
+LAAF4:  STA FightBank           ;($02)
+LAAF6:  JSR PushFightBank       ;($AA48)
 LAAF9:  LDA $A0D2,Y
-LAAFC:  STA FightOffset          ;($03)
+LAAFC:  STA FightOffset        ;($03)
 LAAFE:  LDY #$20
 LAB00:  LDA #$00
 LAB02:  STA $03C0,Y
@@ -1338,7 +1337,7 @@ LAB06:  BNE $AB02
 LAB08:  STA $03B1
 LAB0B:  CLC
 LAB0C:  LDA #$0E
-LAB0E:  ADC FightOffset
+LAB0E:  ADC FightOffset         ;($03)
 LAB10:  TAX
 LAB11:  JSR $BF9E               ;Set E0 to point to data table for current opponent
 LAB14:  LDX #$60
@@ -1429,7 +1428,7 @@ LABD5:  DEX
 LABD6:  STX $37
 LABD8:  LDX #$01
 LABDA:  STX PointsStatus
-LABDD:  JSR LoadPRGBank07
+LABDD:  JSR PushPRGBank07       ;($AA54)
 LABE0:  JSR $8006
 LABE3:  LDA #$00
 LABE5:  STA MacCurrentHP
@@ -1456,7 +1455,7 @@ LAC1A:  LDA #$03
 LAC1C:  CLC
 LAC1D:  ADC #$BF
 LAC1F:  STA PPUIOReg
-LAC22:  JSR PushFightBank
+LAC22:  JSR PushFightBank       ;($AA48)
 LAC25:  JSR $AF5B
 LAC28:  LDA #PAL_UPDATE
 LAC2A:  STA UpdatePalFlag
@@ -1492,7 +1491,7 @@ LAC64:  STA GameStatus
 LAC66:  JSR $AE91
 LAC69:  JSR $BF7E
 LAC6C:  JMP $A2AC
-LAC6F:  JSR LoadPRGBank07
+LAC6F:  JSR PushPRGBank07       ;($AA54)
 LAC72:  JSR $803C
 LAC75:  JSR $802A
 LAC78:  JSR $802D
@@ -1605,7 +1604,7 @@ LAD5E:  STA $0410
 LAD61:  JSR $C013
 LAD64:  LDX #$F3
 LAD66:  JSR $ADB6
-LAD69:  JSR LoadPRGBank07
+LAD69:  JSR PushPRGBank07       ;($AA54)
 LAD6C:  JSR $803C
 LAD6F:  JSR $802A
 LAD72:  JSR $802D
@@ -1863,7 +1862,7 @@ LAF4F:  .byte $5D, $00, $20, $FC, $00, $FD, $20, $00, $00, $FE, $20, $00
 
 LAF5B:  CLC
 LAF5C:  LDA #$06
-LAF5E:  ADC $03
+LAF5E:  ADC FightOffset          ;($03)
 LAF60:  TAX
 LAF61:  JSR $BF9E
 LAF64:  JSR $BED9
@@ -2335,7 +2334,7 @@ LB239:  JMP $B1A5
 LB23C:  TXA
 LB23D:  JSR IndFuncJump         ;($AED4)Indirect jump to desired function below.
 
-LB240:  .word $B24A, $B250, $B259, $B26A, $B273 
+LB240:  .word $B24A, $B250, $B259, $B26A, $B273
 
 LB24A:  LDA $0584
 LB24D:  JMP $B139
@@ -2364,18 +2363,16 @@ LB273:  DEC $3D
 LB275:  BEQ $B267
 LB277:  JMP $B1D4
 
-LB27A:  JSR PushFightBank
+LB27A:  JSR PushFightBank       ;($AA48)
 LB27D:  JSR $B2EB
-LB280:  JMP PushPRGBank07
-
-LB283:  JSR PushFightBank
-LB286:  STA BankSelect
+LB280:  JMP PushPRGBank07       ;($AA3C)
+LB283:  JSR PushFightBank       ;($AA48)
+LB286:  STA $AFFF
 LB289:  JSR $B3A3
-LB28C:  JMP PushPRGBank07
-
-LB28F:  JSR PushFightBank
+LB28C:  JMP PushPRGBank07       ;($AA3C)
+LB28F:  JSR PushFightBank       ;($AA48)
 LB292:  JSR $B3EB
-LB295:  JMP PushPRGBank07
+LB295:  JMP PushPRGBank07       ;($AA3C)
 LB298:  LDY #$04
 LB29A:  LDA $B39E,Y
 LB29D:  STA $00C0,Y
@@ -2891,7 +2888,7 @@ LB69E:  BPL $B697
 LB6A0:  RTS
 
 LB6A1:  JSR $B666
-LB6A4:  JSR LoadPRGBank08
+LB6A4:  JSR PushPRGBank09       ;($AA5C)
 LB6A7:  JSR $800E
 LB6AA:  LDX #$20
 LB6AC:  LDY #$09
@@ -2904,7 +2901,7 @@ LB6BA:  JSR $BF21
 LB6BD:  LDA #$00
 LB6BF:  LDX #$02
 LB6C1:  JSR $BF0D
-LB6C4:  JMP LoadPRGBank0C
+LB6C4:  JMP PushPRGBank0C       ;($AA64)
 
 LB6C7:  .byte $00, $FE, $00, $00
 
@@ -2974,7 +2971,7 @@ LB754:  STA PPU1Load
 LB756:  RTS
 
 LB757:  JSR $B666
-LB75A:  JSR LoadPRGBank08
+LB75A:  JSR PushPRGBank09       ;($AA5C)
 LB75D:  LDA #$FF
 LB75F:  JSR $BFAE
 LB762:  JSR $BFB2
@@ -2986,9 +2983,9 @@ LB76E:  JSR $C113
 LB771:  LDA #$00
 LB773:  LDX #$01
 LB775:  JSR $BF0D
-LB778:  JSR LoadPRGBank07
+LB778:  JSR PushPRGBank07       ;($AA54)
 LB77B:  JSR $805A
-LB77E:  JSR LoadPRGBank0C
+LB77E:  JSR PushPRGBank0C       ;($AA64)
 
 LB781:  LDA #SPRT_BKG_ON        ;Enable sprites and background.
 LB783:  STA SprtBkgUpdt         ;
@@ -3024,7 +3021,7 @@ LB7C6:  STY $03D4
 LB7C9:  LDA #$03
 LB7CB:  STA GameStatus
 LB7CD:  JSR $AF38
-LB7D0:  JSR LoadPRGBank08
+LB7D0:  JSR PushPRGBank09       ;($AA5C)
 LB7D3:  LDA #$0B
 LB7D5:  LDX #$04
 LB7D7:  JSR $BF21
@@ -3073,7 +3070,7 @@ LB832:  JSR $B695
 LB835:  LDA #$1A
 LB837:  LDX #$01
 LB839:  JSR $BF0D
-LB83C:  JSR LoadPRGBank08
+LB83C:  JSR PushPRGBank09       ;($AA5C)
 LB83F:  LDA #$0F
 LB841:  JSR $C113
 LB844:  LDX #$26
@@ -3094,7 +3091,7 @@ LB860:  LDA #$03
 LB862:  STA GameStatus
 LB864:  BNE $B860
 
-LB866:  .byte $00, $06, $14, $02, $04, $08, $0A, $10, $0C, $0E, $A2, $10, $B9, $80, $B8, $9D 
+LB866:  .byte $00, $06, $14, $02, $04, $08, $0A, $10, $0C, $0E, $A2, $10, $B9, $80, $B8, $9D
 LB876:  .byte $21, $02, $88, $CA, $CA, $CA, $CA, $10, $F3, $60, $7B, $7C, $76, $77, $7D, $74
 LB886:  .byte $75, $76, $77, $78
 
@@ -3460,7 +3457,7 @@ LBBA0:  JSR $C113
 LBBA3:  LDA #$00
 LBBA5:  LDX #$03
 LBBA7:  JMP $BF0D
-LBBAA:  JSR LoadPRGBank08
+LBBAA:  JSR PushPRGBank09       ;($AA5C)
 LBBAD:  LDA #$04
 LBBAF:  JSR $C105
 LBBB2:  LDA #$0B
@@ -3469,8 +3466,7 @@ LBBB6:  LDX #$0D
 LBBB8:  JSR $BEC9
 LBBBB:  LDA #PAL_UPDATE
 LBBBD:  STA UpdatePalFlag
-LBBC0:  JMP LoadPRGBank0C
-
+LBBC0:  JMP PushPRGBank0C       ;($AA64)
 LBBC3:  LDA $03D0
 LBBC6:  BEQ $BBD2
 LBBC8:  LDA #$04
@@ -3591,7 +3587,7 @@ LBCAF:  RTS
 
 LBCB0:  .byte $01, $01, $03, $06, $05, $09, $07, $02, $09, $03, $0A, $08, $0A, $0A
 
-LBCBE:  JSR LoadPRGBank08
+LBCBE:  JSR PushPRGBank09       ;($AA5C)
 LBCC1:  LDX #$00
 LBCC3:  JSR $BF9E
 LBCC6:  LDY $05CD
@@ -3649,8 +3645,7 @@ LBD35:  JSR $C85C
 LBD38:  LDA #$02
 LBD3A:  STA OppBaseAnimIndex
 LBD3C:  JSR $C85C
-LBD3F:  JMP LoadPRGBank0C
-
+LBD3F:  JMP PushPRGBank0C       ;($AA64)
 LBD42:  JSR $BF3C
 LBD45:  LDX #$00
 LBD47:  LDA #$00
@@ -3744,7 +3739,7 @@ LBE02:  STA $20
 LBE04:  LDA #$01
 LBE06:  STA $17
 LBE08:  RTS
-LBE09:  JSR LoadPRGBank0A
+LBE09:  JSR PushPRGBank0A       ;($AA60)
 LBE0C:  LDA $04B0
 LBE0F:  BEQ $BE14
 LBE11:  JMP $8000
@@ -3915,8 +3910,7 @@ LBF49:  JSR $AF38
 LBF4C:  LDA #$00
 LBF4E:  STA OppBaseXSprite
 LBF50:  STA OppBaseYSprite
-LBF52:  JMP LoadPRGBank0C
-
+LBF52:  JMP PushPRGBank0C       ;($AA64)
 LBF55:  STA $E000
 LBF58:  LDA #$00
 LBF5A:  STA $D000
@@ -4008,7 +4002,7 @@ LBFF1:  RTS
 LBFF2:  LDY #$53
 LBFF4:  LDA #$1B
 LBFF6:  STA $E2
-LBFF8:  JSR LoadPRGBank0C
+LBFF8:  JSR PushPRGBank0C       ;($AA64)
 LBFFB:  LDX #$06
 LBFFD:  JSR $BF9E
 LC000:  LDX #$00
@@ -4623,7 +4617,7 @@ LC486:  STA $AF
 LC488:  INC OppStateTimer
 LC48A:  STA $5A
 LC48C:  STA $AF
-LC48E:  JSR PushFightBank
+LC48E:  JSR PushFightBank        ;($AA48)
 LC491:  LDY FightOffset          ;($03)
 LC493:  LDA OppCurState
 LC495:  CMP #$40
@@ -4712,7 +4706,7 @@ LC533:  BNE $C52A
 LC535:  INC OppStateTimer
 LC537:  LDA $AF
 LC539:  BEQ $C53E
-LC53B:  JSR PushPRGBank06
+LC53B:  JSR PushPRGBank06       ;($AA38)
 LC53E:  LDA OppAnimSeg
 LC540:  BEQ OppStateUpdate      ;($C550)Advance to the opponent's next state.
 
@@ -4747,7 +4741,7 @@ LC55F:  JSR IndFuncJump         ;($AED4)Indirect jump to desired function below.
 
 LC562:  .word OppLoadSprites,  SpritesNxtXYState, $C5B3,           $C5B7
 LC56A:  .word $C5C8,           $C5CE,             SprtMove,        OppMoveSprites
-LC572:  .word OppSetTimer,     $C600,             $C61E,           OppStateUpdate1
+LC572:  .word OppSetTimer,     $C600,             OppBigMove,      OppStateUpdate1
 LC57A:  .word OppStateUpdate1, OppStateUpdate1,   OppStateUpdate1, OppStateUpdate2
 
 ;----------------------------------------------------------------------------------------------------
@@ -4816,17 +4810,18 @@ LC5BB:  BCC $C5C5
 LC5BD:  LDA (OppStBasePtr),Y
 LC5BF:  TAY
 
+UpdateStateIndex4:
 LC5C0:  STY OppStateIndex
 LC5C2:  JMP OppStateUpdate      ;($C550)Advance to the opponent's next state.
 
 LC5C5:  INY
-LC5C6:  BNE $C5C0
+LC5C6:  BNE UpdateStateIndex4
 
 ;----------------------------------------------------------------------------------------------------
 
 LC5C8:  LDA #$01
 LC5CA:  STA $A2
-LC5CC:  BNE $C58D
+LC5CC:  BNE OppLoadSprites
 
 ;----------------------------------------------------------------------------------------------------
 
@@ -4901,23 +4896,28 @@ LC61B:  JMP OppStateUpdate      ;($C550)Advance to the opponent's next state.
 
 ;----------------------------------------------------------------------------------------------------
 
+OppBigMove:
 LC61E:  STX OppStateTimer
 LC620:  LDX #$00
 LC622:  LDA OppBaseSprite,X
 LC624:  SEC
 LC625:  SBC $04D0,X
 LC628:  JSR $C649
+
 LC62B:  STA $B0,X
 LC62D:  INX
 LC62E:  CPX #$02
 LC630:  BNE $C622
+
 LC632:  LDX #$00
 LC634:  LDA OppBaseSprite,X
 LC636:  CMP $04D0,X
 LC639:  BNE $C646
+
 LC63B:  INX
 LC63C:  CPX #$02
 LC63E:  BNE $C634
+
 LC640:  LDA (OppStBasePtr),Y
 LC642:  TAY
 LC643:  STY OppStateIndex
@@ -4927,12 +4927,15 @@ LC646:  INY
 LC647:  BNE $C643
 
 LC649:  BPL $C660
+
 LC64B:  EOR #$FF
 LC64D:  CLC
 LC64E:  ADC #$01
 LC650:  CMP $04D2,X
 LC653:  BCC $C658
+
 LC655:  LDA $04D2,X
+
 LC658:  STA $E7
 LC65A:  LDA OppBaseSprite,X
 LC65C:  CLC
@@ -4941,7 +4944,9 @@ LC65F:  RTS
 
 LC660:  CMP $04D2,X
 LC663:  BCC $C668
+
 LC665:  LDA $04D2,X
+
 LC668:  STA $E7
 LC66A:  LDA OppBaseSprite,X
 LC66C:  SEC
@@ -5016,6 +5021,7 @@ LC6C7:  JMP OppStateUpdate      ;($C550)Advance to the opponent's next state.
 LC6CA:  LDA PPU0Load
 LC6CC:  AND #$DF
 LC6CE:  LDX #$08
+
 LC6D0:  STA PPU0Load
 LC6D2:  STX $80
 LC6D4:  JMP OppStateUpdate      ;($C550)Advance to the opponent's next state.
@@ -5040,18 +5046,18 @@ LC6E7:  JMP $C78B
 
 LC6EA:  LDA (OppStBasePtr),Y
 LC6EC:  BEQ $C6F6
-LC6EE:  LDX RoundClkStart          ;($0300)
+LC6EE:  LDX RoundClkStart       ;($0300)
 LC6F1:  BNE $C6F6
-LC6F3:  STA RoundClkStart          ;($0300)
+LC6F3:  STA RoundClkStart       ;($0300)
 LC6F6:  EOR #$01
 LC6F8:  STA $E7
-LC6FA:  LDA RoundClkPause          ;($0301)
+LC6FA:  LDA RoundTmrCntrl       ;($0301)
 LC6FD:  AND #$FE
 LC6FF:  ORA $E7
-LC701:  STA RoundClkPause          ;($0301)
+LC701:  STA RoundTmrCntrl       ;($0301)
 LC704:  INC OppStateIndex
 LC706:  LDA #$64
-LC708:  STA ChronoUB      ;($0306)
+LC708:  STA ChronoUB            ;($0306)
 LC70B:  RTS
 
 ;----------------------------------------------------------------------------------------------------
@@ -5397,7 +5403,7 @@ LC892:  BEQ $C88F
 LC894:  TAX
 LC895:  LDA #$50
 LC897:  STA $E7
-LC899:  LDY FightOffset          ;($03)
+LC899:  LDY FightOffset         ;($03)
 LC89B:  LDA $8000,Y
 LC89E:  STA $E0
 LC8A0:  LDA $8001,Y
@@ -8094,6 +8100,8 @@ LF449:  STA SQ1Cntrl3,X         ;Update channel frequency upper bits hardware.
 GetNoteDone:
 LF44C:  RTS                     ;Done updating the given channel's note to play.
 
+;----------------------------------------------------------------------------------------------------
+
 ;The following arelogarithmic sweep functions.  They increase the frequency.  As the frequency -->
 ;gets higher, the change in frequency gets less. The functions set the delta frequency to -->
 ;different amounts. The higher the divide number, the slower the frequency sweeps. These -->
@@ -8121,6 +8129,8 @@ LF459:* TYA                     ;
 LF45A:  SEC                     ;Return the logarithmic increase in the frequency in A.
 LF45B:  SBC GenByteE0           ;
 LF45D:  RTS                     ;
+
+;----------------------------------------------------------------------------------------------------
 
 LF45E:  LDA SQ1SFXTimer
 LF461:  BNE $F466
@@ -8208,9 +8218,11 @@ LF4E9:  SBC #$0A
 LF4EB:  STA SQ2Cntrl2
 LF4EE:  RTS
 
+;----------------------------------------------------------------------------------------------------
+
 InitSQ1SFX:
-LF4EF:  STY SFXIndexSQ1
-LF4F1:  STA SQ1SFXTimer
+LF4EF:  STY SFXIndexSQ1			;Save timer value for length of SFX.
+LF4F1:  STA SQ1SFXTimer			;Save index to SFX.
 
 LF4F4:  LDA #$01
 LF4F6:  STA SQ1InUse
@@ -8232,23 +8244,31 @@ LF512:  LDA #$00
 LF514:  STA SQ2InUse
 LF517:  RTS
 
-LF518:  STY SFXIndexSQ1
-LF51A:  STA SQ1SFXTimer
-LF51D:  LDA #$00
-LF51F:  STA SQ1InUse
-LF522:  LDA SQ2InUse
-LF525:  BEQ $F531
+;----------------------------------------------------------------------------------------------------
 
-LF527:  LDA #$10
-LF529:  STA SQ2Cntrl0
-LF52C:  LDA #$00
-LF52E:  STA SQ2InUse
+InitSQ1SQ2SFX:
+LF518:  STY SFXIndexSQ1			;Save the length of the SFX.
+LF51A:  STA SQ1SFXTimer			;
 
-LF531:  LDA #$10
-LF533:  STA SQ1Cntrl0
-LF536:  LDA #$01
-LF538:  STA NoiseInUse
-LF53B:  RTS
+LF51D:  LDA #$00				;Indicate SQ1 channel is not in use.
+LF51F:  STA SQ1InUse			;
+
+LF522:  LDA SQ2InUse			;Is SQ2 channel in use?
+LF525:  BEQ SetNoiseInUse		;If not, branch.
+
+LF527:  LDA #$10				;Silence SQ2 channel.
+LF529:  STA SQ2Cntrl0			;
+
+LF52C:  LDA #$00				;Indicate SQ2 channel is not in use.
+LF52E:  STA SQ2InUse			;
+
+SetNoiseInUse:
+LF531:  LDA #$10				;Silence SQ1 channel.
+LF533:  STA SQ1Cntrl0			;
+
+LF536:  LDA #$01				;
+LF538:  STA NoiseInUse			;Indicate the noise channel is in use.
+LF53B:  RTS						;
 
 ;----------------------------------------------------------------------------------------------------
 
@@ -8362,7 +8382,6 @@ LF66F:  .byte $38, $00, $00, $00, $00
 ;register. A new value is loaded every 4th frame.
 
 SQDCEnvTbl:
-
 ;The most common data used by most music.
 LF674:  .byte $DA, $DA, $DA, $D9, $D9, $D9, $D8, $D8, $D8, $D7, $D7, $D7, $D6, $D6, $D6, $D5
 
@@ -8383,7 +8402,7 @@ LF6D4:  .byte $50, $50, $50, $50, $50, $50, $50, $50, $50, $50, $51, $52, $53, $
 ;Used in the intro/attract/end music.
 LF6E4:  .byte $90, $90, $90, $90, $90, $90, $90, $90, $90, $91, $93, $94, $96, $97, $99, $9A
 
-;In the trianing music, these envelope values make the SQ2 envelope and duty cycle rapidly 
+;In the trianing music, these envelope values make the SQ2 envelope and duty cycle rapidly
 ;change which gives the effect of a fast playing violin or something similar.
 LF6F4:  .byte $10, $10, $10, $10, $12, $95, $D3, $14, $95, $17, $D4, $15, $97, $18, $DA, $D0
 LF704:  .byte $0C, $13, $D4, $15, $97, $D5, $16, $97, $19, $D6, $17, $99, $17, $DB, $D0, $0C
@@ -8431,24 +8450,53 @@ LF770:  .byte $C5, $18          ;Laugh4. Address: $F140. Length: 384  bytes.
 LF772:  .byte $CB, $0F          ;Laugh5. Address: $F2C0. Length: 240  bytes.
 LF774:  .byte $B0, $0C          ;Grunt.  Address: $EC00. Length: 192  bytes.
 
+;----------------------------------------------------------------------------------------------------
+
+;The following is sweep data loaded into SQ1Cntrl1 during the SQ1_FALL SFX.
+FallSFXSweepTbl:
 LF776:  .byte $8D, $84, $84, $84, $84, $8C, $8C, $8C
 
+;The following table contains the noise data for the SQ1_PUNCH_MISS1 SFX. The lower nibble in
+;each byte is loaded into NoiseCntrl2 and the upper nibble is loaded into  NoiseCntrl0.
+PnchMs1SFXTbl:
 LF77E:  .byte $FE, $FC, $EA, $E8, $D7, $C9, $9A, $8B, $7C, $7D, $5E, $5F, $3E, $3F, $2F, $1F
-LF78C:  .byte $FB, $E9, $D7, $C9, $9A, $8B, $7C, $5D, $3E, $2F, $93, $95, $97, $99, $64, $64
-LF79C:  .byte $64, $64, $64, $64, $64, $64, $64, $64, $64, $64, $64, $64, $64, $64
 
-LF7AC:  .byte $4C, $42, $58, $50, $3E, $54, $4E, $5E, $4E, $48, $52, $44, $5C, $4A, $60, $40
+;The following table contains the noise data for the SQ1_PUNCH_MISS2 SFX. The lower nibble in
+;each byte is loaded into NoiseCntrl2 and the upper nibble is loaded into  NoiseCntrl0.
+PnchMs2SFXTbl:
+LF78E:  .byte $FB, $E9, $D7, $C9, $9A, $8B, $7C, $5D, $3E, $2F
+
+;The following table contains values loaded into SQ1Cntrl0 during the SQ1_TALK1 SFX.
+Talk1CntrlTbl:
+LF798:  .byte $93, $95, $97, $99
+
+;The following table contains the notes to use in the SQ1_TALK1 SFX. The notes are all the same.
+Talk1NoteTbl:
+LF79C:  .byte SQ_C_6, SQ_C_6, SQ_C_6, SQ_C_6, SQ_C_6, SQ_C_6, SQ_C_6, SQ_C_6
+LF7A4:  .byte SQ_C_6, SQ_C_6, SQ_C_6, SQ_C_6, SQ_C_6, SQ_C_6, SQ_C_6, SQ_C_6
+
+;The following table contains the notes to use in the SQ1_TALK2 SFX.
+Talk2NoteTbl:
+LF7AC:  .byte SQ_C_5,       SQ_G_4,       SQ_F_SHARP_5, SQ_D_5
+LF7B0:  .byte SQ_F_4,       SQ_E_5,       SQ_C_SHARP_5, SQ_A_5
+LF7B4:  .byte SQ_C_SHARP_5, SQ_A_SHARP_4, SQ_D_SHARP_5, SQ_G_SHARP_4
+LF7B8:  .byte SQ_G_SHARP_5, SQ_B_4,       SQ_A_SHARP_5, SQ_F_SHARP_4
+
+;The following table contains the notes to use in the SQ1_TALK3 SFX.
+Talk3NoteTbl:
 LF7BC:  .byte $24, $2A, $1C, $34, $2E, $20, $32, $22, $38, $2C, $1E, $30, $26, $2C, $3C, $28
-LF7CC:  .byte $16, $19, $10, $10, $1B, $1D, $1F, $1B, $17, $18, $19, $1A, $1B, $10, $10, $1C
-LF7DC:  .byte $1D, $1E, $10, $10, $1C, $1D, $1E, $1F, $18, $1A, $1C, $1E, $1C, $1A, $B0, $E0
-LF7EC:  .byte $D8, $00, $00, $50, $48, $18, $10, $D0, $C0, $B0, $A0, $90, $00, $00, $40, $50
-LF7FC:  .byte $60, $00, $00, $20, $30, $40, $13, $00, $10, $20, $30, $40, $50, $90, $F8, $E6
-LF80C:  .byte $AA, $8B, $4C, $85, $84, $84, $84, $84, $8C, $8C, $8C, $04, $08, $0C, $10, $18
-LF81C:  .byte $30, $28, $1F, $E2, $1D, $FE, $40, $08, $10, $18, $20, $28, $30, $38, $40, $48
-LF82C:  .byte $50, $58, $60, $01, $03, $05, $08, $0A, $0F, $D0, $D1, $D2, $D3, $D4, $D5, $D6
-LF83C:  .byte $D7, $D8, $D9, $DA, $DB, $DC, $DD, $DE, $DF, $50, $51, $52, $53, $54, $55, $56
-LF84C:  .byte $57, $58, $59, $5A, $5B, $5C, $5D, $5E, $5F, $08, $09, $08, $09, $10, $11, $11
-LF85C:  .byte $12, $13, $14, $15, $16, $17, $18, $19, $1A, $17, $18, $19, $1A
+
+LF7CC:  .byte $16, $19
+LF7CE:  .byte $10, $10, $1B, $1D, $1F, $1B, $17, $18, $19, $1A, $1B, $10, $10, $1C, $1D, $1E
+LF7DE:  .byte $10, $10, $1C, $1D, $1E, $1F, $18, $1A, $1C, $1E, $1C, $1A, $B0, $E0, $D8, $00
+LF7EE:  .byte $00, $50, $48, $18, $10, $D0, $C0, $B0, $A0, $90, $00, $00, $40, $50, $60, $00
+LF7FE:  .byte $00, $20, $30, $40, $13, $00, $10, $20, $30, $40, $50, $90, $F8, $E6, $AA, $8B
+LF80E:  .byte $4C, $85, $84, $84, $84, $84, $8C, $8C, $8C, $04, $08, $0C, $10, $18, $30, $28
+LF81E:  .byte $1F, $E2, $1D, $FE, $40, $08, $10, $18, $20, $28, $30, $38, $40, $48, $50, $58
+LF82E:  .byte $60, $01, $03, $05, $08, $0A, $0F, $D0, $D1, $D2, $D3, $D4, $D5, $D6, $D7, $D8
+LF83E:  .byte $D9, $DA, $DB, $DC, $DD, $DE, $DF, $50, $51, $52, $53, $54, $55, $56, $57, $58
+LF84E:  .byte $59, $5A, $5B, $5C, $5D, $5E, $5F, $08, $09, $08, $09, $10, $11, $11, $12, $13
+LF85E:  .byte $14, $15, $16, $17, $18, $19, $1A, $17, $18, $19, $1A
 
 ;----------------------------------------------------------------------------------------------------
 

@@ -21,7 +21,7 @@ L800E:  .word $9316             ;Fight data pointer.
 ;Don Flamenco 1 data entry point.
 L8010:  .word $8036, $8B27, $8B5B, $92D6, $0000, $0000, $0000, $94C3
 
-;Don Flamenco 2 data entry point. 
+;Don Flamenco 2 data entry point.
 L8020:  .word $8036, $8B27, $8B5B, $92F6, $0000, $0000, $0000, $9523
 
 ;----------------------------------------------------------------------------------------------------
@@ -689,7 +689,7 @@ L8C6C:  .byte $24               ;Jump to index #$24 is repeat counter is active.
 ;Index #$20.
 L8C6D:  .byte ST_CHK_BRANCH     ;Check memory value and branch if a match is found.
 L8C6E:  .byte MacStatus         ;
-L8C6F:  .byte MAC_SUPER_PUNCH   ;Is Little Mac throwing a super punch? 
+L8C6F:  .byte MAC_SUPER_PUNCH   ;Is Little Mac throwing a super punch?
 L8C70:  .byte $59               ;If so, jump to index #$59.
 
 ;Index #$24.
@@ -884,8 +884,17 @@ L8E88:  .byte $0A, $86, $B6, $01, $C0, $0F, $0C, $01, $08, $FC, $F4
 ;**********Glass Joe, Don Flamenco non-combo face punch, moves back and to the left**********
 FacePunchLeft:
 
-L8E93:  .byte $F2, $05, $01, $15, $51, $22, $87, $B6, $EC
-L8E9C:  .byte $1D, $7C, $EE, $51, $24, $7C, $AB, $7C, $EE, $80, $20, $FF, $F1, $AC, $8E, $1A
+L8E93:  .byte ST_CHK_BRANCH, $05, $01, $15
+L8E97:  .byte $51, $22
+L8E99:  .byte $87, $B6
+L8E9B:  .byte ST_AUD_INIT, $1D
+L8E9D:  .byte $7C, $EE
+L8E9F:  .byte $51, $24
+L8EA1:  .byte $7C, $AB
+L8EA3:  .byte $7C, $EE
+L8EA5:  .byte $80, $20
+L8EA7:  .byte $FF
+L8EA8:  .byte $F1, $AC, $8E, $1A
 
 ;**********Glass Joe, Don Flamenco non-combo face punch, moves back and to the left 1**********
 FacePunchLeft1:
@@ -902,7 +911,7 @@ L8F2C:  .byte $80, $94, $D0, $04, $87, $96, $06, $03, ST_CALL_FUNC, $42, $92, $0
 L8F2A:  .byte $BB, $00
 L8F3C:  .byte $80, $01, $F2, $BB, $00, $90, $F1, $FD, $90, $54
 
-;**********Glass Joe, Don Flamenco non-combo face punch, moves back and to the right 2**********
+;**********Glass Joe, Don Flamenco non-combo face punch, moves back and to the right 1**********
 FacePunchRight1:
 
 L8F46:  .byte $EC, $80, $F2, $BB, $02, $37
