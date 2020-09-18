@@ -20,6 +20,9 @@
 .alias PPU0Load         $10     ;Value to load next into PPU control register 0.
 .alias PPU1Load         $11     ;Value to load next into PPU control register 1.
 
+.alias RNGValue         $18     ;Random number generator
+.alias InputAccum       $19     ;Controller 1 input accumulator
+
 .alias SprtBkgUpdt      $1B     ;MSB set=update sprite/background enable/disable.
                                 ;#$80=Disable sprites and background.
                                 ;#$81=Enable sprites and background.
@@ -38,6 +41,7 @@
 .alias ComboCountDown   $4B     ;Hits left in current combo.
 
 .alias MacStatus        $50     ;Status of Little Mac during a fight. MSB set=status update.
+.alias MacStateStatus   $51     ;Status of Mac's current state
 
 .alias MacPunchType     $74     ;Little Mac punch type.
                                 ;#$00=Right punch to face.
@@ -49,6 +53,8 @@
 .alias MacDefense1      $76     ;Little Mac's defense. there are 2 values but they are always -->
 .alias MacDefense2      $77     ;written to the same value. Maybe there was plans for a left and -->
                                 ;right defense? #$FF=Dodge, #$08=Block, #$80=Duck.
+
+.alias MacKDRound       $8F     ;How many times has Mac been knocked down this round?
 
 .alias OppCurState      $90     ;Opponent's current state. Set MSB=initialize new state.
 .alias OppStateStatus   $91     ;Status of opponent's current state.
@@ -178,7 +184,7 @@
 .alias OppCurrentHP     $0399   ;Current value of opponents HP.
 .alias OppDisplayedHP   $039A   ;Displayed value of opponent's HP.
 
-.alias MacKDRound       $03C9   ;Number of times Mac has been knocked down in this round
+.alias OppRefillIndex   $03C9   ;Index into the table of random opponent HP refills
 .alias OppKDRound       $03CA   ;Number of times opponent has been knocked down this round
 .alias SpecialKD        $03CB   ;Special knockdown condition
 

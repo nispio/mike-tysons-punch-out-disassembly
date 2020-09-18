@@ -141,7 +141,7 @@ L8121:  LDA MacStatus           ;($50)
 L8123:  BEQ $8186
 L8125:  CMP #$40
 L8127:  BCS $8186
-L8129:  LDA $51
+L8129:  LDA MacStateStatus      ;($51)
 L812B:  BMI $8186
 L812D:  LDA MacCanPunch         ;($BC)
 L812F:  BNE $8134
@@ -170,7 +170,7 @@ L815C:  BNE $8180
 L815E:  LDA #$8C
 L8160:  LDX #$01
 L8162:  BNE $8182
-L8164:  LDA NumStars          ;($0342)
+L8164:  LDA NumStars            ;($0342)
 L8167:  BEQ $8187
 L8169:  LDX #$04
 L816B:  JSR $81EF
@@ -269,7 +269,7 @@ L8214:  STA B1History           ;($D7)
 L8216:  LDA MacStatus           ;($50)
 L8218:  CMP #$01
 L821A:  BNE $823D
-L821C:  LDA $51
+L821C:  LDA MacStateStatus      ;($51)
 L821E:  BMI $823D
 L8220:  DEC $04B1
 L8223:  BNE $823D
@@ -297,7 +297,7 @@ L824E:  BCC $8268
 L8250:  CMP #$8D
 L8252:  BCC $826A
 L8254:  BNE $8268
-L8256:  LDA NumStars          ;($0342)
+L8256:  LDA NumStars            ;($0342)
 L8259:  BEQ $826E
 L825B:  LDA #$FF
 L825D:  STA $0341
@@ -364,8 +364,8 @@ L82CB:  RTS
 L82CC:  AND #$7F
 L82CE:  STA MacStatus           ;($50)
 L82D0:  LDA #$80
-L82D2:  ORA $51
-L82D4:  STA $51
+L82D2:  ORA MacStateStatus      ;($51)
+L82D4:  STA MacStateStatus      ;($51)
 L82D6:  LDY #$01
 L82D8:  STY $52
 L82DA:  DEY
@@ -681,9 +681,9 @@ L8545:  LDA $E0
 L8547:  STA $55
 L8549:  STX $54
 L854B:  BNE $852C
-L854D:  LDA $51
+L854D:  LDA MacStateStatus      ;($51)
 L854F:  AND #$7F
-L8551:  STA $51
+L8551:  STA MacStateStatus      ;($51)
 L8553:  JMP $8325
 L8556:  DEC $56
 L8558:  BEQ $8562
@@ -748,7 +748,7 @@ L85C5:  INC $53
 L85C7:  JMP $8325
 L85CA:  DEC $53
 L85CC:  LDA #$83
-L85CE:  STA $51
+L85CE:  STA MacStateStatus      ;($51)
 L85D0:  RTS
 
 L85D1:  LDA #$00
@@ -758,9 +758,9 @@ L85D7:  DEX
 L85D8:  BNE $85D3
 L85DA:  RTS
 
-L85DB:  ROR $18
-L85DD:  ROR $18
-L85DF:  ROR $18
+L85DB:  ROR RNGValue          ;($18)
+L85DD:  ROR RNGValue          ;($18)
+L85DF:  ROR RNGValue          ;($18)
 L85E1:  RTS
 L85E2:  STA $EF
 L85E4:  LDA #$0F
@@ -768,7 +768,7 @@ L85E6:  STA $EE
 L85E8:  LDA $EF
 L85EA:  CMP $EE
 L85EC:  BEQ $8602
-L85EE:  LDA $18
+L85EE:  LDA RNGValue          ;($18)
 L85F0:  JSR $85DB
 L85F3:  AND $EE
 L85F5:  CLC

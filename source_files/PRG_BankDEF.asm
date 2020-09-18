@@ -929,8 +929,8 @@ LA804:  ASL
 LA805:  ASL
 LA806:  ASL
 LA807:  STA $E8
-LA809:  LDA $18
-LA80B:  JSR $AEF1
+LA809:  LDA RNGValue            ;($18)
+LA80B:  JSR RotateRNG           ;($AEF1)
 LA80E:  AND #$07
 LA810:  CLC
 LA811:  ADC $E8
@@ -1352,7 +1352,7 @@ LAB49:  INX
 LAB4A:  STX HealthPoints        ;($0390)
 LAB4D:  RTS
 LAB4E:  LDA #$00
-LAB50:  STA $8F
+LAB50:  STA MacKDRound          ;($8F)
 LAB52:  STA OppKDRound          ;($03CA)
 LAB55:  JMP $AA6E
 LAB58:  JSR $AA1D
@@ -1734,8 +1734,8 @@ LAEAF:  STA $EE
 LAEB1:  LDA $EF
 LAEB3:  CMP $EE
 LAEB5:  BEQ $AEC7
-LAEB7:  LDA $18
-LAEB9:  JSR $AEF1
+LAEB7:  LDA RNGValue            ;($18)
+LAEB9:  JSR RotateRNG           ;($AEF1)
 LAEBC:  AND $EE
 LAEBE:  STA $EE
 LAEC0:  LDA $EF
@@ -1780,9 +1780,10 @@ LAEEE:  JMP (_IndJumpPtr)       ;Indirect jump do desired function.
 
 ;----------------------------------------------------------------------------------------------------
 
-LAEF1:  ROR $18
-LAEF3:  ROR $18
-LAEF5:  ROR $18
+RotateRNG:
+LAEF1:  ROR RNGValue            ;($18)
+LAEF3:  ROR RNGValue            ;($18)
+LAEF5:  ROR RNGValue            ;($18)
 LAEF7:  RTS
 
 LAEF8:  LDA #$00
@@ -2249,8 +2250,8 @@ LB1D9:  JMP $B1A5
 LB1DC:  INY
 LB1DD:  BNE $B1D7
 LB1DF:  STX $39
-LB1E1:  LDA $18
-LB1E3:  JSR $AEF1
+LB1E1:  LDA RNGValue            ;($18)
+LB1E3:  JSR RotateRNG           ;($AEF1)
 LB1E6:  AND #$07
 LB1E8:  CLC
 LB1E9:  ADC $3A
@@ -2275,8 +2276,8 @@ LB20A:  RTS
 LB20B:  LDA ($3B),Y
 LB20D:  INY
 LB20E:  BNE $B205
-LB210:  LDA $18
-LB212:  JSR $AEF1
+LB210:  LDA RNGValue            ;($18)
+LB212:  JSR RotateRNG           ;($AEF1)
 LB215:  BMI $B20B
 LB217:  INY
 LB218:  BNE $B203
@@ -2335,25 +2336,26 @@ LB277:  JMP $B1D4
 LB27A:  JSR PushFightBank       ;($AA48)
 LB27D:  JSR $B2EB
 LB280:  JMP PushPRGBank07       ;($AA3C)
+
 LB283:  JSR PushFightBank       ;($AA48)
 LB286:  STA $AFFF
-
 LB289:  JSR $B3A3
 
 LB28C:  JMP PushPRGBank07       ;($AA3C)
 LB28F:  JSR PushFightBank       ;($AA48)
 LB292:  JSR $B3EB
 LB295:  JMP PushPRGBank07       ;($AA3C)
+
 LB298:  LDY #$04
 LB29A:  LDA $B39E,Y
 LB29D:  STA $00C0,Y
 LB2A0:  DEY
 LB2A1:  BPL $B29A
-LB2A3:  INC $8F
+LB2A3:  INC MacKDRound          ;($8F)
 LB2A5:  INC MacKDFight          ;($03D0)
 LB2A8:  LDX RoundNumber
 LB2AA:  INC $03DC,X
-LB2AD:  LDA $8F
+LB2AD:  LDA MacKDRound          ;($8F)
 LB2AF:  CMP #$03
 LB2B1:  BEQ $B2E2
 LB2B3:  LDA $05D0
@@ -2405,7 +2407,7 @@ LB311:  LDA OppRefillPtr        ;($05D5)
 LB314:  STA $E6
 LB316:  LDA OppRefillPtrUB      ;($05D6)
 LB319:  STA $E7
-LB31B:  LDY MacKDRound          ;($03C9)
+LB31B:  LDY OppRefillIndex      ;($03C9)
 LB31E:  LDA ($E6),Y
 LB320:  BNE $B32A
 LB322:  LDX MacStatus           ;($50)
@@ -2424,15 +2426,15 @@ LB33B:  BEQ $B33F
 LB33D:  BCS $B342
 LB33F:  INY
 LB340:  BNE $B356
-LB342:  LDA $18
-LB344:  JSR $AEF1
+LB342:  LDA RNGValue            ;($18)
+LB344:  JSR RotateRNG           ;($AEF1)
 LB347:  AND #$07
 LB349:  CMP #$06
 LB34B:  BCC $B34F
 LB34D:  AND #$01
 LB34F:  CLC
 LB350:  ADC #$02
-LB352:  ADC MacKDRound          ;($03C9)
+LB352:  ADC OppRefillIndex      ;($03C9)
 LB355:  TAY
 LB356:  LDA ($E6),Y
 LB358:  BEQ $B2EA
@@ -2451,18 +2453,18 @@ LB372:  STA SpecialKD           ;($03CB)
 LB375:  CLC
 LB376:  ADC #$99
 LB378:  BNE $B387
-LB37A:  LDA $18
-LB37C:  JSR $AEF1
+LB37A:  LDA RNGValue            ;($18)
+LB37C:  JSR RotateRNG           ;($AEF1)
 LB37F:  JSR Div16               ;($BF99)Shift upper nibble to lower nibble.
 
 LB382:  LSR
 LB383:  TAY
 LB384:  LDA OppGetUpTable,Y     ;($05E0)
 LB387:  STA OppGetUpCount
-LB389:  LDA MacKDRound          ;($03C9)
+LB389:  LDA OppRefillIndex      ;($03C9)
 LB38C:  CLC
 LB38D:  ADC #$08
-LB38F:  STA MacKDRound          ;($03C9)
+LB38F:  STA OppRefillIndex      ;($03C9)
 LB392:  RTS
 
 LB393:  .byte $0F, $99, $E3, $C1, $00, $07, $EA, $FA, $7D, $05, $EA, $0F, $99, $80, $05, $EA
@@ -2686,13 +2688,13 @@ LB557:  BPL $B580
 LB559:  LDA $05
 LB55B:  BNE $B586
 LB55D:  LDA OppStateStatus
-LB55F:  AND $51
+LB55F:  AND MacStateStatus      ;($51)
 LB561:  ROR
 LB562:  BCS $B575
 LB564:  LDA OppStateStatus
 LB566:  CMP #$82
 LB568:  BNE $B580
-LB56A:  LDA $51
+LB56A:  LDA MacStateStatus      ;($51)
 LB56C:  CMP #$83
 LB56E:  BNE $B580
 LB570:  JSR $B65A
@@ -2710,13 +2712,13 @@ LB583:  STA $00
 LB585:  RTS
 LB586:  CMP #$02
 LB588:  BEQ $B599
-LB58A:  LDA $51
+LB58A:  LDA MacStateStatus      ;($51)
 LB58C:  CMP #$83
 LB58E:  BNE $B580
 LB590:  LDA #$C1
 LB592:  STA MacStatus           ;($50)
 LB594:  LDA #$81
-LB596:  STA $51
+LB596:  STA MacStateStatus      ;($51)
 LB598:  RTS
 
 LB599:  LDA OppStateStatus
@@ -2791,7 +2793,7 @@ LB62D:  LDA #$C0
 LB62F:  STA MacStatus           ;($50)
 LB631:  STA OppCurState
 LB633:  LDA #$81
-LB635:  STA $51
+LB635:  STA MacStateStatus      ;($51)
 LB637:  STA OppStateStatus
 LB639:  LDA #$01
 LB63B:  STA $00
@@ -2815,7 +2817,7 @@ LB65C:  SEC
 LB65D:  SBC MacCanPunch
 LB65F:  STA MacStatus           ;($50)
 LB661:  LDA #$80
-LB663:  STA $51
+LB663:  STA MacStateStatus      ;($51)
 LB665:  RTS
 LB666:  JSR $BD9B
 LB669:  JSR $BF3C
@@ -3437,19 +3439,19 @@ LBBDB:  LDX MacKDFight          ;($03D0)
 LBBDE:  BEQ $BBE2
 LBBE0:  LDA #$04
 LBBE2:  STA $E0
-LBBE4:  LDA $18
+LBBE4:  LDA RNGValue            ;($18)
 LBBE6:  AND #$03
 LBBE8:  ORA $E0
 LBBEA:  TAY
 LBBEB:  LDA TrainerMessages,Y   ;($05F8)
 LBBEE:  STA $04BE
-LBBF1:  JSR $AEF1
-LBBF4:  LDA $18
+LBBF1:  JSR RotateRNG           ;($AEF1)
+LBBF4:  LDA RNGValue            ;($18)
 LBBF6:  AND #$07
 LBBF8:  TAY
 LBBF9:  LDA OppMessages,Y       ;($05F0)
 LBBFC:  STA $04BF
-LBBFF:  JSR $AEF1
+LBBFF:  JSR RotateRNG           ;($AEF1)
 LBC02:  RTS
 LBC03:  AND #$7F
 LBC05:  STA $04B0

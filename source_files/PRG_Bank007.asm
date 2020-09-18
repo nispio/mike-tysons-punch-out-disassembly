@@ -63,7 +63,7 @@ L8079:  CMP #$80
 L807B:  BEQ $8090
 L807D:  CMP #$FF
 L807F:  BNE $8066
-L8081:  LDA MacStatus          ;($50)
+L8081:  LDA MacStatus           ;($50)
 L8083:  STA $03B0
 L8086:  STY $03C5
 L8089:  LDX $05A0
@@ -71,7 +71,7 @@ L808C:  LDA #$04
 L808E:  BNE $809E
 
 L8090:  LDX $05A1
-L8093:  LDA MacStatus          ;($50)
+L8093:  LDA MacStatus           ;($50)
 L8095:  CMP #$0E
 L8097:  BNE $809C
 L8099:  LDX $05A2
@@ -464,7 +464,7 @@ L83D5:  BMI $83B9
 L83D7:  LDA NumStars
 L83DA:  BEQ $83B9
 L83DC:  LDA $05B4
-L83DF:  JSR $910B
+L83DF:  JSR RandomChance16          ;($910B)
 L83E2:  BCC $83B9
 L83E4:  LDA #$80
 L83E6:  STA IncStars
@@ -564,7 +564,7 @@ L84A5:  AND #$01
 L84A7:  ORA #$90
 L84A9:  CLC
 L84AA:  ADC $59
-L84AC:  STA MacStatus          ;($50)
+L84AC:  STA MacStatus           ;($50)
 L84AE:  LDA #$25
 L84B0:  STA $048E
 L84B3:  LDA #$81
@@ -629,7 +629,7 @@ L8524:  RTS
 L8525:  LDA #$0F
 L8527:  LDX #$02
 L8529:  BNE $8530
-L852B:  LDA OppHPBoostCap          ;($05D7)
+L852B:  LDA OppHPBoostCap       ;($05D7)
 L852E:  LDX #$09
 L8530:  CMP HealthPoints,X      ;($0390)
 L8533:  BCC $853F
@@ -650,7 +650,7 @@ L854D:  STA OppHitDefenseLL     ;($B9)
 L854F:  RTS
 
 L8550:  LDA #$81
-L8552:  STA $51
+L8552:  STA MacStateStatus      ;($51)
 L8554:  STA OppStateStatus
 L8556:  JSR $8051
 L8559:  RTS
@@ -788,8 +788,8 @@ L8658:  LDA $E8
 L865A:  AND #$40
 L865C:  ORA $EC
 L865E:  CLC
-L865F:  ADC $19
-L8661:  STA $19
+L865F:  ADC InputAccum          ;($19)
+L8661:  STA InputAccum          ;($19)
 L8663:  ROR
 L8664:  STA $E8
 L8666:  ROR
@@ -805,7 +805,7 @@ L8676:  LDA $E9
 L8678:  AND #$08
 L867A:  ORA $EC
 L867C:  STA $EC
-L867E:  LDA $19
+L867E:  LDA InputAccum          ;($19)
 L8680:  ROL
 L8681:  STA $E8
 L8683:  ROL
@@ -822,12 +822,12 @@ L8695:  LDA $E9
 L8697:  AND #$10
 L8699:  ORA $EC
 L869B:  STA $EC
-L869D:  LDA $19
+L869D:  LDA InputAccum          ;($19)
 L869F:  AND #$81
 L86A1:  ORA $EC
 L86A3:  CLC
 L86A4:  ADC $ED
-L86A6:  STA $18
+L86A6:  STA RNGValue            ;($18)
 L86A8:  RTS
 
 L86A9:  LDX #$01
@@ -968,7 +968,7 @@ L87C7:  STA RoundTmrCntrl       ;set RoundTmrCntrl=2 to signal the clock flash s
 L87CA:  LDA #$00
 L87CC:  STA OppCurState
 L87CE:  STA OppStateStatus
-L87D0:  STA $51
+L87D0:  STA MacStateStatus      ;($51)
 L87D2:  LDA #$C2
 L87D4:  STA MacStatus           ;($50)
 
@@ -1315,11 +1315,12 @@ L8AB5:  TAX
 L8AB6:  LDA ($44),Y
 L8AB8:  INC $43
 L8ABA:  INY
-L8ABB:  JSR $9158
+L8ABB:  JSR _Div16              ;($9158)
 L8ABE:  LSR
-L8ABF:  JSR $9134
+L8ABF:  JSR IndJumpFromTable    ;($9134)
 
 L8AC2:  .word $8ADD, $0000, $8AF0, $8B19, $8B1E, $0000, $8B39, $8B50
+
 
 L8AD2:  LDA $0410
 L8AD5:  BEQ $8ADC
@@ -1329,7 +1330,7 @@ L8ADC:  RTS
 
 L8ADD:  TXA
 L8ADE:  AND #$0F
-L8AE0:  JSR $910B
+L8AE0:  JSR RandomChance16      ;($910B)
 L8AE3:  BCC $8AED
 L8AE5:  LDA ($44),Y
 L8AE7:  TAY
@@ -1347,8 +1348,8 @@ L8AFB:  ASL
 L8AFC:  ASL
 L8AFD:  ASL
 L8AFE:  STA $E0
-L8B00:  LDA $18
-L8B02:  JSR $9151
+L8B00:  LDA RNGValue            ;($18)
+L8B02:  JSR _RotateRNG          ;($9151)
 L8B05:  AND #$07
 L8B07:  ORA $E0
 L8B09:  ASL
@@ -1361,18 +1362,21 @@ L8B17:  BNE $8AD2
 L8B19:  TXA
 L8B1A:  LDX #$02
 L8B1C:  BNE $8AF3
+
 L8B1E:  TXA
 L8B1F:  AND #$0F
-L8B21:  JSR $910B
+L8B21:  JSR RandomChance16      ;($910B)
 L8B24:  BCC $8B31
 L8B26:  LDA ($44),Y
 L8B28:  AND #$0F
 L8B2A:  INC $43
 L8B2C:  STA $42
 L8B2E:  JMP $8AD2
+
 L8B31:  LDA ($44),Y
-L8B33:  JSR $9158
+L8B33:  JSR _Div16              ;($9158)
 L8B36:  JMP $8B2A
+
 L8B39:  LDA #$00
 L8B3B:  STX $E2
 L8B3D:  TAX
@@ -1434,11 +1438,14 @@ L8C8B:  .byte $00, $00, $F2, $00, $00, $E5, $00, $00, $EE, $00, $00, $E4, $00, $
 L8C9B:  .byte $00, $E3, $00, $00, $EF, $00, $EC, $00, $00, $E1, $00, $E2, $00, $00, $EA, $00
 L8CAB:  .byte $00, $96, $00, $00, $EB, $00, $00, $97, $00, $00, $92, $00, $93, $00, $00, $94
 L8CBB:  .byte $00, $95, $00, $00, $D7, $00, $00, $D8, $00, $00, $D9, $00, $00, $F0, $00, $F1
-L8CCB:  .byte $00, $00, $D5, $00, $D6, $00, $00, $00, $00, $D8, $8C, $1A, $8D, $40, $C3, $4D
-L8CDB:  .byte $CC, $61, $EA, $6C, $F0, $63, $E6, $6B, $EF, $42, $C5, $88, $37, $43, $C6, $4D
-L8CEB:  .byte $CC, $64, $E8, $6C, $F1, $61, $EA, $6B, $EF, $44, $C8, $88, $58, $41, $CB, $4D
-L8CFB:  .byte $CD, $60, $E2, $6C, $F0, $63, $E7, $6B, $EE, $42, $C4, $88, $28, $43, $C7, $4D
-L8D0B:  .byte $CD, $64, $E9, $6C, $F1, $61, $EB, $6B, $EE, $44, $C9, $88, $36, $0F, $00, $62
+L8CCB:  .byte $00, $00, $D5, $00, $D6, $00, $00, $00, $00, $D8, $8C, $1A, $8D
+
+L8CD8:  .byte $40, $C3, $4D, $CC, $61, $EA, $6C, $F0, $63, $E6, $6B, $EF, $42, $C5, $88, $37
+L8CE8:  .byte $43, $C6, $4D, $CC, $64, $E8, $6C, $F1, $61, $EA, $6B, $EF, $44, $C8, $88, $58
+L8CF8:  .byte $41, $CB, $4D, $CD, $60, $E2, $6C, $F0, $63, $E7, $6B, $EE, $42, $C4, $88, $28
+L8D08:  .byte $43, $C7, $4D, $CD, $64, $E9, $6C, $F1, $61, $EB, $6B, $EE, $44, $C9, $88, $36
+
+L8D18:  .byte $0F, $00, $62
 L8D1B:  .byte $E5, $60, $E2, $45, $C0, $C1, $D6, $60, $E3, $8F, $01, $D5, $08, $05, $63, $E7
 L8D2B:  .byte $64, $E8, $4E, $D2, $D3, $D4, $61, $EB, $D0, $60, $E3, $62, $E5, $45, $C0, $C1
 L8D3B:  .byte $D6, $60, $E2, $8F, $01, $D5, $08, $1F, $62, $E4, $4F, $D2, $D3, $D4, $61, $EA
@@ -1924,14 +1931,22 @@ L90F0:  RTS
 L90F1:  .byte $01, $02, $00, $FF, $02, $00, $01, $FF, $00, $01, $02, $FF, $FF, $FF, $FF, $FF
 L9101:  .byte $06, $03, $05, $07, $09, $00, $01, $04, $02, $08
 
+;Compare whether a random value 0-15 is greater than A
+;  Result is obtained by checking the carry bit
+RandomChance16:
 L910B:  STA $EF
 L910D:  LDA #$0F
+
+;Compare whether a random value is greater than the value in $EF
+;  The value is in the range 0 - (A-1)
+;  Result is obtained by checking the carry bit
+_RandomChance:
 L910F:  STA $EE
 L9111:  LDA $EF
 L9113:  CMP $EE
 L9115:  BEQ $9127
-L9117:  LDA $18
-L9119:  JSR $9151
+L9117:  LDA RNGValue            ;($18)
+L9119:  JSR _RotateRNG          ;($9151)
 L911C:  AND $EE
 L911E:  STA $EE
 L9120:  LDA $EF
@@ -1940,12 +1955,21 @@ L9124:  BNE $9127
 L9126:  CLC
 L9127:  RTS
 
+;Compare whether a random value 0-127 is greater than A
+;  Result is obtained by checking the carry bit
+RandomChance128:
 L9128:  STA $EF
 L912A:  LDA #$7F
-L912C:  BNE $910F
+L912C:  BNE _RandomChance       ;($910F)
+
+;Compare whether a random value 0-255 is greater than A
+;  Result is obtained by checking the carry bit
+RandomChance256:
 L912E:  STA $EF
 L9130:  LDA #$FF
-L9132:  BNE $910F
+L9132:  BNE _RandomChance       ;($910F)
+
+IndJumpFromTable:
 L9134:  STY $04C9
 L9137:  ASL
 L9138:  TAY
@@ -1963,10 +1987,18 @@ L9148:  PLA
 L9149:  STA $EE
 L914B:  LDY $04C9
 L914E:  JMP ($00EE)
-L9151:  ROR $18
-L9153:  ROR $18
-L9155:  ROR $18
+
+;Rotate the RNG value right by 3. Happens after every RNG read
+;Alternate name because this function also exists in bank DEF
+_RotateRNG:
+L9151:  ROR RNGValue            ;($18)
+L9153:  ROR RNGValue            ;($18)
+L9155:  ROR RNGValue            ;($18)
 L9157:  RTS
+
+;Divide the A register by 16
+;Alternate name because this function also exists in bank DEF
+_Div16:
 L9158:  LSR
 L9159:  LSR
 L915A:  LSR
