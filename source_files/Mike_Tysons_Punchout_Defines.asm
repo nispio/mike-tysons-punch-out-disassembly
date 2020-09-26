@@ -37,11 +37,27 @@
 .alias FrameCounter     $1E     ;Increments every frame and rolls over when maxed out.
 .alias TransTimer       $1F     ;Countdown timer for various transitions.
 
+.alias CrowdCurState    $40     ;Crowd's current state. Set MSB=initialize new state.
+.alias CrowdStateStatus $41     ;Status of Crowd's current state.
+.alias CrowdStateTimer  $42     ;Timer for Crowds current state.
+.alias CrowdStateIndex  $43     ;Index to Crowd current state data.
+.alias CrowdStBasePtr   $44     ;Pase pointer to Crowd's current state data.
+.alias CrowdStBasePtrLB $44     ;Pase pointer to Crowd's current state data, lower byte.
+.alias CrowdStBasePtrUB $45     ;Pase pointer to Crowd's current state data, upper byte.
+.alias CrowdStRptCntr   $46     ;Counter used to repeat the Crowd's current state.
+
+
 .alias ComboTimer       $4A     ;Frames left until another punch must be landed to keep combo alive.
 .alias ComboCountDown   $4B     ;Hits left in current combo.
 
 .alias MacStatus        $50     ;Status of Little Mac during a fight. MSB set=status update.
 .alias MacStateStatus   $51     ;Status of Mac's current state
+.alias MacStateTimer    $52     ;Timer for Mac's current state.
+.alias MacStateIndex    $53     ;Index to Mac's current state data.
+.alias MacStBasePtr     $54     ;Base pointer to Mac's current state data.
+.alias MacStBasePtrLB   $54     ;Base pointer to Mac's current state data, lower byte.
+.alias MacStBasePtrUB   $55     ;Base pointer to Mac's current state data, upper byte.
+.alias MacStateRptCntr  $56     ;Counter used to repeat Mac's current state.
 
 .alias MacPunchType     $74     ;Little Mac punch type.
                                 ;#$00=Right punch to face.
@@ -197,6 +213,13 @@
 .alias PointsStatus     $03E0   ;Status of points
 .alias PointsNew        $03E1   ;New points that should be added to the total (base 10)
 .alias PointsTotal      $03E8   ;Total points for this round (base 10)
+
+.alias VRAMQueue        $0410   ;Base pointer for the VRAM queue
+.alias VRAMQueueStatus  $0410   ;Status of the VRAM queue
+.alias VQAddress        $0411   ;VRAM address where bytes from the queue will be written
+.alias VQAddressLB      $0411   ;VRAM address where queue bytes will be written (lower byte)
+.alias VQAddressUB      $0412   ;VRAM address where queue bytes will be written (upper byte)
+.alias VRAMQueueData    $0413   ;Base pointer for data to be copied into VRAM
 
 .alias ThisBkgPalette   $0480   ;Through $048F. Current background palette data.
 .alias ThisSprtPalette  $0490   ;Through $049F. Current sprite palette data.

@@ -147,7 +147,9 @@ LA141:  .byte $0E, $0E, $00, $00, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $
 LA151:  .byte $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $0E, $0E, $00, $00, $15, $1D, $00, $00
 LA161:  .byte $16, $1D, $00, $00, $17, $1D, $00, $00, $18, $1D, $00, $00, $19, $1D, $00, $00
 LA171:  .byte $1A, $1D, $00, $00, $1B, $1D, $00, $00, $1C, $1D, $00, $00, $1D, $1D, $00, $00
-LA181:  .byte $FF, $FF, $FF, $FF, $00, $03, $07, $0C, $14, $0D, $00, $80, $32, $31, $30, $23
+LA181:  .byte $FF, $FF, $FF, $FF
+
+LA185:  .byte $00, $03, $07, $0C, $14, $0D, $00, $80, $32, $31, $30, $23
 LA191:  .byte $22, $21, $20, $15, $14, $13, $12, $11, $10, $00, $FF, $FF, $FF, $FF, $FF, $20
 LA1A1:  .byte $48, $47, $46, $45, $44, $43, $42, $41, $40, $FF, $4E, $49, $4E, $54, $45, $4E
 LA1B1:  .byte $44, $4F, $2E, $31, $39, $38, $37, $52, $44, $33, $FF, $02, $E0, $FF, $04, $E0
@@ -264,7 +266,7 @@ LA282:  STA PPU0Load
 LA284:  STA PPUControl0
 LA287:  LDA #$FF
 LA289:  STA GameStatus
-LA28B:  JSR $AF02
+LA28B:  JSR WaitLoop            ;($AF02)
 LA28E:  LDA $013F
 LA291:  BNE $A2AC
 LA293:  JSR LoadPRGBank06       ;($AA50)
@@ -302,7 +304,7 @@ LA2D1:  STA $F3
 LA2D3:  LDA #SPRT_BKG_OFF       ;Disable sprites and background.
 LA2D5:  STA SprtBkgUpdt         ;
 
-LA2D7:  JSR $AF02
+LA2D7:  JSR WaitLoop            ;($AF02)
 LA2DA:  JSR $B6CB
 LA2DD:  LDA #$05
 LA2DF:  JSR $BC5F
@@ -318,7 +320,7 @@ LA2F1:  LDA #$FF
 LA2F3:  STA GameStatus
 LA2F5:  LDA #$40
 LA2F7:  STA $04C7
-LA2FA:  JSR $AF02
+LA2FA:  JSR WaitLoop            ;($AF02)
 LA2FD:  DEC $04C7
 LA300:  BNE $A365
 LA302:  LDA #$40
@@ -498,7 +500,7 @@ LA480:  JSR $AEA5
 LA483:  JSR LoadPRGBank0C       ;($AA64)
 LA486:  LDA #$81
 LA488:  STA $04B0
-LA48B:  JSR $AF02
+LA48B:  JSR WaitLoop            ;($AF02)
 LA48E:  JSR $BC1F
 LA491:  LDA $04B0
 LA494:  BNE $A48B
@@ -538,7 +540,7 @@ LA4D6:  LDA #$FF
 LA4D8:  STA GameStatus
 LA4DA:  LDA #$03
 LA4DC:  STA MusicInit
-LA4DE:  JSR $AF02
+LA4DE:  JSR WaitLoop            ;($AF02)
 LA4E1:  LDA #$F1
 LA4E3:  JSR $BDA2
 LA4E6:  LDY #$03
@@ -547,7 +549,7 @@ LA4EB:  STA $06BF,Y
 LA4EE:  DEY
 LA4EF:  BNE $A4E8
 LA4F1:  JSR $BDB5
-LA4F4:  JSR $AF02
+LA4F4:  JSR WaitLoop            ;($AF02)
 LA4F7:  LDA $15
 LA4F9:  BEQ $A4F1
 LA4FB:  LDA #$F2
@@ -612,7 +614,7 @@ LA574:  LDA #GAME_ENG_RUN       ;
 LA576:  STA GameEngStatus       ;Run the main game engine.
 LA578:  STA GameStatus          ;
 
-LA57A:  JSR $AF02
+LA57A:  JSR WaitLoop            ;($AF02)
 LA57D:  LDA $00
 LA57F:  CMP #$01
 LA581:  BNE $A57A
@@ -624,7 +626,7 @@ LA58A:  STA SprtBkgUpdt         ;
 
 LA58C:  LDA #$01
 LA58E:  STA $22
-LA590:  JSR $AF02
+LA590:  JSR WaitLoop            ;($AF02)
 LA593:  LDX $00
 LA595:  BPL $A590
 LA597:  JSR $BF7E
@@ -694,6 +696,7 @@ LA622:  BEQ $A63B
 LA624:  BCC $A635
 LA626:  JSR $C041
 LA629:  JMP $A63E
+
 LA62C:  JSR $C079
 LA62F:  JSR $C09D
 LA632:  JMP $A63E
@@ -982,7 +985,7 @@ LA86F:  STA PPU1Load            ;
 LA871:  LDA #SPRT_BKG_ON        ;Enable sprites and background.
 LA873:  STA SprtBkgUpdt         ;
 
-LA875:  JSR $AF02
+LA875:  JSR WaitLoop            ;($AF02)
 LA878:  JSR $AEA5
 LA87B:  LDA $03D8
 LA87E:  BNE $A885
@@ -996,14 +999,14 @@ LA88D:  JSR $AA26
 LA890:  LDA #$20
 LA892:  STA $04C6
 LA895:  JSR $BE1A
-LA898:  JSR $AF02
+LA898:  JSR WaitLoop            ;($AF02)
 LA89B:  DEC $04C6
 LA89E:  BNE $A895
 LA8A0:  LDA $04BF
 LA8A3:  JSR $AA26
-LA8A6:  JSR $BFF2
+LA8A6:  JSR InitCrowd           ;($BFF2)
 LA8A9:  JSR $BE1A
-LA8AC:  JSR $AF02
+LA8AC:  JSR WaitLoop            ;($AF02)
 LA8AF:  LDA Strt1History        ;($D9)
 LA8B1:  BPL $A8A9
 LA8B3:  AND #$7F
@@ -1019,7 +1022,7 @@ LA8C8:  STA $06BF,Y
 LA8CB:  DEY
 LA8CC:  BNE $A8C5
 LA8CE:  JSR $BDB5
-LA8D1:  JSR $AF02
+LA8D1:  JSR WaitLoop            ;($AF02)
 LA8D4:  LDA $15
 LA8D6:  BEQ $A8CE
 LA8D8:  LDA #$40
@@ -1031,7 +1034,7 @@ LA8E5:  STA $04
 LA8E7:  LDA #$00
 LA8E9:  STA GameEngStatus
 LA8EB:  STA GameStatus
-LA8ED:  JSR $AF02
+LA8ED:  JSR WaitLoop            ;($AF02)
 LA8F0:  LDA $00
 LA8F2:  CMP #$01
 LA8F4:  BNE $A8ED
@@ -1047,7 +1050,7 @@ LA903:  CPY #$04
 LA905:  BNE $A909
 LA907:  STA $F3
 LA909:  STA $22
-LA90B:  JSR $AF02
+LA90B:  JSR WaitLoop            ;($AF02)
 LA90E:  LDX $00
 LA910:  BPL $A90B
 LA912:  JSR $BF7E
@@ -1177,10 +1180,11 @@ LAA1F:  STA $04
 LAA21:  STA GameEngStatus
 LAA23:  STA GameStatus
 LAA25:  RTS
+
 LAA26:  STA $04B0
 LAA29:  JSR $BE09
 LAA2C:  JSR $BE1A
-LAA2F:  JSR $AF02
+LAA2F:  JSR WaitLoop            ;($AF02)
 LAA32:  LDA $04B0
 LAA35:  BNE $AA29
 LAA37:  RTS
@@ -1407,7 +1411,7 @@ LABCC:  STX $35
 LABCE:  DEX
 LABCF:  STX $39
 LABD1:  LDX #$81
-LABD3:  STX $40
+LABD3:  STX CrowdCurState          ;($40)
 LABD5:  DEX
 LABD6:  STX $37
 LABD8:  LDX #$01
@@ -1495,7 +1499,7 @@ LAC8F:  STA $06BF,Y
 LAC92:  DEY
 LAC93:  BNE $AC8C
 LAC95:  JSR $BDB5
-LAC98:  JSR $AF02
+LAC98:  JSR WaitLoop            ;($AF02)
 LAC9B:  LDA $15
 LAC9D:  BEQ $AC95
 LAC9F:  LDX #$05
@@ -1533,7 +1537,7 @@ LACE4:  STA $06BF,Y
 LACE7:  DEY
 LACE8:  BNE $ACE1
 LACEA:  JSR $BDB1
-LACED:  JSR $AF02
+LACED:  JSR WaitLoop            ;($AF02)
 LACF0:  LDA $15
 LACF2:  BEQ $ACEA
 LACF4:  LDA #$08
@@ -1628,7 +1632,7 @@ LADBC:  JSR $BE09
 LADBF:  LDA $04B0
 LADC2:  BNE $ADB9
 LADC4:  RTS
-LADC5:  JSR $AF02
+LADC5:  JSR WaitLoop            ;($AF02)
 LADC8:  LDA Strt1History        ;($D9)
 LADCA:  BPL $ADC5
 LADCC:  AND #$7F
@@ -1715,7 +1719,7 @@ LAE8B:  LDA $A18D,Y
 LAE8E:  STA $09
 LAE90:  RTS
 LAE91:  LDX #$06
-LAE93:  JSR $AF02
+LAE93:  JSR WaitLoop            ;($AF02)
 LAE96:  LDA $F0,X
 LAE98:  BNE $AE93
 LAE9A:  RTS
@@ -1792,6 +1796,8 @@ LAEFD:  INY
 LAEFE:  DEX
 LAEFF:  BNE $AEFA
 LAF01:  RTS
+
+WaitLoop:
 LAF02:  LDA #$01
 LAF04:  STA TransTimer
 LAF06:  LDA TransTimer
@@ -2414,6 +2420,7 @@ LB322:  LDX MacStatus           ;($50)
 LB324:  CPX #MAC_SUPER_PUNCH
 LB326:  BEQ $B33F
 LB328:  BNE $B342
+
 LB32A:  BPL $B338
 LB32C:  LDX RoundNumber
 LB32E:  DEX
@@ -2537,11 +2544,19 @@ LB41C:  EOR #$01
 LB41E:  CMP MacPunchType
 LB420:  BEQ $B400
 LB422:  BNE $B3F9
+
+CheckPunchLeftRight:
 LB424:  LDX #$01
-LB426:  BNE $B42E
+LB426:  BNE _CheckPunch         ;($B42E)
+
+CheckPunchFaceGut:
 LB428:  LDX #$02
-LB42A:  BNE $B42E
+LB42A:  BNE _CheckPunch         ;($B42E)
+
+CheckPunchAny:
 LB42C:  LDX #$03
+
+_CheckPunch:
 LB42E:  STA $E7
 LB430:  TXA
 LB431:  AND MacPunchType
@@ -2549,6 +2564,7 @@ LB433:  CLC
 LB434:  ADC $E7
 LB436:  STA OppCurState
 LB438:  RTS
+
 LB439:  LDA $0398
 LB43C:  STA $039E
 LB43F:  LDA MacNextHP
@@ -2560,6 +2576,7 @@ LB44A:  ASL
 LB44B:  ASL
 LB44C:  STA MacMaxHP,X
 LB44F:  RTS
+
 LB450:  RTS
 LB451:  JMP $B4F4
 LB454:  JMP $B4FB
@@ -3633,7 +3650,7 @@ LBD7C:  LDA #$FF
 LBD7E:  STA GameStatus
 LBD80:  LDA #$1A
 LBD82:  STA MusicInit
-LBD84:  JSR $AF02
+LBD84:  JSR WaitLoop            ;($AF02)
 LBD87:  LDA #$F6
 LBD89:  JSR $BDA2
 LBD8C:  LDA #$F7
@@ -3642,15 +3659,18 @@ LBD91:  JSR $ADC5
 LBD94:  LDA #$80
 LBD96:  STA MusicInit
 LBD98:  JMP $BF7E
+
 LBD9B:  LDA #$FF
 LBD9D:  STA GameStatus
-LBD9F:  JMP $AF02
+LBD9F:  JMP WaitLoop            ;($AF02)
+
 LBDA2:  STA $04B0
-LBDA5:  JSR $AF02
+LBDA5:  JSR WaitLoop            ;($AF02)
 LBDA8:  JSR $BE09
 LBDAB:  LDA $04B0
 LBDAE:  BNE $BDA5
 LBDB0:  RTS
+
 LBDB1:  LDY #$00
 LBDB3:  BEQ $BDB7
 LBDB5:  LDY #$01
@@ -3695,14 +3715,17 @@ LBE02:  STA $20
 LBE04:  LDA #$01
 LBE06:  STA $17
 LBE08:  RTS
+
 LBE09:  JSR LoadPRGBank0A       ;($AA60)
 LBE0C:  LDA $04B0
 LBE0F:  BEQ $BE14
 LBE11:  JMP $8000
 LBE14:  RTS
+
 LBE15:  LDA #$01
 LBE17:  STA $17
 LBE19:  RTS
+
 LBE1A:  LDX #$08
 LBE1C:  LDA $0201,X
 LBE1F:  BEQ $BE2B
@@ -3852,7 +3875,7 @@ LBF35:  RTS
 LBF36:  JSR $AA06
 LBF39:  JMP $BF3F
 LBF3C:  JSR $AA0A
-LBF3F:  JSR $AF02
+LBF3F:  JSR WaitLoop            ;($AF02)
 LBF42:  LDA #$02
 LBF44:  STA GameStatus
 LBF46:  JSR $AE9B
@@ -3884,7 +3907,7 @@ LBF7B:  BNE $BF68
 LBF7D:  RTS
 LBF7E:  LDA #$40
 LBF80:  STA $04C8
-LBF83:  JSR $AF02
+LBF83:  JSR WaitLoop            ;($AF02)
 LBF86:  LDA $04C8
 LBF89:  BNE $BF83
 LBF8B:  LDA #$08
@@ -3903,12 +3926,14 @@ LBF9B:  LSR                     ;
 LBF9C:  LSR                     ;
 LBF9D:  RTS                     ;
 
+LoadPointer:
 LBF9E:  LDA $8000,X
 LBFA1:  STA $E0
 LBFA3:  INX
 LBFA4:  LDA $8000,X
 LBFA7:  STA $E1
 LBFA9:  RTS
+
 LBFAA:  LDY #$28
 LBFAC:  BNE $BFB4
 LBFAE:  LDY #$20
@@ -3943,15 +3968,17 @@ LBFE9:  STA $0411
 LBFEC:  LDA #$4B
 LBFEE:  STA $0412
 LBFF1:  RTS
+
+InitCrowd:
 LBFF2:  LDY #$53
 LBFF4:  LDA #$1B
-LBFF6:  STA $E2
+LBFF6:  STA $E2                 ;$E2 is the loop counter here, counting down from #$1B
 LBFF8:  JSR LoadPRGBank0C       ;($AA64)
 LBFFB:  LDX #$06
-LBFFD:  JSR $BF9E
+LBFFD:  JSR $BF9E               ;Load pointer E0=#$9717 (read from $8006 in bank C)
 LC000:  LDX #$00
-LC002:  LDA ($E0),Y
-LC004:  STA $0411,X
+LC002:  LDA ($E0),Y             ;Copy $976A through $9785 -->
+LC004:  STA $0411,X             ;into $0411 through $042C
 LC007:  INY
 LC008:  INX
 LC009:  DEC $E2
@@ -3959,10 +3986,11 @@ LC00B:  BNE $C002
 LC00D:  LDA #$81
 LC00F:  STA $0410
 LC012:  RTS
+
 LC013:  LDA #$00
 LC015:  STA $06DE
 LC018:  JSR $A06F
-LC01B:  JSR $AF02
+LC01B:  JSR WaitLoop            ;($AF02)
 LC01E:  JSR $A03A
 LC021:  LDA $06DB
 LC024:  BPL $C040
@@ -4240,6 +4268,7 @@ LC241:  STA PPUIOReg
 LC244:  DEX
 LC245:  BNE $C241
 LC247:  JMP $C155
+
 LC24A:  LDX #$00
 LC24C:  STX $0410
 LC24F:  BEQ $C254
@@ -4261,6 +4290,7 @@ LC274:  INX
 LC275:  LDA $0413,X
 LC278:  BNE $C251
 LC27A:  RTS
+
 LC27B:  LDX $AC
 LC27D:  BMI $C28E
 LC27F:  LDA #$00
@@ -4398,7 +4428,7 @@ LC397:  BCC $C39D
 LC399:  LDA #$01
 LC39B:  STA $AB
 LC39D:  LDA #$89
-LC39F:  JMP $B42C
+LC39F:  JMP CheckPunchAny          ;($B42C)
 LC3A2:  LDA $E7
 LC3A4:  BNE $C3AE
 LC3A6:  LDA $0586
@@ -4411,7 +4441,7 @@ LC3B6:  BCC $C3BC
 LC3B8:  LDA #$80
 LC3BA:  STA $AB
 LC3BC:  LDA #$83
-LC3BE:  JMP $B424
+LC3BE:  JMP CheckPunchLeftRight          ;($B424)
 LC3C1:  JSR $C3CA
 LC3C4:  ORA #$80
 LC3C6:  STA $04FF
@@ -4533,11 +4563,12 @@ LC46A:  RTS                     ;End outline color change.
 
 ;----------------------------------------------------------------------------------------------------
 
-LC46B:  AND #$7F
-LC46D:  STA OppCurState
+UpdateOppState:
+LC46B:  AND #$7F                ;Clear the MSB of opponent state
+LC46D:  STA OppCurState         ;($90)
 LC46F:  LDA #STAT_ACTIVE
-LC471:  ORA OppStateStatus
-LC473:  STA OppStateStatus
+LC471:  ORA OppStateStatus      ;($91)
+LC473:  STA OppStateStatus      ;($91)
 LC475:  LDY #$92
 LC477:  LDX #$09
 LC479:  JSR $AEF8
@@ -4545,9 +4576,9 @@ LC47C:  LDY #$B4
 LC47E:  LDX #$06
 LC480:  JSR $AEF8
 LC483:  INX
-LC484:  STX OppOutlineTimer
+LC484:  STX OppOutlineTimer     ;($9C)
 LC486:  STA $AF
-LC488:  INC OppStateTimer
+LC488:  INC OppStateTimer       ;($92)
 LC48A:  STA $5A
 LC48C:  STA $AF
 LC48E:  JSR PushFightBank       ;($AA48)
@@ -4592,10 +4623,13 @@ LC4DC:  STA PPU0Load
 LC4DE:  STX $80
 LC4E0:  LDA #$0A
 LC4E2:  BNE $C50E
-LC4E4:  JMP $C46B
-LC4E7:  LDA OppCurState
-LC4E9:  BEQ $C54F
-LC4EB:  BMI $C4E4
+
+_UpdateOppState:
+LC4E4:  JMP UpdateOppState      ;($C46B)
+
+LC4E7:  LDA OppCurState         ;($90)
+LC4E9:  BEQ $C54F               ;If opponent state is zero, then RTS
+LC4EB:  BMI _UpdateOppState     ;($C4E4) If MSB set, then update opponent state
 LC4ED:  LDX ComboTimer
 LC4EF:  BEQ $C4FA
 LC4F1:  DEX
@@ -4604,7 +4638,7 @@ LC4F4:  STX ComboCountDown
 LC4F6:  STX $4C
 LC4F8:  STX ComboTimer
 LC4FA:  DEC OppStateTimer
-LC4FC:  BNE $C54F
+LC4FC:  BNE $C54F               ;RTS
 LC4FE:  CMP #$01
 LC500:  BNE $C535
 LC502:  LDA $04FF
@@ -5195,10 +5229,10 @@ LC7DF:  BEQ UpdateStateIndex1   ;Increment past a trailing zero byte.
 
 ;----------------------------------------------------------------------------------------------------
 
-LC7E1:  INC $53
-LC7E3:  INC $53
+LC7E1:  INC MacStateIndex          ;($53)
+LC7E3:  INC MacStateIndex          ;($53)
 LC7E5:  LDA #$01
-LC7E7:  STA $52
+LC7E7:  STA MacStateTimer          ;($52)
 LC7E9:  RTS
 
 ;----------------------------------------------------------------------------------------------------

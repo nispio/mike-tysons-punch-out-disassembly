@@ -241,7 +241,7 @@ L81E0:  JSR $81EF
 L81E3:  TYA
 L81E4:  BEQ $8187
 L81E6:  LDA #$0A
-L81E8:  STA $53
+L81E8:  STA MacStateIndex       ;($53)
 L81EA:  LDA #$00
 L81EC:  STA $6B
 L81EE:  RTS
@@ -314,7 +314,7 @@ L8271:  BCC $8268
 L8273:  CMP #$8E
 L8275:  BEQ $8268
 L8277:  LDA #$0A
-L8279:  STA $53
+L8279:  STA MacStateIndex       ;($53)
 L827B:  LDA #$00
 L827D:  STA $6B
 L827F:  RTS
@@ -367,9 +367,9 @@ L82D0:  LDA #$80
 L82D2:  ORA MacStateStatus      ;($51)
 L82D4:  STA MacStateStatus      ;($51)
 L82D6:  LDY #$01
-L82D8:  STY $52
+L82D8:  STY MacStateTimer       ;($52)
 L82DA:  DEY
-L82DB:  STY $53
+L82DB:  STY MacStateIndex       ;($53)
 L82DD:  STY $56
 L82DF:  STY $58
 L82E1:  STY $59
@@ -388,31 +388,31 @@ L82F9:  BCS $830A
 L82FB:  ASL
 L82FC:  TAY
 L82FD:  LDA $9800,Y
-L8300:  STA $54
+L8300:  STA MacStBasePtrLB      ;($54)
 L8302:  INY
 L8303:  LDA $9800,Y
-L8306:  STA $55
+L8306:  STA MacStBasePtrUB      ;($55)
 L8308:  BNE $8319
 L830A:  SBC #$40
 L830C:  ASL
 L830D:  TAY
 L830E:  LDA $982C,Y
-L8311:  STA $54
+L8311:  STA MacStBasePtrLB      ;($54)
 L8313:  INY
 L8314:  LDA $982C,Y
-L8317:  STA $55
+L8317:  STA MacStBasePtrUB      ;($55)
 L8319:  LDA MacStatus           ;($50)
 L831B:  BEQ $8362
 L831D:  BMI $82CC
-L831F:  DEC $52
+L831F:  DEC MacStateTimer       ;($52)
 L8321:  BNE $8362
-L8323:  INC $52
-L8325:  LDY $53
-L8327:  LDA ($54),Y
-L8329:  INC $53
+L8323:  INC MacStateTimer       ;($52)
+L8325:  LDY MacStateIndex       ;($53)
+L8327:  LDA (MacStBasePtr),Y    ;($54)
+L8329:  INC MacStateIndex       ;($53)
 L832B:  AND #$0F
 L832D:  TAX
-L832E:  LDA ($54),Y
+L832E:  LDA (MacStBasePtr),Y    ;($54)
 L8330:  INY
 L8331:  LSR
 L8332:  LSR
@@ -423,30 +423,30 @@ L8335:  JSR $860F
 L8338:  .word $8363, $8371, $837F, $838B, $839C, $83A7, $83A7, $83A7
 L8348:  .word $83A7, $83AE, $83AE, $83AE, $83AE, $83AE, $83AE, $84EC
 
-L8358:  LDY $53
-L835A:  LDA ($54),Y
+L8358:  LDY MacStateIndex       ;($53)
+L835A:  LDA (MacStBasePtr),Y    ;($54)
 L835C:  BNE $8362
-L835E:  INC $53
+L835E:  INC MacStateIndex       ;($53)
 L8360:  BNE $8325
 L8362:  RTS
-L8363:  STX $52
-L8365:  LDA ($54),Y
+L8363:  STX MacStateTimer       ;($52)
+L8365:  LDA (MacStBasePtr),Y    ;($54)
 L8367:  INY
 L8368:  STA $61
 L836A:  LDA #$80
 L836C:  STA $60
-L836E:  STY $53
+L836E:  STY MacStateIndex       ;($53)
 L8370:  RTS
-L8371:  STX $52
-L8373:  LDA ($54),Y
+L8371:  STX MacStateTimer       ;($52)
+L8373:  LDA (MacStBasePtr),Y    ;($54)
 L8375:  INY
 L8376:  STA $61
-L8378:  LDA ($54),Y
+L8378:  LDA (MacStBasePtr),Y    ;($54)
 L837A:  INY
 L837B:  STA $15
 L837D:  BNE $836A
-L837F:  STX $52
-L8381:  LDA ($54),Y
+L837F:  STX MacStateTimer       ;($52)
+L8381:  LDA (MacStBasePtr),Y    ;($54)
 L8383:  INY
 L8384:  CLC
 L8385:  ADC $15
@@ -455,21 +455,21 @@ L8389:  BNE $836E
 L838B:  TXA
 L838C:  JSR $85E2
 L838F:  BCC $8399
-L8391:  LDA ($54),Y
+L8391:  LDA (MacStBasePtr),Y    ;($54)
 L8393:  TAY
-L8394:  STY $53
+L8394:  STY MacStateIndex       ;($53)
 L8396:  JMP $8325
 L8399:  INY
 L839A:  BNE $8394
-L839C:  LDA ($54),Y
+L839C:  LDA (MacStBasePtr),Y    ;($54)
 L839E:  INY
 L839F:  STA $61
 L83A1:  LDA #$80
 L83A3:  STA $60
 L83A5:  BNE $837F
-L83A7:  LDA ($54),Y
-L83A9:  INC $53
-L83AB:  STA $52
+L83A7:  LDA (MacStBasePtr),Y    ;($54)
+L83A9:  INC MacStateIndex       ;($53)
+L83AB:  STA MacStateTimer       ;($52)
 L83AD:  RTS
 L83AE:  TXA
 L83AF:  JSR $860F
@@ -491,29 +491,29 @@ L83E1:  LDA DPad1Status         ;($D2)
 L83E3:  AND $E0
 L83E5:  BEQ $83F1
 L83E7:  STX DPad1History        ;($D3)
-L83E9:  LDA ($54),Y
+L83E9:  LDA (MacStBasePtr),Y    ;($54)
 L83EB:  TAY
-L83EC:  STY $53
+L83EC:  STY MacStateIndex       ;($53)
 L83EE:  JMP $8325
 L83F1:  INY
 L83F2:  BNE $83EC
-L83F4:  LDA ($54),Y
+L83F4:  LDA (MacStBasePtr),Y    ;($54)
 L83F6:  INY
 L83F7:  STA $E0
 L83F9:  LDA #$00
 L83FB:  STA $E1
-L83FD:  LDA ($54),Y
+L83FD:  LDA (MacStBasePtr),Y    ;($54)
 L83FF:  INY
-L8400:  STY $53
+L8400:  STY MacStateIndex       ;($53)
 L8402:  LDY #$00
 L8404:  CMP ($E0),Y
 L8406:  BNE $8412
-L8408:  LDY $53
-L840A:  LDA ($54),Y
+L8408:  LDY MacStateIndex       ;($53)
+L840A:  LDA (MacStBasePtr),Y    ;($54)
 L840C:  TAY
-L840D:  STY $53
+L840D:  STY MacStateIndex       ;($53)
 L840F:  JMP $8325
-L8412:  LDY $53
+L8412:  LDY MacStateIndex       ;($53)
 L8414:  INY
 L8415:  BNE $840D
 L8417:  LDA $6A
@@ -529,12 +529,12 @@ L8428:  BEQ $8438
 L842A:  STX DPad1History        ;($D3)
 L842C:  LDA #$0E
 L842E:  STA MacStatus           ;($50)
-L8430:  LDA ($54),Y
+L8430:  LDA (MacStBasePtr),Y    ;($54)
 L8432:  TAY
-L8433:  STY $53
+L8433:  STY MacStateIndex       ;($53)
 L8435:  JMP $8325
 L8438:  INY
-L8439:  STY $53
+L8439:  STY MacStateIndex       ;($53)
 L843B:  RTS
 L843C:  LDA DPad1History        ;($D3)
 L843E:  AND #$81
@@ -553,12 +553,12 @@ L8455:  STA $6A
 L8457:  BNE $8438
 L8459:  LDA #$01
 L845B:  STA $99
-L845D:  LDA ($54),Y
+L845D:  LDA (MacStBasePtr),Y    ;($54)
 L845F:  INY
 L8460:  STA MacPunchType        ;($74)
-L8462:  STY $53
+L8462:  STY MacStateIndex       ;($53)
 L8464:  RTS
-L8465:  LDA ($54),Y
+L8465:  LDA (MacStBasePtr),Y    ;($54)
 L8467:  BEQ $8471
 L8469:  LDX RoundTmrStart       ;($0300)
 L846C:  BNE $8471
@@ -569,46 +569,46 @@ L8475:  LDA RoundTmrCntrl       ;($0301)
 L8478:  AND #$FE
 L847A:  ORA $E7
 L847C:  STA RoundTmrCntrl       ;($0301)
-L847F:  INC $53
+L847F:  INC MacStateIndex       ;($53)
 L8481:  RTS
 L8482:  LDX #$00
 L8484:  LDA $70,X
 L8486:  CLC
-L8487:  ADC ($54),Y
+L8487:  ADC (MacStBasePtr),Y    ;($54)
 L8489:  INY
 L848A:  STA $70,X
 L848C:  JMP $8368
 L848F:  LDX #$01
 L8491:  BNE $8484
-L8493:  LDA $54
+L8493:  LDA MacStBasePtrLB      ;($54)
 L8495:  STA $7E
-L8497:  LDA $55
+L8497:  LDA MacStBasePtrUB      ;($55)
 L8499:  STA $7F
-L849B:  LDA ($54),Y
+L849B:  LDA (MacStBasePtr),Y    ;($54)
 L849D:  INY
 L849E:  TAX
-L849F:  LDA ($54),Y
+L849F:  LDA (MacStBasePtr),Y    ;($54)
 L84A1:  INY
 L84A2:  STY $7D
-L84A4:  STA $55
-L84A6:  STX $54
+L84A4:  STA MacStBasePtrUB      ;($55)
+L84A6:  STX MacStBasePtrLB      ;($54)
 L84A8:  LDY #$00
-L84AA:  STY $53
+L84AA:  STY MacStateIndex       ;($53)
 L84AC:  JMP $8325
 L84AF:  LDA $7E
-L84B1:  STA $54
+L84B1:  STA MacStBasePtrLB      ;($54)
 L84B3:  LDA $7F
-L84B5:  STA $55
+L84B5:  STA MacStBasePtrUB      ;($55)
 L84B7:  LDY $7D
-L84B9:  STY $53
+L84B9:  STY MacStateIndex       ;($53)
 L84BB:  JMP $8325
 L84BE:  LDA $0397
 L84C1:  STA $0391
 L84C4:  LDA $039E
 L84C7:  STA $0398
 L84CA:  JMP $8325
-L84CD:  LDA ($54),Y
-L84CF:  INC $53
+L84CD:  LDA (MacStBasePtr),Y    ;($54)
+L84CF:  INC MacStateIndex       ;($53)
 L84D1:  TAY
 L84D2:  AND #$03
 L84D4:  TAX
@@ -619,10 +619,10 @@ L84DA:  LSR
 L84DB:  LSR
 L84DC:  STA $F0,X
 L84DE:  JMP $8325
-L84E1:  LDA ($54),Y
+L84E1:  LDA (MacStBasePtr),Y    ;($54)
 L84E3:  INY
 L84E4:  STA $E0
-L84E6:  LDA ($54),Y
+L84E6:  LDA (MacStBasePtr),Y    ;($54)
 L84E8:  INY
 L84E9:  JMP $83FB
 L84EC:  TXA
@@ -653,33 +653,33 @@ L8518:  LDA $5B
 L851A:  BEQ $851D
 L851C:  INX
 L851D:  STX $58
-L851F:  DEC $53
+L851F:  DEC MacStateIndex       ;($53)
 L8521:  RTS
 L8522:  DEX
 L8523:  BEQ $8529
 L8525:  DEX
 L8526:  BNE $8535
 L8528:  INY
-L8529:  LDA ($54),Y
+L8529:  LDA (MacStBasePtr),Y    ;($54)
 L852B:  TAY
-L852C:  STY $53
+L852C:  STY MacStateIndex       ;($53)
 L852E:  LDA #$00
 L8530:  STA $58
 L8532:  JMP $8325
 L8535:  INY
 L8536:  INY
 L8537:  BNE $852C
-L8539:  LDA ($54),Y
+L8539:  LDA (MacStBasePtr),Y    ;($54)
 L853B:  TAX
 L853C:  INY
-L853D:  LDA ($54),Y
+L853D:  LDA (MacStBasePtr),Y    ;($54)
 L853F:  STA $E0
 L8541:  INY
-L8542:  LDA ($54),Y
+L8542:  LDA (MacStBasePtr),Y    ;($54)
 L8544:  TAY
 L8545:  LDA $E0
-L8547:  STA $55
-L8549:  STX $54
+L8547:  STA MacStBasePtrUB      ;($55)
+L8549:  STX MacStBasePtrLB      ;($54)
 L854B:  BNE $852C
 L854D:  LDA MacStateStatus      ;($51)
 L854F:  AND #$7F
@@ -687,9 +687,9 @@ L8551:  STA MacStateStatus      ;($51)
 L8553:  JMP $8325
 L8556:  DEC $56
 L8558:  BEQ $8562
-L855A:  LDA ($54),Y
+L855A:  LDA (MacStBasePtr),Y    ;($54)
 L855C:  TAY
-L855D:  STY $53
+L855D:  STY MacStateIndex       ;($53)
 L855F:  JMP $8325
 L8562:  INY
 L8563:  BNE $855D
@@ -698,18 +698,18 @@ L8567:  SEC
 L8568:  SBC MacCanPunch         ;($BC)
 L856A:  STA MacStatus           ;($50)
 L856C:  RTS
-L856D:  LDA ($54),Y
-L856F:  INC $53
+L856D:  LDA (MacStBasePtr),Y    ;($54)
+L856F:  INC MacStateIndex       ;($53)
 L8571:  STA $56
 L8573:  RTS
-L8574:  LDA ($54),Y
+L8574:  LDA (MacStBasePtr),Y    ;($54)
 L8576:  INY
 L8577:  STA MacPunchDamage      ;($75)
-L8579:  STY $53
+L8579:  STY MacStateIndex       ;($53)
 L857B:  JMP $8358
 
 L857E:  LDX #$00
-L8580:  LDA ($54),Y
+L8580:  LDA (MacStBasePtr),Y    ;($54)
 L8582:  INY
 L8583:  STA MacDefense1,X
 L8585:  INX
@@ -717,17 +717,17 @@ L8586:  CPX #$02
 L8588:  BNE $8580
 L858A:  BEQ $8579
 
-L858C:  LDA ($54),Y
-L858E:  INC $53
+L858C:  LDA (MacStBasePtr),Y    ;($54)
+L858E:  INC MacStateIndex       ;($53)
 L8590:  TAX
 L8591:  INC $00,X
 L8593:  JMP $8325
-L8596:  LDA ($54),Y
+L8596:  LDA (MacStBasePtr),Y    ;($54)
 L8598:  INY
 L8599:  TAX
-L859A:  LDA ($54),Y
+L859A:  LDA (MacStBasePtr),Y    ;($54)
 L859C:  INY
-L859D:  STY $53
+L859D:  STY MacStateIndex       ;($53)
 L859F:  STA $00,X
 L85A1:  JMP $8358
 L85A4:  LDA #$30
@@ -742,11 +742,11 @@ L85B6:  STA $048D
 L85B9:  LDA #$81
 L85BB:  STA $04A0
 L85BE:  JMP $8325
-L85C1:  LDA ($54),Y
+L85C1:  LDA (MacStBasePtr),Y    ;($54)
 L85C3:  STA $59
-L85C5:  INC $53
+L85C5:  INC MacStateIndex       ;($53)
 L85C7:  JMP $8325
-L85CA:  DEC $53
+L85CA:  DEC MacStateIndex       ;($53)
 L85CC:  LDA #$83
 L85CE:  STA MacStateStatus      ;($51)
 L85D0:  RTS
@@ -758,9 +758,9 @@ L85D7:  DEX
 L85D8:  BNE $85D3
 L85DA:  RTS
 
-L85DB:  ROR RNGValue          ;($18)
-L85DD:  ROR RNGValue          ;($18)
-L85DF:  ROR RNGValue          ;($18)
+L85DB:  ROR RNGValue            ;($18)
+L85DD:  ROR RNGValue            ;($18)
+L85DF:  ROR RNGValue            ;($18)
 L85E1:  RTS
 L85E2:  STA $EF
 L85E4:  LDA #$0F
@@ -768,7 +768,7 @@ L85E6:  STA $EE
 L85E8:  LDA $EF
 L85EA:  CMP $EE
 L85EC:  BEQ $8602
-L85EE:  LDA RNGValue          ;($18)
+L85EE:  LDA RNGValue            ;($18)
 L85F0:  JSR $85DB
 L85F3:  AND $EE
 L85F5:  CLC
@@ -847,7 +847,9 @@ L8880:  .word $89E5, $89E5, $89E5, $89E5, $89FA, $89FD, $8A00, $8A30
 L8890:  .word $8A03, $8A06, $8A09, $8A0C, $8A0F, $8A12, $8A15, $8A18
 L88A0:  .word $8A1B, $8A1E, $8A21, $8A24, $8970, $8A36, $8A39, $8A3C
 L88B0:  .word $8922, $89B8, $89BB, $89C7, $89CA, $8A33, $8A27, $8A2D
-L88C0:  .word $8946, $894F, $921D, $919F, $91A2, $91A5, $91A8, $91AB
+L88C0:  .word $8946, $894F
+
+L88C4:  .word $921D, $919F, $91A2, $91A5, $91A8, $91AB
 L88D0:  .word $91AE, $91B1, $91B4, $91B7, $91BA, $91BD, $91C0, $91C3
 L88E0:  .word $91C6, $91C9, $91CC, $91CF, $91D2, $91D5, $91D8, $91DB
 L88F0:  .word $91DE, $91E1, $91E4, $91E7, $91EA, $91ED, $91F0, $91F3
@@ -1097,11 +1099,13 @@ L97B6:  .byte $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $
 L97C6:  .byte $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00
 L97D6:  .byte $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00
 L97E6:  .byte $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00
-L97F6:  .byte $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00
+L97F6:  .byte $00, $00, $00, $00, $00, $00, $00, $00, $00, $00
 
-L9802:  .byte $4A, $98, $79, $98, $8F, $98, $8F, $98, $37, $99, $37, $99, $E3, $99, $1E, $9A
-L9812:  .byte $27, $9A, $67, $9A, $AA, $9A, $4A, $9B, $EA, $9B, $FD, $99, $00, $00, $50, $9C
-L9822:  .byte $AE, $9C, $A8, $9C, $10, $9D, $7A, $9C, $DE, $9C, $16, $9D, $B5, $9D, $32, $98
+;; These pointers get loaded into $54
+L9800:  .word $0000, $984A, $9879, $988F, $988F, $9937, $9937, $99E3
+L9810:  .word $9A1E, $9A27, $9A67, $9AAA, $9B4A, $9BEA, $99FD, $0000
+L9820:  .word $9C50, $9CAE, $9CA8, $9D10, $9C7A, $9CDE, $9D16, $9DB5, $9832
+
 L9832:  .byte $80, $0C, $EC, $80, $EC, $81, $80, $01, $EC, $82, $EC, $83, $80, $01, $EC, $30
 L9842:  .byte $80, $FF, $80, $FF, $80, $FF, $80, $FF, $F2, $11, $58, $B0, $12, $00, $B0, $39
 L9852:  .byte $14, $80, $0E, $22, $FF, $18, $01, $AD, $38, $04, $3F, $1D, $80, $1E, $22, $01

@@ -7,7 +7,7 @@ L8000:  JMP $8974
 L8003:  JMP $890D
 L8006:  JMP $881E
 L8009:  JMP UpdateClock         ;($8759)
-L800C:  JMP $86D0
+L800C:  JMP UpdatePoints        ;($86D0)
 L800F:  JMP $8A6F
 L8012:  JMP $85E9
 L8015:  JMP $805D
@@ -36,7 +36,8 @@ L8045:  JMP $8D72
 DoCreditsPassword:
 L8048:  JMP ChkCreditsPassword  ;($8D5D)Check for end credits password.
 
-L804B:  JMP $8FE5
+DoNormalPassword:
+L804B:  JMP ChkNormalPassword   ;($8FE5)Check for a normal password
 
 DoTysonPassword:
 L804E:  JMP ChkTysonPassword    ;($8D68)Check if player entered password to start at Mike Tyson.
@@ -658,6 +659,7 @@ L855A:  LDX #$01
 L855C:  BNE $8564
 L855E:  LDX #$02
 L8560:  BNE $8564
+
 L8562:  LDX #$03
 L8564:  STA $E7
 L8566:  TXA
@@ -848,6 +850,8 @@ L86C8:  STA PointsNew,X         ;($03E1)
 L86CB:  DEX
 L86CC:  BPL $86C5
 L86CE:  BMI $86DC
+
+UpdatePoints:
 L86D0:  LDA $03E7
 L86D3:  BEQ $871E
 L86D5:  BMI $86A9
@@ -1236,10 +1240,16 @@ L89FA:  INC IncStars
 L89FD:  RTS
 
 L89FE:  .byte $82, $82, $82, $82, $80, $80, $80, $80, $81, $81, $80, $80, $81, $81, $80, $80
-L8A0E:  .byte $81, $81, $80, $80, $81, $21, $32, $E9, $00, $00, $21, $32, $E9, $21, $32, $F1
-L8A1E:  .byte $25, $3E, $3C, $25, $3E, $F5, $21, $2E, $3B, $21, $2E, $F9, $A2, $05, $BD, $12
+L8A0E:  .byte $81, $81, $80, $80
 
-L8A2E:  TXA
+L8A12:  .byte $81, $21, $32, $E9, $00, $00, $21, $32, $E9, $21, $32, $F1
+L8A1E:  .byte $25, $3E, $3C, $25, $3E, $F5, $21, $2E, $3B, $21, $2E, $F9
+
+;; L8A2A:  .byte $A2, $05, $BD, $12
+;; L8A2E:  TXA
+
+L8A2A:  LDX #$05
+L8A2C:  LDA $8A12,X
 L8A2F:  STA $0410,X
 L8A32:  DEX
 L8A33:  BPL $8A2C
@@ -1256,31 +1266,33 @@ L8A47:  DEX
 L8A48:  BNE $8A40
 L8A4A:  RTS
 
-L8A4B:  AND #$7F
+UpdateCrowdState:
+L8A4B:  AND #$7F                ;Mask out MSB
 L8A4D:  TAY
 L8A4E:  LDA FrameCounter        ;($1E)
 L8A50:  AND #$0F
-L8A52:  BNE $8AD2
+L8A52:  BNE VQSetUpdateFlag     ;($8AD2) If frame number is not a multiple of 16, redraw crowd
 L8A54:  TYA
-L8A55:  STA $40
+L8A55:  STA CrowdCurState       ;($40) Clear MSB of CrowdCurState
 L8A57:  LDY #$80
-L8A59:  STY $41
+L8A59:  STY CrowdStateStatus    ;($41) Set CrowdStateStatus = 0x80
 L8A5B:  LDY #$01
-L8A5D:  STY $42
+L8A5D:  STY CrowdStateTimer     ;($42) Set CrowdStateTimer = 0x01
 L8A5F:  DEY
-L8A60:  STY $43
+L8A60:  STY CrowdStateIndex     ;($43) Set CrowdStateIndex = 0x00
 L8A62:  ASL
 L8A63:  TAY
-L8A64:  LDA $8CD2,Y
-L8A67:  STA $44
+L8A64:  LDA CrowdDataPtrs,Y     ;($8CD2)
+L8A67:  STA CrowdStBasePtrLB    ;($44)
 L8A69:  INY
-L8A6A:  LDA $8CD2,Y
-L8A6D:  STA $45
-L8A6F:  LDA $40
+L8A6A:  LDA CrowdDataPtrs,Y     ;($8CD2)
+L8A6D:  STA CrowdStBasePtrUB    ;($45)
+
+L8A6F:  LDA CrowdCurState       ;($40)
 L8A71:  BMI $8A4B
-L8A73:  BEQ $8AD2
-L8A75:  LDY $46
-L8A77:  BNE $8A2A
+L8A73:  BEQ VQSetUpdateFlag     ;($8AD2)
+L8A75:  LDY CrowdStRptCntr      ;($46)
+L8A77:  BNE $8A2A               ;???
 L8A79:  TAY
 L8A7A:  DEY
 L8A7B:  BEQ $8AA2
@@ -1292,7 +1304,7 @@ L8A83:  LDA FrameCounter        ;($1E)
 L8A85:  AND #$0F
 L8A87:  BNE $8A8D
 L8A89:  LDA #$04
-L8A8B:  STA $40
+L8A8B:  STA CrowdCurState       ;($40)
 L8A8D:  LDA FrameCounter        ;($1E)
 L8A8F:  AND #$0F
 L8A91:  TAY
@@ -1304,16 +1316,16 @@ L8A9D:  LDA #$81
 L8A9F:  STA $04A0
 L8AA2:  LDA $0410
 L8AA5:  BMI $8ADC
-L8AA7:  DEC $42
-L8AA9:  BNE $8AD2
+L8AA7:  DEC CrowdStateTimer     ;($42)
+L8AA9:  BNE VQSetUpdateFlag     ;($8AD2)
 L8AAB:  LDA #$01
-L8AAD:  STA $42
-L8AAF:  LDY $43
-L8AB1:  LDA ($44),Y
+L8AAD:  STA CrowdStateTimer     ;($42)
+L8AAF:  LDY CrowdStateIndex     ;($43)
+L8AB1:  LDA (CrowdStBasePtr),Y  ;($44)
 L8AB3:  AND #$1F
 L8AB5:  TAX
-L8AB6:  LDA ($44),Y
-L8AB8:  INC $43
+L8AB6:  LDA (CrowdStBasePtr),Y  ;($44)
+L8AB8:  INC CrowdStateIndex     ;($43)
 L8ABA:  INY
 L8ABB:  JSR _Div16              ;($9158)
 L8ABE:  LSR
@@ -1322,6 +1334,8 @@ L8ABF:  JSR IndJumpFromTable    ;($9134)
 L8AC2:  .word $8ADD, $0000, $8AF0, $8B19, $8B1E, $0000, $8B39, $8B50
 
 
+;If VRAMQueueStatus is zero, then set MSB to signal a flush
+VQSetUpdateFlag:
 L8AD2:  LDA $0410
 L8AD5:  BEQ $8ADC
 L8AD7:  ORA #$80
@@ -1332,10 +1346,11 @@ L8ADD:  TXA
 L8ADE:  AND #$0F
 L8AE0:  JSR RandomChance16      ;($910B)
 L8AE3:  BCC $8AED
-L8AE5:  LDA ($44),Y
+L8AE5:  LDA (CrowdStBasePtr),Y  ;($44)
 L8AE7:  TAY
-L8AE8:  STY $43
+L8AE8:  STY CrowdStateIndex     ;($43)
 L8AEA:  JMP $8AB1
+
 L8AED:  INY
 L8AEE:  BNE $8AE8
 L8AF0:  TXA
@@ -1358,7 +1373,7 @@ L8B0B:  LDA $8B9B,Y
 L8B0E:  STA $0400,X
 L8B11:  LDA $8B9C,Y
 L8B14:  STA $0401,X
-L8B17:  BNE $8AD2
+L8B17:  BNE VQSetUpdateFlag     ;($8AD2)
 L8B19:  TXA
 L8B1A:  LDX #$02
 L8B1C:  BNE $8AF3
@@ -1367,17 +1382,20 @@ L8B1E:  TXA
 L8B1F:  AND #$0F
 L8B21:  JSR RandomChance16      ;($910B)
 L8B24:  BCC $8B31
-L8B26:  LDA ($44),Y
+L8B26:  LDA (CrowdStBasePtr),Y  ;($44)
 L8B28:  AND #$0F
-L8B2A:  INC $43
-L8B2C:  STA $42
-L8B2E:  JMP $8AD2
+L8B2A:  INC CrowdStateIndex     ;($43)
+L8B2C:  STA CrowdStateTimer     ;($42)
+L8B2E:  JMP VQSetUpdateFlag     ;($8AD2)
 
-L8B31:  LDA ($44),Y
+L8B31:  LDA (CrowdStBasePtr),Y  ;($44)
 L8B33:  JSR _Div16              ;($9158)
 L8B36:  JMP $8B2A
 
+VQAddrSelect1:
 L8B39:  LDA #$00
+
+_VQAddrSelect:
 L8B3B:  STX $E2
 L8B3D:  TAX
 L8B3E:  LDA $0400,X
@@ -1385,16 +1403,20 @@ L8B41:  STA $0412
 L8B44:  LDA $0401,X
 L8B47:  STA $0411
 L8B4A:  JSR $8B54
-L8B4D:  JMP $8AD2
+L8B4D:  JMP VQSetUpdateFlag     ;($8AD2)
+
+VQAddrSelect2:
 L8B50:  LDA #$02
-L8B52:  BNE $8B3B
+L8B52:  BNE _VQAddrSelect       ;($8B3B)
+
+ReadVQCrowdTable:
 L8B54:  LDA $E2
 L8B56:  ASL
 L8B57:  TAY
-L8B58:  LDA $8C4B,Y
+L8B58:  LDA VQCrowdTablePtrs,Y  ;($8C4B)
 L8B5B:  STA $E0
 L8B5D:  INY
-L8B5E:  LDA $8C4B,Y
+L8B5E:  LDA VQCrowdTablePtrs,Y  ;($8C4B)
 L8B61:  STA $E1
 L8B63:  LDY #$00
 L8B65:  LDX #$03
@@ -1430,27 +1452,56 @@ L8C0B:  .byte $DB, $24, $CB, $20, $C3, $20, $C5, $20, $C7, $20, $CB, $20, $CF, $
 L8C1B:  .byte $F2, $20, $F0, $20, $EE, $20, $EA, $20, $E6, $20, $E2, $20, $FE, $24, $FA, $24
 L8C2B:  .byte $FE, $24, $E4, $20, $EE, $20, $FE, $24, $EE, $20, $E4, $20, $FE, $24, $E4, $20
 L8C3B:  .byte $D9, $24, $C7, $20, $D1, $20, $D9, $24, $D1, $20, $C7, $20, $D9, $24, $C7, $20
-L8C4B:  .byte $79, $8C, $7E, $8C, $83, $8C, $88, $8C, $8D, $8C, $90, $8C, $93, $8C, $96, $8C
-L8C5B:  .byte $99, $8C, $9C, $8C, $9F, $8C, $A4, $8C, $A9, $8C, $AC, $8C, $AF, $8C, $B2, $8C
-L8C6B:  .byte $B5, $8C, $BA, $8C, $BF, $8C, $C2, $8C, $C5, $8C, $C8, $8C, $CD, $8C, $F0, $00
-L8C7B:  .byte $D2, $00, $00, $D3, $00, $D4, $00, $00, $F3, $00, $F4, $00, $00, $E6, $00, $E7
-L8C8B:  .byte $00, $00, $F2, $00, $00, $E5, $00, $00, $EE, $00, $00, $E4, $00, $00, $ED, $00
-L8C9B:  .byte $00, $E3, $00, $00, $EF, $00, $EC, $00, $00, $E1, $00, $E2, $00, $00, $EA, $00
-L8CAB:  .byte $00, $96, $00, $00, $EB, $00, $00, $97, $00, $00, $92, $00, $93, $00, $00, $94
-L8CBB:  .byte $00, $95, $00, $00, $D7, $00, $00, $D8, $00, $00, $D9, $00, $00, $F0, $00, $F1
-L8CCB:  .byte $00, $00, $D5, $00, $D6, $00, $00, $00, $00, $D8, $8C, $1A, $8D
 
+VQCrowdTablePtrs:
+L8C4B:  .word $8C79, $8C7E, $8C83, $8C88, $8C8D, $8C90, $8C93, $8C96
+L8C5B:  .word $8C99, $8C9C, $8C9F, $8CA4, $8CA9, $8CAC, $8CAF, $8CB2
+L8C6B:  .word $8CB5, $8CBA, $8CBF, $8CC2, $8CC5, $8CC8, $8CCD
+
+VQCrowdTable:
+L8C79:  .byte $F0, $00, $D2, $00, $00
+L8C7E:  .byte $D3, $00, $D4, $00, $00
+L8C83:  .byte $F3, $00, $F4, $00, $00
+L8C88:  .byte $E6, $00, $E7, $00, $00
+L8C8D:  .byte $F2, $00, $00
+L8C90:  .byte $E5, $00, $00
+L8C93:  .byte $EE, $00, $00
+L8C96:  .byte $E4, $00, $00
+L8C99:  .byte $ED, $00, $00
+L8C9C:  .byte $E3, $00, $00
+L8C9F:  .byte $EF, $00, $EC, $00, $00
+L8CA4:  .byte $E1, $00, $E2, $00, $00
+L8CA9:  .byte $EA, $00, $00
+L8CAC:  .byte $96, $00, $00
+L8CAF:  .byte $EB, $00, $00
+L8CB2:  .byte $97, $00, $00
+L8CB5:  .byte $92, $00, $93, $00, $00
+L8CBA:  .byte $94, $00, $95, $00, $00
+L8CBF:  .byte $D7, $00, $00
+L8CC2:  .byte $D8, $00, $00
+L8CC5:  .byte $D9, $00, $00
+L8CC8:  .byte $F0, $00, $F1, $00, $00
+L8CCD:  .byte $D5, $00, $D6, $00, $00
+
+;----------------------------------------------------------------------------------------------------
+
+; Crowd behavior tables.  CrowdTable1 is normal crowd, CrowdTable2 is end of match
+CrowdDataPtrs:
+L8CD2:  .word $0000, CrowdTable1, CrowdTable2
+
+CrowdTable1:
 L8CD8:  .byte $40, $C3, $4D, $CC, $61, $EA, $6C, $F0, $63, $E6, $6B, $EF, $42, $C5, $88, $37
 L8CE8:  .byte $43, $C6, $4D, $CC, $64, $E8, $6C, $F1, $61, $EA, $6B, $EF, $44, $C8, $88, $58
 L8CF8:  .byte $41, $CB, $4D, $CD, $60, $E2, $6C, $F0, $63, $E7, $6B, $EE, $42, $C4, $88, $28
 L8D08:  .byte $43, $C7, $4D, $CD, $64, $E9, $6C, $F1, $61, $EB, $6B, $EE, $44, $C9, $88, $36
+L8D18:  .byte $0F, $00
 
-L8D18:  .byte $0F, $00, $62
-L8D1B:  .byte $E5, $60, $E2, $45, $C0, $C1, $D6, $60, $E3, $8F, $01, $D5, $08, $05, $63, $E7
-L8D2B:  .byte $64, $E8, $4E, $D2, $D3, $D4, $61, $EB, $D0, $60, $E3, $62, $E5, $45, $C0, $C1
-L8D3B:  .byte $D6, $60, $E2, $8F, $01, $D5, $08, $1F, $62, $E4, $4F, $D2, $D3, $D4, $61, $EA
-L8D4B:  .byte $CC, $63, $E6, $62, $E4, $45, $C0, $C1, $D6, $64, $E9, $8F, $01, $D5, $88, $4A
-L8D5B:  .byte $0F, $00
+CrowdTable2:
+L8D1A:  .byte $62, $E5, $60, $E2, $45, $C0, $C1, $D6, $60, $E3, $8F, $01, $D5, $08, $05, $63
+L8D2A:  .byte $E7, $64, $E8, $4E, $D2, $D3, $D4, $61, $EB, $D0, $60, $E3, $62, $E5, $45, $C0
+L8D3A:  .byte $C1, $D6, $60, $E2, $8F, $01, $D5, $08, $1F, $62, $E4, $4F, $D2, $D3, $D4, $61
+L8D4A:  .byte $EA, $CC, $63, $E6, $62, $E4, $45, $C0, $C1, $D6, $64, $E9, $8F, $01, $D5, $88
+L8D5A:  .byte $4A, $0F, $00
 
 ;----------------------------------------------------------------------------------------------------
 
@@ -1543,17 +1594,18 @@ L8DF1:  JSR $8E15
 L8DF4:  JSR $802D
 L8DF7:  LDY #$0D
 L8DF9:  LDX #$00
-L8DFB:  LDA $0150,X
-L8DFE:  STA $0411,Y
+L8DFB:  LDA $0150,X             ;Copy $0150 through $015B -->
+L8DFE:  STA $0411,Y             ;into $041E through $0429
 L8E01:  INY
 L8E02:  INX
 L8E03:  CPX #$0C
 L8E05:  BNE $8DFB
 L8E07:  LDA #$00
-L8E09:  STA $0411,Y
+L8E09:  STA $0411,Y             ;Set $042A to zero
 L8E0C:  INY
-L8E0D:  STA $0411,Y
+L8E0D:  STA $0411,Y             ;Set $042B to zero
 L8E10:  RTS
+
 L8E11:  LDY #$00
 L8E13:  LDA #$27
 L8E15:  LDX #$0A
@@ -1589,6 +1641,7 @@ L8E4F:  DEX
 L8E50:  BPL $8E45
 L8E52:  RTS
 
+; Copy password from $0140 to $0150, inserting #$FF between digit groups
 L8E53:  LDY #$00
 L8E55:  LDX #$00
 
@@ -1651,6 +1704,7 @@ L8EB9:  RTS
 L8EBA:  LDY #$00
 L8EBC:  BEQ $8EC3
 L8EBE:  JMP $8FC3
+
 L8EC1:  LDY #$10
 L8EC3:  LDX #$00
 L8EC5:  LDA EnteredPasswd,Y
@@ -1784,8 +1838,8 @@ L8FCE:  DEY
 L8FCF:  BPL $8FC8
 L8FD1:  RTS
 
-L8FD2:  JSR $8030
-L8FD5:  BNE $8FE5
+L8FD2:  JSR $8030               ;($8EBA)
+L8FD5:  BNE ChkNormalPassword   ;($8FE5)
 L8FD7:  LDY #$05
 L8FD9:  LDA $0130,Y
 L8FDC:  STA $0170,Y
@@ -1794,6 +1848,7 @@ L8FE0:  BPL $8FD9
 L8FE2:  LDA #$00
 L8FE4:  RTS
 
+ChkNormalPassword:
 L8FE5:  LDY #$05
 L8FE7:  LDA #$00
 L8FE9:  STA $0170,Y
