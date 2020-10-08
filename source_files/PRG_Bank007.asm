@@ -16,13 +16,22 @@ L801B:  JMP $8DED
 L801E:  JMP $8E11
 L8021:  JMP $8E1F
 L8024:  JMP $8E23
-L8027:  JMP $8E34
-L802A:  JMP $8E3B
-L802D:  JMP $8E53
-L8030:  JMP $8EBA
-L8033:  JMP $8EC1
-L8036:  JMP $8FC6
-L8039:  JMP $8FD2
+L8027:  JMP TranslatePswd2      ;($8E34)Translate password2 numbers into glyphs
+L802A:  JMP TranslatePswd       ;($8E3B)Translate password numbers into glyphs
+L802D:  JMP GroupPswdDigits     ;($8E53)Insert a space between digit groups
+
+DoVerifyCheckPoint:
+L8030:  JMP VerifyCheckPoint    ;($8EBA)
+
+DoNormalPswd:
+L8033:  JMP ChkNormalPswd       ;($8EC1)Check a normal password
+
+DoSavePassword:
+L8036:  JMP SavePassword        ;($8FC6)Save the entered password
+
+DoLoadCheckPoint:
+L8039:  JMP LoadCheckPoint      ;($8FD2)
+
 L803C:  JMP $8FF0
 
 DoBusyPassword:
@@ -31,13 +40,14 @@ L803F:  JMP ChkBusyPassword     ;($8D7D)Check fur busy signal passwords.
 DoCircuitPassword:
 L8042:  JMP ChkCircuitPassword  ;($8D6C)Check for another world circuit password.
 
-L8045:  JMP $8D72
+DoCircuitPassword2:
+L8045:  JMP ChkCircuitPassword  ;($8D72)Check for AWC password in $0120
 
 DoCreditsPassword:
 L8048:  JMP ChkCreditsPassword  ;($8D5D)Check for end credits password.
 
-DoNormalPassword:
-L804B:  JMP ChkNormalPassword   ;($8FE5)Check for a normal password
+DoClear170:
+L804B:  JMP _Clear170            ;($8FE5)Create a password
 
 DoTysonPassword:
 L804E:  JMP ChkTysonPassword    ;($8D68)Check if player entered password to start at Mike Tyson.
@@ -208,6 +218,7 @@ L81A7:  BNE $81AC
 L81A9:  JSR $8404
 L81AC:  STX LastPunchSts        ;($03D2)
 L81AF:  JMP $815D
+
 L81B2:  LDA $58
 L81B4:  BMI $81B7
 L81B6:  RTS
@@ -832,17 +843,20 @@ L86A4:  ADC $ED
 L86A6:  STA RNGValue            ;($18)
 L86A8:  RTS
 
+ResetPoints:
 L86A9:  LDX #$01
 L86AB:  STX $03E7
 L86AE:  STX PointsStatus        ;($03E0)
 L86B1:  CMP #$80
-L86B3:  BEQ $86C1
+L86B3:  BEQ _ResetPoints        ;($86C1)
 L86B5:  LDA #$00
 L86B7:  LDX #$05
 L86B9:  STA PointsNew,X         ;($03E1)
 L86BC:  DEX
 L86BD:  BPL $86B9
 L86BF:  BMI $86DC
+
+_ResetPoints:
 L86C1:  LDA #$00
 L86C3:  LDX #$05
 L86C5:  STA PointsTotal,X       ;($03E8)
@@ -857,6 +871,8 @@ L86D3:  BEQ $871E
 L86D5:  BMI $86A9
 L86D7:  LDA PointsStatus        ;($03E0)
 L86DA:  BEQ $871E
+
+UpdatePointTotal:
 L86DC:  CLC
 L86DD:  LDX #$05
 L86DF:  LDA PointsTotal,X       ;($03E8)
@@ -1510,7 +1526,7 @@ L8D5D:  LDY #$28                ;Look for a A+B+select password(end credits).
 L8D5F:  JSR FindSpecPassword    ;($8D8D)Look for a hard coded password.
 
 L8D62:  BNE +
-L8D64:  JSR $8DDE
+L8D64:  JSR CheckABSelect       ;($8DDE)Check that A+B+Select was pressed
 L8D67:* RTS
 
 ChkTysonPassword:
@@ -1522,12 +1538,12 @@ L8D6C:  LDX #$00                ;Look for a A+B+select password(another world ci
 L8D6E:  LDY #$1E                ;Start at the 4th entry in PswrdDatTbl.
 L8D70:  BNE _FindSpecPassword   ;Branch always.
 
-
-L8D72:  LDY #$1E                ;Look for a A+B+select password(another world circuit).
+ChkCircuitPassword2:
+L8D72:  LDY #$1E                ;Compare $0120 to AWC password
 L8D74:  JSR FindSpecPassword    ;($8D8D)Look for a hard coded password.
 
 L8D77:  BNE +
-L8D79:  JSR $8DDE
+L8D79:  JSR CheckABSelect       ;($8DDE)Check that A+B+Select was pressed
 L8D7C:* RTS
 
 ChkBusyPassword:
@@ -1578,11 +1594,11 @@ L8DC0:  .byte $01, $03, $05, $07, $09, $02, $04, $06, $08, $00
 L8DCA:  .byte $01, $00, $06, $01, $01, $03, $00, $01, $02, $00
 L8DD4:  .byte $00, $00, $07, $03, $07, $03, $05, $09, $06, $03
 
+CheckABSelect:
 L8DDE:  LDA A1History
 L8DE0:  ORA B1History
 L8DE2:  AND Sel1History
 L8DE4:  BPL $8DEA
-
 L8DE6:  LDA #$00
 L8DE8:  BEQ $8DEC
 L8DEA:  LDA #$01
@@ -1590,8 +1606,10 @@ L8DEC:  RTS
 
 L8DED:  LDY #$30
 L8DEF:  LDA #$FF
-L8DF1:  JSR $8E15
-L8DF4:  JSR $802D
+L8DF1:  JSR _FillPassword       ;($8E15)Fill $0140 through $0149 with spaces
+
+DisplayPassword:
+L8DF4:  JSR $802D               ;($8E53)Copy password into $0150 with grouping
 L8DF7:  LDY #$0D
 L8DF9:  LDX #$00
 L8DFB:  LDA $0150,X             ;Copy $0150 through $015B -->
@@ -1606,10 +1624,13 @@ L8E0C:  INY
 L8E0D:  STA $0411,Y             ;Set $042B to zero
 L8E10:  RTS
 
+FillPswdDashes:
 L8E11:  LDY #$00
 L8E13:  LDA #$27
+
+_FillPassword:
 L8E15:  LDX #$0A
-L8E17:  STA EnteredPasswd,Y
+L8E17:  STA EnteredPasswd,Y     ;($0110)
 L8E1A:  INY
 L8E1B:  DEX
 L8E1C:  BNE $8E17
@@ -1618,17 +1639,22 @@ L8E1E:  RTS
 L8E1F:  LDY #$10
 L8E21:  BNE $8E13
 L8E23:  JSR $802A
-L8E26:  JSR $8DF4
+L8E26:  JSR DisplayPassword     ;($8DF4)
 L8E29:  LDA #$C4
 L8E2B:  STA $0412
 L8E2E:  LDA #$81
 L8E30:  STA $0410
 L8E33:  RTS
 
+TranslatePswd2:
 L8E34:  LDY #$19
 L8E36:  JSR $8E3D
 L8E39:  BMI $8E26
+
+TranslatePswd:
 L8E3B:  LDY #$09
+
+_TranslateDigits:
 L8E3D:  LDX #$0A
 L8E3F:  LDA #$00
 L8E41:  STA $0140,X
@@ -1642,6 +1668,7 @@ L8E50:  BPL $8E45
 L8E52:  RTS
 
 ; Copy password from $0140 to $0150, inserting #$FF between digit groups
+GroupPswdDigits:
 L8E53:  LDY #$00
 L8E55:  LDX #$00
 
@@ -1701,15 +1728,20 @@ L8EB4:  EOR #$FF
 L8EB6:  CMP $0138
 L8EB9:  RTS
 
+VerifyCheckPoint:
 L8EBA:  LDY #$00
 L8EBC:  BEQ $8EC3
-L8EBE:  JMP $8FC3
 
+L8EBE:  JMP _PassKeyFailed      ;($8FC3)
+
+ChkNormalPswd:
 L8EC1:  LDY #$10
+
+_VerifyPassword:
 L8EC3:  LDX #$00
 L8EC5:  LDA EnteredPasswd,Y
 L8EC8:  SEC
-L8EC9:  SBC $9101,X
+L8EC9:  SBC PasswordSalt,X      ;($9101)
 L8ECC:  BPL $8ED1
 L8ECE:  CLC
 L8ECF:  ADC #$0A
@@ -1803,43 +1835,48 @@ L8F82:  LSR
 L8F83:  LSR
 L8F84:  STA $0136
 L8F87:  JSR $8EA9
-L8F8A:  BNE $8FC3
+L8F8A:  BNE _PassKeyFailed      ;($8FC3)
 L8F8C:  LDY $0137
 L8F8F:  LDA $90F1,Y
-L8F92:  BMI $8FC3
+L8F92:  BMI _PassKeyFailed      ;($8FC3)
 L8F94:  CMP $010E
-L8F97:  BNE $8FC3
+L8F97:  BNE _PassKeyFailed      ;($8FC3)
 L8F99:  LDX #$05
 L8F9B:  LDA $0130,X
 L8F9E:  CMP #$0A
-L8FA0:  BCS $8FC3
+L8FA0:  BCS _PassKeyFailed      ;($8FC3)
 L8FA2:  DEX
 L8FA3:  BPL $8F9B
 L8FA5:  LDA $0130
 L8FA8:  BNE $8FB1
 L8FAA:  LDA $0131
 L8FAD:  CMP #$03
-L8FAF:  BCC $8FC3
+L8FAF:  BCC _PassKeyFailed      ;($8FC3)
 L8FB1:  CMP $0134
-L8FB4:  BCC $8FC3
+L8FB4:  BCC _PassKeyFailed      ;($8FC3)
 L8FB6:  BNE $8FC0
 L8FB8:  LDA $0131
 L8FBB:  CMP $0135
-L8FBE:  BCC $8FC3
+L8FBE:  BCC _PassKeyFailed      ;($8FC3)
 L8FC0:  LDA #$00
 L8FC2:  RTS
 
+_PassKeyFailed:
 L8FC3:  LDA #$01
 L8FC5:  RTS
+
+; Save the password that was entered as the current checkpoint
+SavePassword:
 L8FC6:  LDY #$09
-L8FC8:  LDA $0120,Y
+L8FC8:  LDA PassKeyDigits,Y     ;($0120)
 L8FCB:  STA EnteredPasswd,Y
 L8FCE:  DEY
 L8FCF:  BPL $8FC8
 L8FD1:  RTS
 
-L8FD2:  JSR $8030               ;($8EBA)
-L8FD5:  BNE ChkNormalPassword   ;($8FE5)
+LoadCheckPoint:
+L8FD2:  JSR DoVerifyCheckPoint    ;($8030)
+L8FD5:  BNE $8FE5
 L8FD7:  LDY #$05
 L8FD9:  LDA $0130,Y
 L8FDC:  STA $0170,Y
@@ -1848,13 +1885,16 @@ L8FE0:  BPL $8FD9
 L8FE2:  LDA #$00
 L8FE4:  RTS
 
-ChkNormalPassword:
+;; TODO: Not sure what role $0170-$0175 play yet
+_Clear170:
 L8FE5:  LDY #$05
 L8FE7:  LDA #$00
 L8FE9:  STA $0170,Y
 L8FEC:  DEY
 L8FED:  BPL $8FE9
 L8FEF:  RTS
+
+;; Generate Pass Key?
 L8FF0:  LDY #$05
 L8FF2:  LDA $0170,Y
 L8FF5:  STA $0130,Y
@@ -1971,10 +2011,12 @@ L90D0:  BPL $90C4
 L90D2:  LDA $010D
 L90D5:  ORA $0119
 L90D8:  STA $0119
+
+_AddSalt:
 L90DB:  LDY #$09
 L90DD:  LDA EnteredPasswd,Y
 L90E0:  CLC
-L90E1:  ADC $9101,Y
+L90E1:  ADC PasswordSalt,Y      ;($9101)
 L90E4:  CMP #$0A
 L90E6:  BCC $90EA
 L90E8:  SBC #$0A
@@ -1984,6 +2026,8 @@ L90EE:  BPL $90DD
 L90F0:  RTS
 
 L90F1:  .byte $01, $02, $00, $FF, $02, $00, $01, $FF, $00, $01, $02, $FF, $FF, $FF, $FF, $FF
+
+PasswordSalt:
 L9101:  .byte $06, $03, $05, $07, $09, $00, $01, $04, $02, $08
 
 ;Compare whether a random value 0-15 is greater than A

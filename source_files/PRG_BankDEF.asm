@@ -4,6 +4,10 @@
 
 ;--------------------------------------[ Forward Declarations ]--------------------------------------
 
+.alias DoVerifyCheckPoint       $8030
+.alias DoNormalPassword         $8033
+.alias DoSavePassword           $8036
+.alias DoLoadCheckPoint         $8039
 .alias DoBusyPassword           $803F
 .alias DoCircuitPassword        $8042
 .alias DoCreditsPassword        $8048
@@ -194,7 +198,7 @@ LA204:  BNE $A211
 
 LA206:  DEY
 LA207:  BPL $A1FE
-LA209:  JSR $8030
+LA209:  JSR DoLoadCheckPoint    ;($8030)
 LA20C:  BEQ $A215
 LA20E:  LDX $013F
 
@@ -276,7 +280,7 @@ LA29A:  JSR $9000
 LA29D:  LDA #$FF
 LA29F:  STA GameStatus
 LA2A1:  JMP $A505
-LA2A4:  JSR $A4C6
+LA2A4:  JSR ResetDemoTimer          ;($A4C6)
 LA2A7:  LDX #$FF
 LA2A9:  TXS
 LA2AA:  BNE $A2B8
@@ -285,7 +289,7 @@ LA2AE:  TXS
 LA2AF:  INX
 LA2B0:  STX $013E
 LA2B3:  LDA #$04
-LA2B5:  STA $04C6
+LA2B5:  STA DemoTimerSec          ;($04C6)
 LA2B8:  JSR $AA1D
 LA2BB:  LDA #$00
 LA2BD:  STA GameStatus
@@ -309,8 +313,8 @@ LA2DA:  JSR $B6CB
 LA2DD:  LDA #$05
 LA2DF:  JSR $BC5F
 LA2E2:  LDX #$00
-LA2E4:  STX $04C0
-LA2E7:  STX $04C1
+LA2E4:  STX PassKeyStatus       ;($04C0)
+LA2E7:  STX PassKeyCursor       ;($04C1)
 LA2EA:  JSR $AE9B
 
 LA2ED:  LDA #SPRT_BKG_ON        ;Enable sprites and background.
@@ -319,18 +323,22 @@ LA2EF:  STA SprtBkgUpdt         ;
 LA2F1:  LDA #$FF
 LA2F3:  STA GameStatus
 LA2F5:  LDA #$40
-LA2F7:  STA $04C7
+LA2F7:  STA DemoTimerFrm        ;($04C7)
+_MenuWaitLoop:
 LA2FA:  JSR WaitLoop            ;($AF02)
-LA2FD:  DEC $04C7
+LA2FD:  DEC DemoTimerFrm        ;($04C7)
 LA300:  BNE $A365
 LA302:  LDA #$40
-LA304:  STA $04C7
-LA307:  DEC $04C6
+LA304:  STA DemoTimerFrm        ;($04C7)
+LA307:  DEC DemoTimerSec        ;($04C6)
 LA30A:  BNE $A365
 LA30C:  LDA #$00
 LA30E:  STA $04
 LA310:  JSR $BF7E
 LA313:  JMP $A4CC
+
+; Switch from Continue to New, and remove Pass Key entry field
+ClearPassword:
 LA316:  JSR LoadPRGBank0C       ;($AA64)
 LA319:  LDA #$05
 LA31B:  JSR $BC5F
@@ -340,8 +348,11 @@ LA322:  JSR $BFF6
 LA325:  JSR LoadPRGBank07       ;($AA54)
 LA328:  JSR $801B
 LA32B:  LDX #$00
-LA32D:  STX $04C0
-LA330:  BEQ $A2FA
+LA32D:  STX PassKeyStatus       ;($04C0)
+LA330:  BEQ _MenuWaitLoop       ;($A2FA)
+
+; Reload the current password (or underscores) into the Pass Key entry field
+ResetPassword:
 LA332:  JSR LoadPRGBank0C       ;($AA64)
 LA335:  LDA #$06
 LA337:  JSR $BC5F
@@ -352,54 +363,65 @@ LA341:  JSR LoadPRGBank07       ;($AA54)
 LA344:  JSR $8024
 LA347:  JSR $8021
 LA34A:  LDX #$00
-LA34C:  STX $04C1
-LA34F:  STX $04C2
-LA352:  BEQ $A2FA
+LA34C:  STX PassKeyCursor       ;($04C1)
+LA34F:  STX PassKeyMod          ;($04C2)
+LA352:  BEQ _MenuWaitLoop       ;($A2FA)
+
 LA354:  LDA DPad1Status         ;($D2)
 LA356:  LDX #$00
 LA358:  CMP #$08
 LA35A:  BEQ $A35E
 LA35C:  LDX #$FF
-LA35E:  STX $04C0
-LA361:  BNE $A332
-LA363:  BEQ $A316
+LA35E:  STX PassKeyStatus       ;($04C0)
+LA361:  BNE ResetPassword       ;($A332)
+LA363:  BEQ ClearPassword       ;($A316)
+
 LA365:  LDA DPad1History        ;($D3)
 LA367:  BPL $A3BB
 LA369:  AND #$7F
 LA36B:  STA DPad1History        ;($D3)
-LA36D:  JSR $A4C6
+LA36D:  JSR ResetDemoTimer          ;($A4C6)
 LA370:  LDA DPad1Status         ;($D2)
 LA372:  AND #$03
 LA374:  BEQ $A354
-LA376:  LDA $04C0
+LA376:  LDA PassKeyStatus       ;($04C0)
 LA379:  BEQ $A3DF
-LA37B:  LDX $04C1
-LA37E:  LDA $04C2
-LA381:  BEQ $A3A5
+LA37B:  LDX PassKeyCursor       ;($04C1)
+LA37E:  LDA PassKeyMod          ;($04C2)
+LA381:  BEQ PassKeySetMod       ;($A3A5)
 LA383:  LDA DPad1Status         ;($D2)
 LA385:  AND #$03
-LA387:  CMP #$01
-LA389:  BEQ $A3AA
-LA38B:  DEC $0120,X
-LA38E:  LDA $0120,X
-LA391:  BPL $A395
-LA393:  LDA #$09
+LA387:  CMP #IN_RIGHT
+LA389:  BEQ PassKeyDigitInc     ;($A3AA)
+
+PassKeyDigitDec:
+LA38B:  DEC PassKeyDigits,X     ;($0120)
+LA38E:  LDA PassKeyDigits,X     ;($0120)
+LA391:  BPL UpdatePassKeyDisp   ;($A395)
+LA393:  LDA #$09                ;If decremented past 0, wrap around to 9
+
+UpdatePassKeyDisp:
 LA395:  LDY #$0B
-LA397:  STA $0120,X
+LA397:  STA PassKeyDigits,X     ;($0120)
 LA39A:  STY $F0
 LA39C:  JSR LoadPRGBank07       ;($AA54)
 LA39F:  JSR $8027
-LA3A2:  JMP $A2FA
-LA3A5:  INC $04C2
-LA3A8:  BNE $A395
-LA3AA:  INC $0120,X
-LA3AD:  LDA $0120,X
-LA3B0:  CMP #$0A
-LA3B2:  BNE $A395
-LA3B4:  LDA #$00
-LA3B6:  STA $0120,X
-LA3B9:  BEQ $A395
-LA3BB:  LDA $04C0
+LA3A2:  JMP _MenuWaitLoop       ;($A2FA)
+
+PassKeySetMod:
+LA3A5:  INC PassKeyMod          ;($04C2)
+LA3A8:  BNE UpdatePassKeyDisp   ;($A395)
+
+PassKeyDigitInc:
+LA3AA:  INC PassKeyDigits,X     ;($0120)
+LA3AD:  LDA PassKeyDigits,X     ;($0120)
+LA3B0:  CMP #$0A                ;Check for wraparound
+LA3B2:  BNE UpdatePassKeyDisp   ;($A395)
+LA3B4:  LDA #$00                ;If incremented past 9, wrap around to 0
+LA3B6:  STA PassKeyDigits,X     ;($0120)
+LA3B9:  BEQ UpdatePassKeyDisp   ;($A395)
+
+LA3BB:  LDA PassKeyStatus       ;($04C0)
 LA3BE:  BEQ $A3DF
 LA3C0:  LDA A1History           ;($D5)
 LA3C2:  BPL $A3CA
@@ -410,92 +432,92 @@ LA3CA:  LDA B1History           ;($D7)
 LA3CC:  BPL $A3DF
 LA3CE:  AND #$7F
 LA3D0:  STA B1History           ;($D7)
-LA3D2:  LDX $04C1
-LA3D5:  LDA $04C2
-LA3D8:  BEQ $A3A5
+LA3D2:  LDX PassKeyCursor       ;($04C1)
+LA3D5:  LDA PassKeyMod          ;($04C2)
+LA3D8:  BEQ PassKeySetMod       ;($A3A5)
 LA3DA:  BNE $A400
 LA3DC:  JMP $A473
 LA3DF:  LDA Strt1History        ;($D9)
 LA3E1:  BPL $A3A2
 LA3E3:  AND #$7F
 LA3E5:  STA Strt1History        ;($D9)
-LA3E7:  LDA $04C0
+LA3E7:  LDA PassKeyStatus       ;($04C0)
 LA3EA:  BEQ $A3DC
-LA3EC:  LDA $04C2
+LA3EC:  LDA PassKeyMod          ;($04C2)
 LA3EF:  BNE $A400
 LA3F1:  JSR LoadPRGBank07       ;($AA54)
-
 LA3F4:  JSR DoCircuitPassword   ;($8042)Check if user entered another world circuit password.
 LA3F7:  BEQ $A46A
-
-LA3F9:  JSR $8030
-LA3FC:  BNE $A427
+LA3F9:  JSR DoLoadCheckPoint    ;($8030)
+LA3FC:  BNE PasswordFailed      ;($A427)
 LA3FE:  BEQ $A44E
-LA400:  INC $04C1
-LA403:  LDX $04C1
+LA400:  INC PassKeyCursor       ;($04C1)
+LA403:  LDX PassKeyCursor       ;($04C1)
 LA406:  CPX #$0A
 LA408:  BEQ $A443
-LA40A:  JSR $A4C6
+LA40A:  JSR ResetDemoTimer      ;($A4C6)
 LA40D:  LDA #$00
 LA40F:  LDY #$09
 LA411:  JMP $A397
 LA414:  LDA #$0A
-LA416:  STA $04C6
+LA416:  STA DemoTimerSec        ;($04C6)
 LA419:  LDA #$12
 LA41B:  STA $F0
 LA41D:  LDA #$30
 LA41F:  JSR $AF04
-LA422:  DEC $04C6
+LA422:  DEC DemoTimerSec        ;($04C6)
 LA425:  BNE $A419
 
-LA427:  JSR $A4C6
-LA42A:  JMP $A316
+PasswordFailed:
+LA427:  JSR ResetDemoTimer      ;($A4C6)
+LA42A:  JMP ClearPassword       ;($A316)
 
+CheckAltPasswords:
 LA42D:  JSR DoBusyPassword      ;($803F)Check for busy signal passwords.
 LA430:  BEQ $A414
-
-LA432:  JSR $8045
+LA432:  JSR DoCircuitPassword2  ;($8045)Check for AWC password
 LA435:  BEQ $A467
-
 LA437:  JSR DoCreditsPassword   ;($8048)Check for end credits password.
 LA43A:  BEQ $A463
-
 LA43C:  JSR DoTysonPassword     ;($804E)Check for Mike Tyson password.
 LA43F:  BEQ $A457
-
-LA441:  BNE $A427
+LA441:  BNE PasswordFailed      ;($A427)
 
 LA443:  JSR LoadPRGBank07       ;($AA54)
-LA446:  JSR $8033
-LA449:  BNE $A42D
-LA44B:  JSR $8036
-LA44E:  JSR $8039
+LA446:  JSR VerifyPassword      ;($8033)
+LA449:  BNE CheckAltPasswords   ;($A42D)
+LA44B:  JSR SavePassword        ;($8036)
+
+LA44E:  JSR DoLoadCheckPoint    ;($8039)
 LA451:  LDX $0136
 LA454:  INX
-LA455:  BNE $A475
+LA455:  BNE _StartCircuit       ;($A475)
+
 LA457:  JSR $804B
 LA45A:  LDA #$02
 LA45C:  STA $0173
 LA45F:  LDX #$05
-LA461:  BNE $A475
+LA461:  BNE _StartCircuit       ;($A475)
 
 LA463:  LDX #$07
-LA465:  BNE $A475
+LA465:  BNE _StartCircuit       ;($A475)
+
 LA467:  JSR $8036
 
+StartAWCircuit:
 LA46A:  LDA #$01
 LA46C:  STA $013E
 LA46F:  LDX #$04
-LA471:  BNE $A475
+LA471:  BNE _StartCircuit       ;($A475)
+
 LA473:  LDX #$00
 
+_StartCircuit:
 LA475:  STX $0B
 LA477:  LDA $A185,X
 LA47A:  STA $01
-
 LA47C:  LDA #SND_OFF            ;Stop any playing music.
 LA47E:  STA MusicInit           ;
-
 LA480:  JSR $AEA5
 LA483:  JSR LoadPRGBank0C       ;($AA64)
 LA486:  LDA #$81
@@ -526,8 +548,9 @@ LA4BD:  JMP $A829
 LA4C0:  JSR $BD42
 LA4C3:  JMP $A2B5
 
+ResetDemoTimer:
 LA4C6:  LDY #$10
-LA4C8:  STY $04C6
+LA4C8:  STY DemoTimerSec        ;($04C6)
 LA4CB:  RTS
 
 LA4CC:  JSR $B70B
@@ -997,10 +1020,10 @@ LA888:  BEQ $A8A6
 LA88A:  LDA $04BE
 LA88D:  JSR $AA26
 LA890:  LDA #$20
-LA892:  STA $04C6
+LA892:  STA DemoTimerSec          ;($04C6)
 LA895:  JSR $BE1A
 LA898:  JSR WaitLoop            ;($AF02)
-LA89B:  DEC $04C6
+LA89B:  DEC DemoTimerSec          ;($04C6)
 LA89E:  BNE $A895
 LA8A0:  LDA $04BF
 LA8A3:  JSR $AA26
@@ -1328,7 +1351,7 @@ LAB0B:  CLC
 LAB0C:  LDA #$0E
 LAB0E:  ADC FightOffset         ;($03)
 LAB10:  TAX
-LAB11:  JSR $BF9E
+LAB11:  JSR LoadPrgPointer      ;($BF9E)
 LAB14:  LDX #$60
 LAB16:  LDY #$00
 LAB18:  LDA ($E0),Y
@@ -1728,6 +1751,7 @@ LAE9D:  AND #$FB
 LAE9F:  STA PPU0Load
 LAEA1:  STA PPUControl0
 LAEA4:  RTS
+
 LAEA5:  LDA PPU0Load
 LAEA7:  ORA #$04
 LAEA9:  BNE $AE9F
@@ -1831,6 +1855,7 @@ LAF3C:  STA $0200,X
 LAF3F:  INX
 LAF40:  BNE $AF3C
 LAF42:  RTS
+
 LAF43:  LDY #$0B
 LAF45:  LDA $AF4F,Y
 LAF48:  STA $0200,Y
@@ -1844,7 +1869,7 @@ LAF5B:  CLC
 LAF5C:  LDA #$06
 LAF5E:  ADC FightOffset         ;($03)
 LAF60:  TAX
-LAF61:  JSR $BF9E
+LAF61:  JSR LoadPrgPointer      ;($BF9E)
 LAF64:  JSR $BED9
 LAF67:  LDA $048D
 LAF6A:  STA $04A1
@@ -2848,7 +2873,7 @@ LB679:  STX $B000
 LB67C:  LDA #$48
 LB67E:  STA $13
 LB680:  LDX #$10
-LB682:  JSR $BF9E
+LB682:  JSR LoadPrgPointer      ;($BF9E)
 LB685:  LDY #$12
 LB687:  STY $E2
 LB689:  LDY #$50
@@ -2913,7 +2938,7 @@ LB70E:  LDA #$00
 LB710:  LDX #$05
 LB712:  JSR $BF55
 LB715:  LDX #$06
-LB717:  JSR $BF9E
+LB717:  JSR LoadPrgPointer      ;($BF9E)
 LB71A:  LDY #$20
 LB71C:  STY $E2
 LB71E:  LDX #$00
@@ -3026,7 +3051,7 @@ LB80A:  LDA #$00
 LB80C:  STA $20
 LB80E:  STA $21
 LB810:  LDX #$10
-LB812:  JSR $BF9E
+LB812:  JSR LoadPrgPointer      ;($BF9E)
 LB815:  LDY #$20
 LB817:  STY $E2
 LB819:  LDX #$00
@@ -3074,7 +3099,7 @@ LB88D:  LDA #$07
 LB88F:  LDX #$04
 LB891:  JSR $BF55
 LB894:  LDX #$10
-LB896:  JSR $BF9E
+LB896:  JSR LoadPrgPointer      ;($BF9E)
 LB899:  LDY #$20
 LB89B:  STY $E2
 LB89D:  LDX #$00
@@ -3101,7 +3126,7 @@ LB8CB:  LDA #$07
 LB8CD:  LDX #$07
 LB8CF:  JSR $BF55
 LB8D2:  LDX #$10
-LB8D4:  JSR $BF9E
+LB8D4:  JSR LoadPrgPointer      ;($BF9E)
 LB8D7:  LDY #$20
 LB8D9:  STY $E2
 LB8DB:  LDX #$00
@@ -3132,7 +3157,7 @@ LB912:  LDA #$FF
 LB914:  JSR $BFAE
 LB917:  JSR $BFAA
 LB91A:  LDX #$08
-LB91C:  JSR $BF9E
+LB91C:  JSR LoadPrgPointer      ;($BF9E)
 LB91F:  JSR $BED9
 LB922:  LDA #PAL_UPDATE
 LB924:  STA UpdatePalFlag
@@ -3169,7 +3194,7 @@ LB96A:  BNE $B96E
 LB96C:  LDX #$07
 LB96E:  JSR $BF55
 LB971:  LDX #$10
-LB973:  JSR $BF9E
+LB973:  JSR LoadPrgPointer      ;($BF9E)
 LB976:  LDY #$20
 LB978:  STY $E2
 LB97A:  LDX #$00
@@ -3293,7 +3318,7 @@ LBA77:  LDA #$04
 LBA79:  LDX #$05
 LBA7B:  JSR $BF55
 LBA7E:  LDX #$0C
-LBA80:  JSR $BF9E
+LBA80:  JSR LoadPrgPointer      ;($BF9E)
 LBA83:  JSR $BED9
 LBA86:  LDA $08
 LBA88:  CMP #$30
@@ -3346,7 +3371,7 @@ LBAE3:  JSR $BF36
 LBAE6:  LDA #$FD
 LBAE8:  JSR $BFAA
 LBAEB:  LDX #$06
-LBAED:  JSR $BF9E
+LBAED:  JSR LoadPrgPointer      ;($BF9E)
 LBAF0:  LDY #$20
 LBAF2:  STY $E2
 LBAF4:  LDX #$00
@@ -3473,7 +3498,7 @@ LBC02:  RTS
 LBC03:  AND #$7F
 LBC05:  STA $04B0
 LBC08:  LDX #$0E
-LBC0A:  JSR $BF9E
+LBC0A:  JSR LoadPrgPointer      ;($BF9E)
 LBC0D:  LDY #$00
 LBC0F:  STY $04B2
 LBC12:  LDA ($E0),Y
@@ -3519,7 +3544,7 @@ LBC60:  ADC #$01
 LBC62:  ASL
 LBC63:  TAY
 LBC64:  LDX #$0E
-LBC66:  JSR $BF9E
+LBC66:  JSR LoadPrgPointer      ;($BF9E)
 LBC69:  LDA ($E0),Y
 LBC6B:  INY
 LBC6C:  TAX
@@ -3562,7 +3587,7 @@ LBCB0:  .byte $01, $01, $03, $06, $05, $09, $07, $02, $09, $03, $0A, $08, $0A, $
 
 LBCBE:  JSR LoadPRGBank09       ;($AA5C)
 LBCC1:  LDX #$00
-LBCC3:  JSR $BF9E
+LBCC3:  JSR LoadPrgPointer      ;($BF9E)
 LBCC6:  LDY $05CD
 LBCC9:  LDA ($E0),Y
 LBCCB:  TAX
@@ -3624,7 +3649,7 @@ LBD45:  LDX #$00
 LBD47:  LDA #$00
 LBD49:  JSR $BF55
 LBD4C:  LDX #$06
-LBD4E:  JSR $BF9E
+LBD4E:  JSR LoadPrgPointer      ;($BF9E)
 LBD51:  LDY #$20
 LBD53:  STY $E2
 LBD55:  LDX #$00
@@ -3864,6 +3889,7 @@ LBF19:  INC OppBaseAnimIndex
 LBF1B:  DEC $06B1
 LBF1E:  BNE $BF12
 LBF20:  RTS
+
 LBF21:  STA $06B0
 LBF24:  STX $06B1
 LBF27:  LDA $06B0
@@ -3872,6 +3898,7 @@ LBF2D:  INC $06B0
 LBF30:  DEC $06B1
 LBF33:  BNE $BF27
 LBF35:  RTS
+
 LBF36:  JSR $AA06
 LBF39:  JMP $BF3F
 LBF3C:  JSR $AA0A
@@ -3926,7 +3953,7 @@ LBF9B:  LSR                     ;
 LBF9C:  LSR                     ;
 LBF9D:  RTS                     ;
 
-LoadPointer:
+LoadPrgPointer:
 LBF9E:  LDA $8000,X
 LBFA1:  STA $E0
 LBFA3:  INX
@@ -3975,7 +4002,7 @@ LBFF4:  LDA #$1B
 LBFF6:  STA $E2                 ;$E2 is the loop counter here, counting down from #$1B
 LBFF8:  JSR LoadPRGBank0C       ;($AA64)
 LBFFB:  LDX #$06
-LBFFD:  JSR $BF9E               ;Load pointer E0=#$9717 (read from $8006 in bank C)
+LBFFD:  JSR LoadPrgPointer      ;($BF9E) Load pointer E0=#$9717 (read from $8006 in bank C)
 LC000:  LDX #$00
 LC002:  LDA ($E0),Y             ;Copy $976A through $9785 -->
 LC004:  STA $0411,X             ;into $0411 through $042C
@@ -4098,11 +4125,15 @@ LC111:  BNE $C11F
 
 LC113:  LDX #$02
 LC115:  BNE $C11A
+
 LC117:  RTS
+
 LC118:  LDX #$00
+
 LC11A:  ASL
 LC11B:  TAY
-LC11C:  JSR $BF9E
+LC11C:  JSR LoadPrgPointer      ;($BF9E)
+
 LC11F:  LDA ($E0),Y
 LC121:  INY
 LC122:  STA $E2
@@ -4122,7 +4153,7 @@ LC13C:  STX $EE
 LC13E:  STY $E4
 LC140:  LDY $E4
 LC142:  LDA ($E2),Y
-LC144:  BEQ $C117
+LC144:  BEQ $C117               ;RTS
 LC146:  INY
 LC147:  LDA ($E2),Y
 LC149:  INY
@@ -4132,6 +4163,7 @@ LC14E:  INY
 LC14F:  STA $E6
 LC151:  STY $E4
 LC153:  LDY #$00
+
 LC155:  LDA ($E5),Y
 LC157:  BEQ $C140
 LC159:  AND #$0F
@@ -4145,6 +4177,7 @@ LC165:  CMP #$50
 LC167:  BEQ $C186
 LC169:  BCS $C19F
 LC16B:  BCC $C17B
+
 LC16D:  LDA ($E5),Y
 LC16F:  INY
 LC170:  CLC
@@ -4153,6 +4186,7 @@ LC174:  ADC #$01
 LC176:  DEX
 LC177:  BNE $C171
 LC179:  BEQ $C155
+
 LC17B:  LDA ($E5),Y
 LC17D:  INY
 LC17E:  STA PPUIOReg
@@ -4187,12 +4221,14 @@ LC1B0:  BNE $C1A8
 LC1B2:  DEX
 LC1B3:  BNE $C1A1
 LC1B5:  BEQ $C155
+
 LC1B7:  CMP #$90
 LC1B9:  BCC $C1C3
 LC1BB:  BEQ $C209
 LC1BD:  CMP #$F0
 LC1BF:  BEQ $C23A
 LC1C1:  BNE $C229
+
 LC1C3:  LDA ($E5),Y
 LC1C5:  AND #$F0
 LC1C7:  CMP #$80
@@ -4215,6 +4251,7 @@ LC1E2:  LDX $EF
 LC1E4:  STX PPUAddress
 LC1E7:  STA PPUAddress
 LC1EA:  JMP $C155
+
 LC1ED:  TXA
 LC1EE:  ASL
 LC1EF:  ASL
@@ -4260,6 +4297,7 @@ LC231:  STA PPUIOReg
 LC234:  DEX
 LC235:  BNE $C231
 LC237:  JMP $C155
+
 LC23A:  TXA
 LC23B:  BNE $C23F
 LC23D:  LDX #$20
