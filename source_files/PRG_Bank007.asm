@@ -9,7 +9,9 @@ L8006:  JMP $881E
 L8009:  JMP UpdateClock         ;($8759)
 L800C:  JMP UpdatePoints        ;($86D0)
 L800F:  JMP $8A6F
-L8012:  JMP $85E9
+
+DoUpdateRNG:
+L8012:  JMP UpdateRNG           ;($85E9)
 L8015:  JMP $805D
 L8018:  .byte $00, $00, $00
 L801B:  JMP $8DED
@@ -47,7 +49,7 @@ DoCreditsPassword:
 L8048:  JMP ChkCreditsPassword  ;($8D5D)Check for end credits password.
 
 DoClear170:
-L804B:  JMP _Clear170            ;($8FE5)Create a password
+L804B:  JMP _Clear170            ;($8FE5)Clear the entered password
 
 DoTysonPassword:
 L804E:  JMP ChkTysonPassword    ;($8D68)Check if player entered password to start at Mike Tyson.
@@ -735,6 +737,7 @@ L85E1:  RTS
 
 L85E2:  .byte $1E, $13, $17, $0F, $FF, $2B, $1C
 
+UpdateRNG:
 L85E9:  LDA FrameCounter        ;($1E)
 L85EB:  ROR
 L85EC:  STA $E8

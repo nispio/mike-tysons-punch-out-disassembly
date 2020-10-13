@@ -4,6 +4,7 @@
 
 ;--------------------------------------[ Forward Declarations ]--------------------------------------
 
+.alias DoUpdateRNG              $8012
 .alias DoVerifyCheckPoint       $8030
 .alias DoNormalPassword         $8033
 .alias DoSavePassword           $8036
@@ -270,7 +271,7 @@ LA282:  STA PPU0Load
 LA284:  STA PPUControl0
 LA287:  LDA #$FF
 LA289:  STA GameStatus
-LA28B:  JSR WaitLoop            ;($AF02)
+LA28B:  JSR WaitNextFrame       ;($AF02)
 LA28E:  LDA $013F
 LA291:  BNE $A2AC
 LA293:  JSR LoadPRGBank06       ;($AA50)
@@ -280,7 +281,7 @@ LA29A:  JSR $9000
 LA29D:  LDA #$FF
 LA29F:  STA GameStatus
 LA2A1:  JMP $A505
-LA2A4:  JSR ResetDemoTimer          ;($A4C6)
+LA2A4:  JSR ResetDemoTimer      ;($A4C6)
 LA2A7:  LDX #$FF
 LA2A9:  TXS
 LA2AA:  BNE $A2B8
@@ -289,7 +290,7 @@ LA2AE:  TXS
 LA2AF:  INX
 LA2B0:  STX $013E
 LA2B3:  LDA #$04
-LA2B5:  STA DemoTimerSec          ;($04C6)
+LA2B5:  STA DemoTimerSec        ;($04C6)
 LA2B8:  JSR $AA1D
 LA2BB:  LDA #$00
 LA2BD:  STA GameStatus
@@ -308,7 +309,7 @@ LA2D1:  STA $F3
 LA2D3:  LDA #SPRT_BKG_OFF       ;Disable sprites and background.
 LA2D5:  STA SprtBkgUpdt         ;
 
-LA2D7:  JSR WaitLoop            ;($AF02)
+LA2D7:  JSR WaitNextFrame       ;($AF02)
 LA2DA:  JSR $B6CB
 LA2DD:  LDA #$05
 LA2DF:  JSR $BC5F
@@ -324,8 +325,8 @@ LA2F1:  LDA #$FF
 LA2F3:  STA GameStatus
 LA2F5:  LDA #$40
 LA2F7:  STA DemoTimerFrm        ;($04C7)
-_MenuWaitLoop:
-LA2FA:  JSR WaitLoop            ;($AF02)
+_MenuWaitNextFrame:
+LA2FA:  JSR WaitNextFrame       ;($AF02)
 LA2FD:  DEC DemoTimerFrm        ;($04C7)
 LA300:  BNE $A365
 LA302:  LDA #$40
@@ -334,7 +335,7 @@ LA307:  DEC DemoTimerSec        ;($04C6)
 LA30A:  BNE $A365
 LA30C:  LDA #$00
 LA30E:  STA $04
-LA310:  JSR $BF7E
+LA310:  JSR FadeToBlack         ;($BF7E)
 LA313:  JMP $A4CC
 
 ; Switch from Continue to New, and remove Pass Key entry field
@@ -349,7 +350,7 @@ LA325:  JSR LoadPRGBank07       ;($AA54)
 LA328:  JSR $801B
 LA32B:  LDX #$00
 LA32D:  STX PassKeyStatus       ;($04C0)
-LA330:  BEQ _MenuWaitLoop       ;($A2FA)
+LA330:  BEQ _MenuWaitNextFrame  ;($A2FA)
 
 ; Reload the current password (or underscores) into the Pass Key entry field
 ResetPassword:
@@ -365,7 +366,7 @@ LA347:  JSR $8021
 LA34A:  LDX #$00
 LA34C:  STX PassKeyCursor       ;($04C1)
 LA34F:  STX PassKeyMod          ;($04C2)
-LA352:  BEQ _MenuWaitLoop       ;($A2FA)
+LA352:  BEQ _MenuWaitNextFrame  ;($A2FA)
 
 LA354:  LDA DPad1Status         ;($D2)
 LA356:  LDX #$00
@@ -380,7 +381,7 @@ LA365:  LDA DPad1History        ;($D3)
 LA367:  BPL $A3BB
 LA369:  AND #$7F
 LA36B:  STA DPad1History        ;($D3)
-LA36D:  JSR ResetDemoTimer          ;($A4C6)
+LA36D:  JSR ResetDemoTimer      ;($A4C6)
 LA370:  LDA DPad1Status         ;($D2)
 LA372:  AND #$03
 LA374:  BEQ $A354
@@ -406,7 +407,7 @@ LA397:  STA PassKeyDigits,X     ;($0120)
 LA39A:  STY $F0
 LA39C:  JSR LoadPRGBank07       ;($AA54)
 LA39F:  JSR $8027
-LA3A2:  JMP _MenuWaitLoop       ;($A2FA)
+LA3A2:  JMP _MenuWaitNextFrame  ;($A2FA)
 
 PassKeySetMod:
 LA3A5:  INC PassKeyMod          ;($04C2)
@@ -436,7 +437,7 @@ LA3D2:  LDX PassKeyCursor       ;($04C1)
 LA3D5:  LDA PassKeyMod          ;($04C2)
 LA3D8:  BEQ PassKeySetMod       ;($A3A5)
 LA3DA:  BNE $A400
-LA3DC:  JMP $A473
+LA3DC:  JMP StartNewGame        ;($A473)
 LA3DF:  LDA Strt1History        ;($D9)
 LA3E1:  BPL $A3A2
 LA3E3:  AND #$7F
@@ -447,7 +448,7 @@ LA3EC:  LDA PassKeyMod          ;($04C2)
 LA3EF:  BNE $A400
 LA3F1:  JSR LoadPRGBank07       ;($AA54)
 LA3F4:  JSR DoCircuitPassword   ;($8042)Check if user entered another world circuit password.
-LA3F7:  BEQ $A46A
+LA3F7:  BEQ _StartAWCircuit     ;($A46A)
 LA3F9:  JSR DoLoadCheckPoint    ;($8030)
 LA3FC:  BNE PasswordFailed      ;($A427)
 LA3FE:  BEQ $A44E
@@ -459,12 +460,14 @@ LA40A:  JSR ResetDemoTimer      ;($A4C6)
 LA40D:  LDA #$00
 LA40F:  LDY #$09
 LA411:  JMP $A397
+
+PlayBusySignal:
 LA414:  LDA #$0A
 LA416:  STA DemoTimerSec        ;($04C6)
 LA419:  LDA #$12
 LA41B:  STA $F0
 LA41D:  LDA #$30
-LA41F:  JSR $AF04
+LA41F:  JSR WaitFor             ;($AF04)
 LA422:  DEC DemoTimerSec        ;($04C6)
 LA425:  BNE $A419
 
@@ -474,42 +477,46 @@ LA42A:  JMP ClearPassword       ;($A316)
 
 CheckAltPasswords:
 LA42D:  JSR DoBusyPassword      ;($803F)Check for busy signal passwords.
-LA430:  BEQ $A414
+LA430:  BEQ PlayBusySignal      ;($A414)
 LA432:  JSR DoCircuitPassword2  ;($8045)Check for AWC password
-LA435:  BEQ $A467
+LA435:  BEQ StartAWCircuit      ;($A467)
 LA437:  JSR DoCreditsPassword   ;($8048)Check for end credits password.
-LA43A:  BEQ $A463
+LA43A:  BEQ JumpToCredits       ;($A463)
 LA43C:  JSR DoTysonPassword     ;($804E)Check for Mike Tyson password.
-LA43F:  BEQ $A457
+LA43F:  BEQ JumpToTyson         ;($A457)
 LA441:  BNE PasswordFailed      ;($A427)
 
 LA443:  JSR LoadPRGBank07       ;($AA54)
 LA446:  JSR VerifyPassword      ;($8033)
 LA449:  BNE CheckAltPasswords   ;($A42D)
-LA44B:  JSR SavePassword        ;($8036)
+LA44B:  JSR DoSavePassword      ;($8036)
 
 LA44E:  JSR DoLoadCheckPoint    ;($8039)
 LA451:  LDX $0136
 LA454:  INX
 LA455:  BNE _StartCircuit       ;($A475)
 
+JumpToTyson:
 LA457:  JSR $804B
 LA45A:  LDA #$02
 LA45C:  STA $0173
 LA45F:  LDX #$05
 LA461:  BNE _StartCircuit       ;($A475)
 
+JumpToCredits:
 LA463:  LDX #$07
 LA465:  BNE _StartCircuit       ;($A475)
 
-LA467:  JSR $8036
-
 StartAWCircuit:
+LA467:  JSR DoSavePassword      ;($8036)
+
+_StartAWCircuit:
 LA46A:  LDA #$01
 LA46C:  STA $013E
 LA46F:  LDX #$04
 LA471:  BNE _StartCircuit       ;($A475)
 
+StartNewGame:
 LA473:  LDX #$00
 
 _StartCircuit:
@@ -518,30 +525,37 @@ LA477:  LDA $A185,X
 LA47A:  STA $01
 LA47C:  LDA #SND_OFF            ;Stop any playing music.
 LA47E:  STA MusicInit           ;
+
+;; Animation where the glove pounds three times behind the title
+_GloveAnimBeg:
 LA480:  JSR $AEA5
 LA483:  JSR LoadPRGBank0C       ;($AA64)
 LA486:  LDA #$81
 LA488:  STA $04B0
-LA48B:  JSR WaitLoop            ;($AF02)
+LA48B:  JSR WaitNextFrame       ;($AF02)
 LA48E:  JSR $BC1F
 LA491:  LDA $04B0
 LA494:  BNE $A48B
+
+;; End of the animation where the glove breaks through the title
+_GloveAnimEnd:
 LA496:  LDX #$A0
 LA498:  JSR $AF3A
 LA49B:  LDX #$0C
 LA49D:  STX OppBaseAnimIndex
 LA49F:  JSR $C850
 LA4A2:  LDA #$02
-LA4A4:  JSR $AF04
+LA4A4:  JSR WaitFor             ;($AF04)
 LA4A7:  LDX OppBaseAnimIndex
 LA4A9:  INX
 LA4AA:  INX
 LA4AB:  CPX #$14
 LA4AD:  BNE $A49D
+
 LA4AF:  INC $14
 LA4B1:  LDA #$60
-LA4B3:  JSR $AF04
-LA4B6:  JSR $BF7E
+LA4B3:  JSR WaitFor             ;($AF04)
+LA4B6:  JSR FadeToBlack         ;($BF7E)
 LA4B9:  LDA $01
 LA4BB:  BMI $A4C0
 LA4BD:  JMP $A829
@@ -563,7 +577,7 @@ LA4D6:  LDA #$FF
 LA4D8:  STA GameStatus
 LA4DA:  LDA #$03
 LA4DC:  STA MusicInit
-LA4DE:  JSR WaitLoop            ;($AF02)
+LA4DE:  JSR WaitNextFrame       ;($AF02)
 LA4E1:  LDA #$F1
 LA4E3:  JSR $BDA2
 LA4E6:  LDY #$03
@@ -572,12 +586,12 @@ LA4EB:  STA $06BF,Y
 LA4EE:  DEY
 LA4EF:  BNE $A4E8
 LA4F1:  JSR $BDB5
-LA4F4:  JSR WaitLoop            ;($AF02)
+LA4F4:  JSR WaitNextFrame       ;($AF02)
 LA4F7:  LDA $15
 LA4F9:  BEQ $A4F1
 LA4FB:  LDA #$F2
 LA4FD:  JSR $BDA2
-LA500:  JSR $BF7E
+LA500:  JSR FadeToBlack         ;($BF7E)
 LA503:  BEQ $A509
 LA505:  LDA #$02
 LA507:  STA $04
@@ -597,10 +611,10 @@ LA51D:  BNE $A528
 LA51F:  LDA #$02
 LA521:  STA MusicInit
 LA523:  LDA #$80
-LA525:  JSR $AF04
+LA525:  JSR WaitFor             ;($AF04)
 LA528:  LDA #$FF
-LA52A:  JSR $AF04
-LA52D:  JSR $BF7E
+LA52A:  JSR WaitFor             ;($AF04)
+LA52D:  JSR FadeToBlack         ;($BF7E)
 LA530:  LDX $013F
 LA533:  BNE $A53F
 LA535:  LDA #$01
@@ -625,7 +639,7 @@ LA559:  CPX #$08
 LA55B:  BNE $A551
 LA55D:  LDY #$40
 LA55F:  LDX #$B0
-LA561:  JSR $AEF8
+LA561:  JSR MemSetZero          ;($AEF8)
 LA564:  JSR $AAE5
 LA567:  JSR $AB4E
 LA56A:  JSR $AB58
@@ -637,29 +651,29 @@ LA574:  LDA #GAME_ENG_RUN       ;
 LA576:  STA GameEngStatus       ;Run the main game engine.
 LA578:  STA GameStatus          ;
 
-LA57A:  JSR WaitLoop            ;($AF02)
+LA57A:  JSR WaitNextFrame       ;($AF02)
 LA57D:  LDA $00
 LA57F:  CMP #$01
 LA581:  BNE $A57A
 LA583:  LDA #$02
-LA585:  JSR $AF04
+LA585:  JSR WaitFor             ;($AF04)
 
 LA588:  LDA #SPRT_BKG_ON        ;Enable sprites and background.
 LA58A:  STA SprtBkgUpdt         ;
 
 LA58C:  LDA #$01
 LA58E:  STA $22
-LA590:  JSR WaitLoop            ;($AF02)
+LA590:  JSR WaitNextFrame       ;($AF02)
 LA593:  LDX $00
 LA595:  BPL $A590
-LA597:  JSR $BF7E
+LA597:  JSR FadeToBlack         ;($BF7E)
 LA59A:  JSR $A750
 LA59D:  JSR $AA1D
 LA5A0:  LDA #$FF
 LA5A2:  STA GameStatus
 LA5A4:  LDY #$30
 LA5A6:  LDX #$C0
-LA5A8:  JSR $AEF8
+LA5A8:  JSR MemSetZero          ;($AEF8)
 LA5AB:  STA $22
 LA5AD:  JSR $AA6E
 LA5B0:  LDA #$DF
@@ -667,7 +681,7 @@ LA5B2:  AND PPU0Load
 LA5B4:  STA PPU0Load
 LA5B6:  STA PPUControl0
 LA5B9:  LDA #$20
-LA5BB:  JSR $AF04
+LA5BB:  JSR WaitFor             ;($AF04)
 LA5BE:  LDA #$08
 LA5C0:  JMP $A2B5
 
@@ -733,7 +747,7 @@ LA646:  LDA TransTimer
 LA648:  BEQ $A64C
 LA64A:  DEC TransTimer
 LA64C:  JSR PushPRGBank07       ;($AA3C)
-LA64F:  JSR $8012
+LA64F:  JSR DoUpdateRNG         ;($8012)
 LA652:  LDA $04
 LA654:  BMI $A659
 LA656:  JMP $A73D
@@ -850,7 +864,7 @@ LA71E:  STA UpdatePalFlag
 
 LA721:  JSR $A9DF
 LA724:  JSR PushPRGBank07       ;($AA3C)
-LA727:  JSR $8012
+LA727:  JSR DoUpdateRNG         ;($8012)
 
 LA72A:  JSR PushPRGBank08       ;($AA40)
 LA72D:  JSR $8000
@@ -883,7 +897,7 @@ LA760:  AND #$7F
 LA762:  STA Strt1History        ;($D9)
 LA764:  LDY #$30
 LA766:  LDX #$A0
-LA768:  JSR $AEF8
+LA768:  JSR MemSetZero          ;($AEF8)
 LA76B:  LDA #$DF
 LA76D:  AND PPU0Load
 LA76F:  STA PPU0Load
@@ -969,6 +983,7 @@ LA81E:  JSR PushFightBank       ;($AA48)
 LA821:  LDA ($E8),Y
 LA823:  STA SelectRefill        ;($03D9)
 LA826:  JMP PopPRGBank          ;($AA6A)
+
 LA829:  LDX #$FF
 LA82B:  TXS
 LA82C:  JSR $AA1D
@@ -988,7 +1003,7 @@ LA845:  CPX #$08
 LA847:  BNE $A83D
 LA849:  LDY #$40
 LA84B:  LDX #$B0
-LA84D:  JSR $AEF8
+LA84D:  JSR MemSetZero          ;($AEF8)
 LA850:  JSR $AAE5
 LA853:  JSR $AB4E
 LA856:  JSR $BAE3
@@ -1008,7 +1023,7 @@ LA86F:  STA PPU1Load            ;
 LA871:  LDA #SPRT_BKG_ON        ;Enable sprites and background.
 LA873:  STA SprtBkgUpdt         ;
 
-LA875:  JSR WaitLoop            ;($AF02)
+LA875:  JSR WaitNextFrame       ;($AF02)
 LA878:  JSR $AEA5
 LA87B:  LDA $03D8
 LA87E:  BNE $A885
@@ -1020,16 +1035,16 @@ LA888:  BEQ $A8A6
 LA88A:  LDA $04BE
 LA88D:  JSR $AA26
 LA890:  LDA #$20
-LA892:  STA DemoTimerSec          ;($04C6)
+LA892:  STA DemoTimerSec        ;($04C6)
 LA895:  JSR $BE1A
-LA898:  JSR WaitLoop            ;($AF02)
-LA89B:  DEC DemoTimerSec          ;($04C6)
+LA898:  JSR WaitNextFrame       ;($AF02)
+LA89B:  DEC DemoTimerSec        ;($04C6)
 LA89E:  BNE $A895
 LA8A0:  LDA $04BF
 LA8A3:  JSR $AA26
 LA8A6:  JSR InitCrowd           ;($BFF2)
 LA8A9:  JSR $BE1A
-LA8AC:  JSR WaitLoop            ;($AF02)
+LA8AC:  JSR WaitNextFrame       ;($AF02)
 LA8AF:  LDA Strt1History        ;($D9)
 LA8B1:  BPL $A8A9
 LA8B3:  AND #$7F
@@ -1045,24 +1060,24 @@ LA8C8:  STA $06BF,Y
 LA8CB:  DEY
 LA8CC:  BNE $A8C5
 LA8CE:  JSR $BDB5
-LA8D1:  JSR WaitLoop            ;($AF02)
+LA8D1:  JSR WaitNextFrame       ;($AF02)
 LA8D4:  LDA $15
 LA8D6:  BEQ $A8CE
 LA8D8:  LDA #$40
-LA8DA:  JSR $AF04
-LA8DD:  JSR $BF7E
+LA8DA:  JSR WaitFor             ;($AF04)
+LA8DD:  JSR FadeToBlack         ;($BF7E)
 LA8E0:  JSR $AB58
 LA8E3:  LDA #$FF
 LA8E5:  STA $04
 LA8E7:  LDA #$00
 LA8E9:  STA GameEngStatus
 LA8EB:  STA GameStatus
-LA8ED:  JSR WaitLoop            ;($AF02)
+LA8ED:  JSR WaitNextFrame       ;($AF02)
 LA8F0:  LDA $00
 LA8F2:  CMP #$01
 LA8F4:  BNE $A8ED
 LA8F6:  LDA #$02
-LA8F8:  JSR $AF04
+LA8F8:  JSR WaitFor             ;($AF04)
 
 LA8FB:  LDA #SPRT_BKG_ON        ;Enable sprites and background.
 LA8FD:  STA SprtBkgUpdt         ;
@@ -1073,16 +1088,16 @@ LA903:  CPY #$04
 LA905:  BNE $A909
 LA907:  STA $F3
 LA909:  STA $22
-LA90B:  JSR WaitLoop            ;($AF02)
+LA90B:  JSR WaitNextFrame       ;($AF02)
 LA90E:  LDX $00
 LA910:  BPL $A90B
-LA912:  JSR $BF7E
+LA912:  JSR FadeToBlack         ;($BF7E)
 LA915:  JSR $AA1D
 LA918:  LDA #$FF
 LA91A:  STA GameStatus
 LA91C:  LDY #$40
 LA91E:  LDX #$B0
-LA920:  JSR $AEF8
+LA920:  JSR MemSetZero          ;($AEF8)
 LA923:  STA $30
 LA925:  STA $38
 LA927:  STA $22
@@ -1092,7 +1107,7 @@ LA92E:  AND PPU0Load
 LA930:  STA PPU0Load
 LA932:  STA PPUControl0
 LA935:  LDA #$20
-LA937:  JSR $AF04
+LA937:  JSR WaitFor             ;($AF04)
 LA93A:  LDA $09
 LA93C:  STA $08
 LA93E:  LDX $00
@@ -1207,7 +1222,7 @@ LAA25:  RTS
 LAA26:  STA $04B0
 LAA29:  JSR $BE09
 LAA2C:  JSR $BE1A
-LAA2F:  JSR WaitLoop            ;($AF02)
+LAA2F:  JSR WaitNextFrame       ;($AF02)
 LAA32:  LDA $04B0
 LAA35:  BNE $AA29
 LAA37:  RTS
@@ -1385,7 +1400,7 @@ LAB55:  JMP $AA6E
 LAB58:  JSR $AA1D
 LAB5B:  LDY #$40
 LAB5D:  LDX #$B0
-LAB5F:  JSR $AEF8
+LAB5F:  JSR MemSetZero          ;($AEF8)
 LAB62:  JSR $BF3C
 LAB65:  LDA $05CC
 LAB68:  JSR $AA6E
@@ -1434,7 +1449,7 @@ LABCC:  STX $35
 LABCE:  DEX
 LABCF:  STX $39
 LABD1:  LDX #$81
-LABD3:  STX CrowdCurState          ;($40)
+LABD3:  STX CrowdCurState       ;($40)
 LABD5:  DEX
 LABD6:  STX $37
 LABD8:  LDX #$01
@@ -1486,13 +1501,13 @@ LAC41:  STA GameStatus
 LAC43:  LDA #$0E
 LAC45:  STA MusicInit
 LAC47:  LDA #$20
-LAC49:  JSR $AF04
+LAC49:  JSR WaitFor             ;($AF04)
 LAC4C:  LDY #$00
 LAC4E:  LDA #$24
 LAC50:  JSR $ADDA
 LAC53:  LDA #$20
-LAC55:  JSR $AF04
-LAC58:  JMP $BF7E
+LAC55:  JSR WaitFor             ;($AF04)
+LAC58:  JMP FadeToBlack         ;($BF7E)
 LAC5B:  JSR $B8C1
 
 LAC5E:  LDA #SPRT_BKG_ON        ;Enable sprites and background.
@@ -1501,7 +1516,7 @@ LAC60:  STA SprtBkgUpdt         ;
 LAC62:  LDA #$FF
 LAC64:  STA GameStatus
 LAC66:  JSR $AE91
-LAC69:  JSR $BF7E
+LAC69:  JSR FadeToBlack         ;($BF7E)
 LAC6C:  JMP $A2AC
 LAC6F:  JSR LoadPRGBank07       ;($AA54)
 LAC72:  JSR $803C
@@ -1522,7 +1537,7 @@ LAC8F:  STA $06BF,Y
 LAC92:  DEY
 LAC93:  BNE $AC8C
 LAC95:  JSR $BDB5
-LAC98:  JSR WaitLoop            ;($AF02)
+LAC98:  JSR WaitNextFrame       ;($AF02)
 LAC9B:  LDA $15
 LAC9D:  BEQ $AC95
 LAC9F:  LDX #$05
@@ -1530,7 +1545,7 @@ LACA1:  JSR $ADD1
 LACA4:  LDA #$04
 LACA6:  STA MusicInit
 LACA8:  JSR $ADC5
-LACAB:  JSR $BF7E
+LACAB:  JSR FadeToBlack         ;($BF7E)
 LACAE:  JMP $AE84
 LACB1:  STA $03D3
 LACB4:  JSR $B957
@@ -1560,19 +1575,19 @@ LACE4:  STA $06BF,Y
 LACE7:  DEY
 LACE8:  BNE $ACE1
 LACEA:  JSR $BDB1
-LACED:  JSR WaitLoop            ;($AF02)
+LACED:  JSR WaitNextFrame       ;($AF02)
 LACF0:  LDA $15
 LACF2:  BEQ $ACEA
 LACF4:  LDA #$08
 LACF6:  STA MusicInit
 LACF8:  LDA #$20
-LACFA:  JSR $AF04
+LACFA:  JSR WaitFor             ;($AF04)
 LACFD:  LDY #$10
 LACFF:  LDA #$24
 LAD01:  JSR $ADDA
 LAD04:  LDA #$38
-LAD06:  JSR $AF04
-LAD09:  JSR $BF7E
+LAD06:  JSR WaitFor             ;($AF04)
+LAD09:  JSR FadeToBlack         ;($BF7E)
 LAD0C:  JMP $AE84
 LAD0F:  JSR $BA74
 LAD12:  JSR $AEA5
@@ -1641,13 +1656,13 @@ LAD9D:  JSR $C013
 LADA0:  LDA $04C8
 LADA3:  BNE $AD9D
 LADA5:  LDA #$08
-LADA7:  JSR $AF04
+LADA7:  JSR WaitFor             ;($AF04)
 
 LADAA:  LDA #SPRT_BKG_OFF       ;Disable sprites and background.
 LADAC:  STA SprtBkgUpdt         ;
 
 LADAE:  LDA #$08
-LADB0:  JSR $AF04
+LADB0:  JSR WaitFor             ;($AF04)
 LADB3:  JMP $AE84
 LADB6:  STX $04B0
 LADB9:  JSR $C013
@@ -1655,14 +1670,14 @@ LADBC:  JSR $BE09
 LADBF:  LDA $04B0
 LADC2:  BNE $ADB9
 LADC4:  RTS
-LADC5:  JSR WaitLoop            ;($AF02)
+LADC5:  JSR WaitNextFrame       ;($AF02)
 LADC8:  LDA Strt1History        ;($D9)
 LADCA:  BPL $ADC5
 LADCC:  AND #$7F
 LADCE:  STA Strt1History        ;($D9)
 LADD0:  RTS
 LADD1:  LDA #$40
-LADD3:  JSR $AF04
+LADD3:  JSR WaitFor             ;($AF04)
 LADD6:  DEX
 LADD7:  BNE $ADD1
 LADD9:  RTS
@@ -1683,7 +1698,7 @@ LADF5:  STY $04A2
 LADF8:  LDA #PAL_UPDATE
 LADFA:  STA UpdatePalFlag
 LADFD:  LDA #$06
-LADFF:  JSR $AF04
+LADFF:  JSR WaitFor             ;($AF04)
 LAE02:  DEC $04A3
 LAE05:  BNE $ADE0
 LAE07:  RTS
@@ -1742,7 +1757,7 @@ LAE8B:  LDA $A18D,Y
 LAE8E:  STA $09
 LAE90:  RTS
 LAE91:  LDX #$06
-LAE93:  JSR WaitLoop            ;($AF02)
+LAE93:  JSR WaitNextFrame       ;($AF02)
 LAE96:  LDA $F0,X
 LAE98:  BNE $AE93
 LAE9A:  RTS
@@ -1756,8 +1771,16 @@ LAEA5:  LDA PPU0Load
 LAEA7:  ORA #$04
 LAEA9:  BNE $AE9F
 
+;Compare whether a random value 0-15 is greater than A
+;  Result is obtained by checking the carry bit
+RandomChance16:
 LAEAB:  STA $EF
 LAEAD:  LDA #$0F
+
+;Compare whether a random value is greater than the value in $EF
+;  The value is in the range 0 - (A-1)
+;  Result is obtained by checking the carry bit
+_RandomChance:
 LAEAF:  STA $EE
 LAEB1:  LDA $EF
 LAEB3:  CMP $EE
@@ -1772,12 +1795,19 @@ LAEC4:  BNE $AEC7
 LAEC6:  CLC
 LAEC7:  RTS
 
+;Compare whether a random value 0-127 is greater than A
+;  Result is obtained by checking the carry bit
+RandomChance128:
 LAEC8:  STA $EF
 LAECA:  LDA #$7F
-LAECC:  BNE $AEAF
+LAECC:  BNE _RandomChance       ;($AEAF)
+
+;Compare whether a random value 0-255 is greater than A
+;  Result is obtained by checking the carry bit
+RandomChance256:
 LAECE:  STA $EF
 LAED0:  LDA #$FF
-LAED2:  BNE $AEAF
+LAED2:  BNE _RandomChance       ;($AEAF)
 
 ;----------------------------------------------------------------------------------------------------
 
@@ -1814,6 +1844,8 @@ LAEF3:  ROR RNGValue            ;($18)
 LAEF5:  ROR RNGValue            ;($18)
 LAEF7:  RTS
 
+; Clear zero-page memory from address Y through Y+X-1
+MemSetZero:
 LAEF8:  LDA #$00
 LAEFA:  STA $0000,Y
 LAEFD:  INY
@@ -1821,11 +1853,18 @@ LAEFE:  DEX
 LAEFF:  BNE $AEFA
 LAF01:  RTS
 
-WaitLoop:
+; Busy loop until the next interrupt, then RTS
+WaitNextFrame:
 LAF02:  LDA #$01
+
+; Busy loop for the number of frames specified in Acc
+WaitFor:
 LAF04:  STA TransTimer
+
+; Busy loop until TransTimer is 0
+_WaitLoop:
 LAF06:  LDA TransTimer
-LAF08:  BNE $AF06
+LAF08:  BNE _WaitLoop           ;($AF06)
 LAF0A:  RTS
 
 LAF0B:  LDX #$3F
@@ -2272,7 +2311,7 @@ LB1C9:  LDA #$01
 LB1CB:  STA OppStateTimer
 LB1CD:  RTS
 LB1CE:  TXA
-LB1CF:  JSR $AEAB
+LB1CF:  JSR RandomChance16      ;($AEAB)
 LB1D2:  BCC $B1DC
 LB1D4:  LDA ($3B),Y
 LB1D6:  TAY
@@ -2991,18 +3030,18 @@ LB783:  STA SprtBkgUpdt         ;
 
 LB785:  LDA #$FF
 LB787:  STA GameStatus
-LB789:  JSR $AF04
+LB789:  JSR WaitFor             ;($AF04)
 LB78C:  LDA #$C0
-LB78E:  JSR $AF04
+LB78E:  JSR WaitFor             ;($AF04)
 LB791:  LDY #$04
 LB793:  JSR $B870
 LB796:  LDA #$10
-LB798:  JSR $AF04
+LB798:  JSR WaitFor             ;($AF04)
 LB79B:  LDY #$09
 LB79D:  JSR $B870
 LB7A0:  LDA #$10
-LB7A2:  JSR $AF04
-LB7A5:  JSR $BF7E
+LB7A2:  JSR WaitFor             ;($AF04)
+LB7A5:  JSR FadeToBlack         ;($BF7E)
 LB7A8:  LDA #$B8
 LB7AA:  STA OppBaseXSprite
 LB7AC:  LDA #$20
@@ -3031,10 +3070,10 @@ LB7DF:  STA SprtBkgUpdt         ;
 
 LB7E1:  LDA #$FF
 LB7E3:  STA GameStatus
-LB7E5:  JSR $AF04
+LB7E5:  JSR WaitFor             ;($AF04)
 LB7E8:  LDA #$18
-LB7EA:  JSR $AF04
-LB7ED:  JSR $BF7E
+LB7EA:  JSR WaitFor             ;($AF04)
+LB7ED:  JSR FadeToBlack         ;($BF7E)
 LB7F0:  LDY $03D4
 LB7F3:  INY
 LB7F4:  CPY #$0A
@@ -3083,7 +3122,7 @@ LB850:  STA SprtBkgUpdt         ;
 LB852:  LDA #$FF
 LB854:  STA GameStatus
 LB856:  LDA #$70
-LB858:  JSR $AF04
+LB858:  JSR WaitFor             ;($AF04)
 LB85B:  LDA #$F5
 LB85D:  JSR $BDA2
 LB860:  LDA #$03
@@ -3495,6 +3534,7 @@ LBBF9:  LDA OppMessages,Y       ;($05F0)
 LBBFC:  STA $04BF
 LBBFF:  JSR RotateRNG           ;($AEF1)
 LBC02:  RTS
+
 LBC03:  AND #$7F
 LBC05:  STA $04B0
 LBC08:  LDX #$0E
@@ -3507,11 +3547,12 @@ LBC15:  STA $04B3
 LBC18:  LDA ($E0),Y
 LBC1A:  STA $04B4
 LBC1D:  BNE $BC2B
+
 LBC1F:  LDA $04B0
-LBC22:  BEQ $BC8D
-LBC24:  BMI $BC03
+LBC22:  BEQ $BC8D               ;RTS
+LBC24:  BMI $BC03               ;Update pointer at $04B3
 LBC26:  DEC $04B1
-LBC29:  BNE $BC8D
+LBC29:  BNE $BC8D               ;RTS
 LBC2B:  LDY $04B2
 LBC2E:  LDA $04B3
 LBC31:  STA $E0
@@ -3566,6 +3607,7 @@ LBC86:  BNE $BC79
 LBC88:  LDA #PAL_UPDATE
 LBC8A:  STA UpdatePalFlag
 LBC8D:  RTS
+
 LBC8E:  JSR $AF2E
 LBC91:  JSR $C0F2
 LBC94:  LDA #$25
@@ -3675,7 +3717,7 @@ LBD7C:  LDA #$FF
 LBD7E:  STA GameStatus
 LBD80:  LDA #$1A
 LBD82:  STA MusicInit
-LBD84:  JSR WaitLoop            ;($AF02)
+LBD84:  JSR WaitNextFrame       ;($AF02)
 LBD87:  LDA #$F6
 LBD89:  JSR $BDA2
 LBD8C:  LDA #$F7
@@ -3683,14 +3725,14 @@ LBD8E:  JSR $BDA2
 LBD91:  JSR $ADC5
 LBD94:  LDA #$80
 LBD96:  STA MusicInit
-LBD98:  JMP $BF7E
+LBD98:  JMP FadeToBlack         ;($BF7E)
 
 LBD9B:  LDA #$FF
 LBD9D:  STA GameStatus
-LBD9F:  JMP WaitLoop            ;($AF02)
+LBD9F:  JMP WaitNextFrame       ;($AF02)
 
 LBDA2:  STA $04B0
-LBDA5:  JSR WaitLoop            ;($AF02)
+LBDA5:  JSR WaitNextFrame       ;($AF02)
 LBDA8:  JSR $BE09
 LBDAB:  LDA $04B0
 LBDAE:  BNE $BDA5
@@ -3902,7 +3944,7 @@ LBF35:  RTS
 LBF36:  JSR $AA06
 LBF39:  JMP $BF3F
 LBF3C:  JSR $AA0A
-LBF3F:  JSR WaitLoop            ;($AF02)
+LBF3F:  JSR WaitNextFrame       ;($AF02)
 LBF42:  LDA #$02
 LBF44:  STA GameStatus
 LBF46:  JSR $AE9B
@@ -3932,19 +3974,21 @@ LBF78:  TXA
 LBF79:  DEC $E0
 LBF7B:  BNE $BF68
 LBF7D:  RTS
+
+FadeToBlack:
 LBF7E:  LDA #$40
 LBF80:  STA $04C8
-LBF83:  JSR WaitLoop            ;($AF02)
+LBF83:  JSR WaitNextFrame       ;($AF02)
 LBF86:  LDA $04C8
 LBF89:  BNE $BF83
 LBF8B:  LDA #$08
-LBF8D:  JSR $AF04
+LBF8D:  JSR WaitFor             ;($AF04)
 
 LBF90:  LDA #SPRT_BKG_OFF       ;Disable sprites and background.
 LBF92:  STA SprtBkgUpdt         ;
 
 LBF94:  LDA #$08
-LBF96:  JMP $AF04
+LBF96:  JMP WaitFor             ;($AF04)
 
 Div16:
 LBF99:  LSR                     ;
@@ -4017,7 +4061,7 @@ LC012:  RTS
 LC013:  LDA #$00
 LC015:  STA $06DE
 LC018:  JSR $A06F
-LC01B:  JSR WaitLoop            ;($AF02)
+LC01B:  JSR WaitNextFrame       ;($AF02)
 LC01E:  JSR $A03A
 LC021:  LDA $06DB
 LC024:  BPL $C040
@@ -4437,7 +4481,7 @@ LC355:  AND #$7F
 LC357:  AND $058A
 LC35A:  BEQ $C369
 LC35C:  LDA $058B
-LC35F:  JSR $AECE
+LC35F:  JSR RandomChance256     ;($AECE)
 LC362:  BCC $C369
 LC364:  LDA $058C
 LC367:  BNE $C33F
@@ -4457,29 +4501,29 @@ LC381:  BEQ $C3A2
 LC383:  LDA $E7
 LC385:  BNE $C38F
 LC387:  LDA $0587
-LC38A:  JSR $AECE
+LC38A:  JSR RandomChance256     ;($AECE)
 LC38D:  BCC $C341
 LC38F:  LDA $0589
 LC392:  AND #$7F
-LC394:  JSR $AEC8
+LC394:  JSR RandomChance128     ;($AEC8)
 LC397:  BCC $C39D
 LC399:  LDA #$01
 LC39B:  STA $AB
 LC39D:  LDA #$89
-LC39F:  JMP CheckPunchAny          ;($B42C)
+LC39F:  JMP CheckPunchAny       ;($B42C)
 LC3A2:  LDA $E7
 LC3A4:  BNE $C3AE
 LC3A6:  LDA $0586
-LC3A9:  JSR $AECE
+LC3A9:  JSR RandomChance256     ;($AECE)
 LC3AC:  BCC $C341
 LC3AE:  LDA $0588
 LC3B1:  BMI $C392
-LC3B3:  JSR $AEC8
+LC3B3:  JSR RandomChance128     ;($AEC8)
 LC3B6:  BCC $C3BC
 LC3B8:  LDA #$80
 LC3BA:  STA $AB
 LC3BC:  LDA #$83
-LC3BE:  JMP CheckPunchLeftRight          ;($B424)
+LC3BE:  JMP CheckPunchLeftRight ;($B424)
 LC3C1:  JSR $C3CA
 LC3C4:  ORA #$80
 LC3C6:  STA $04FF
@@ -4609,10 +4653,10 @@ LC471:  ORA OppStateStatus      ;($91)
 LC473:  STA OppStateStatus      ;($91)
 LC475:  LDY #$92
 LC477:  LDX #$09
-LC479:  JSR $AEF8
+LC479:  JSR MemSetZero          ;($AEF8)
 LC47C:  LDY #$B4
 LC47E:  LDX #$06
-LC480:  JSR $AEF8
+LC480:  JSR MemSetZero          ;($AEF8)
 LC483:  INX
 LC484:  STX OppOutlineTimer     ;($9C)
 LC486:  STA $AF
@@ -4809,7 +4853,7 @@ LC5B5:  BNE OppXYPos
 ;----------------------------------------------------------------------------------------------------
 
 LC5B7:  TXA
-LC5B8:  JSR $AEAB
+LC5B8:  JSR RandomChance16      ;($AEAB)
 LC5BB:  BCC $C5C5
 
 LC5BD:  LDA (OppStBasePtr),Y
@@ -5267,10 +5311,10 @@ LC7DF:  BEQ UpdateStateIndex1   ;Increment past a trailing zero byte.
 
 ;----------------------------------------------------------------------------------------------------
 
-LC7E1:  INC MacStateIndex          ;($53)
-LC7E3:  INC MacStateIndex          ;($53)
+LC7E1:  INC MacStateIndex       ;($53)
+LC7E3:  INC MacStateIndex       ;($53)
 LC7E5:  LDA #$01
-LC7E7:  STA MacStateTimer          ;($52)
+LC7E7:  STA MacStateTimer       ;($52)
 LC7E9:  RTS
 
 ;----------------------------------------------------------------------------------------------------
