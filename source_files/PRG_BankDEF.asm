@@ -6,7 +6,7 @@
 
 .alias DoUpdateRNG              $8012
 .alias DoVerifyCheckPoint       $8030
-.alias DoNormalPassword         $8033
+.alias DoVerifyPassword         $8033
 .alias DoSavePassword           $8036
 .alias DoLoadCheckPoint         $8039
 .alias DoBusyPassword           $803F
@@ -474,7 +474,7 @@ LA3F9:  JSR DoVerifyCheckPoint  ;($8030)
 LA3FC:  BNE PasswordFailed      ;($A427)
 LA3FE:  BEQ $A44E
 
-AdvPasswdCursor:
+AdvPasskeyCursor:
 LA400:  INC PasskeyCursor       ;($04C1)
 LA403:  LDX PasskeyCursor       ;($04C1)
 LA406:  CPX #$0A
@@ -511,7 +511,7 @@ LA441:  BNE PasswordFailed      ;($A427)
 
 ChkEnteredPasswd:
 LA443:  JSR LoadPRGBank07       ;($AA54)
-LA446:  JSR VerifyPassword      ;($8033)
+LA446:  JSR DoVerifyPassword    ;($8033)
 LA449:  BNE CheckAltPasswords   ;($A42D)
 LA44B:  JSR DoSavePassword      ;($8036)
 
