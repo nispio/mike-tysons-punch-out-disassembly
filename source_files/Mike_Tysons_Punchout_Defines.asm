@@ -436,13 +436,15 @@
 .alias SQ1_TALK1        $09     ;Talking SFX, version 1.
 .alias SQ1_TALK2        $0A     ;Talking SFX, version 2.
 .alias SQ1_TALK3        $0B     ;Talking SFX, version 3.
+.alias SQ1_DIGIT1       $09     ;Beep SFX when password cursor is advanced (same as TALK1)
+.alias SQ1_DIGIT2       $0B     ;Beep SFX when password digits are changed (same as TALK3)
 .alias SQ1_BELL1        $0C     ;Single bell ring SFX.
 .alias SQ1_FIGHT        $0D     ;Referee "Fight!" SFX.
 .alias SQ1_KO           $0E     ;Referee "KO" SFX.
 .alias SQ1_TKO          $0F     ;Referee "TKO" SFX.
 .alias SQ1_COUNT        $10     ;Referee count SFX.
 .alias SQ1_DODGE        $11     ;Little Mac dodge to one side SFX.
-.alias SQ1_DIGIT        $12     ;Beep when password digit entered SFX.
+.alias SQ1_BUSY         $12     ;Busy signal SFX
 .alias SQ1_PUNCH3       $13     ;Opponent/player lands a punch SFX, version 3.
 .alias SQ1_BEEP         $14     ;Beep SFX.
 .alias SQ1_BELL3        $15     ;3 bells SFX.

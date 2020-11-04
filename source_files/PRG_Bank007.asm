@@ -15,7 +15,10 @@ L8012:  JMP UpdateRNG           ;($85E9)
 L8015:  JMP $805D
 L8018:  .byte $00, $00, $00
 L801B:  JMP $8DED
-L801E:  JMP $8E11
+
+DoPasswdDashes:
+L801E:  JMP FillPswdDashes      ;($8E11)
+
 L8021:  JMP $8E1F
 L8024:  JMP $8E23
 L8027:  JMP TranslatePswd2      ;($8E34)Translate password2 numbers into glyphs
@@ -32,24 +35,24 @@ DoSavePassword:
 L8036:  JMP SavePassword        ;($8FC6)Save the entered password
 
 DoLoadCheckPoint:
-L8039:  JMP LoadCheckPoint      ;($8FD2)
+L8039:  JMP LoadCheckPoint      ;($8FD2)Verify checkpoint, clear password if invalid
 
 L803C:  JMP $8FF0
 
 DoBusyPassword:
 L803F:  JMP ChkBusyPassword     ;($8D7D)Check fur busy signal passwords.
 
-DoCircuitPassword:
-L8042:  JMP ChkCircuitPassword  ;($8D6C)Check for another world circuit password.
+DoAWCPassword2:
+L8042:  JMP ChkAWCPassword2     ;($8D6C)Check for another world circuit password.
 
-DoCircuitPassword2:
-L8045:  JMP ChkCircuitPassword  ;($8D72)Check for AWC password in $0120
+DoAWCPassword:
+L8045:  JMP ChkAWCPassword     ;($8D72)Check for AWC password in $0120
 
 DoCreditsPassword:
 L8048:  JMP ChkCreditsPassword  ;($8D5D)Check for end credits password.
 
 DoClear170:
-L804B:  JMP _Clear170            ;($8FE5)Clear the entered password
+L804B:  JMP _Clear170           ;($8FE5)Clear the entered password
 
 DoTysonPassword:
 L804E:  JMP ChkTysonPassword    ;($8D68)Check if player entered password to start at Mike Tyson.
@@ -478,7 +481,7 @@ L83D5:  BMI $83B9
 L83D7:  LDA NumStars
 L83DA:  BEQ $83B9
 L83DC:  LDA $05B4
-L83DF:  JSR RandomChance16          ;($910B)
+L83DF:  JSR RandomChance16      ;($910B)
 L83E2:  BCC $83B9
 L83E4:  LDA #$80
 L83E6:  STA IncStars
@@ -985,7 +988,7 @@ L87B8:  STX RoundUpperSec       ;Else the tens digit wraps back around to zero  
 L87BB:  INC RoundMinute         ;and the minute is incremented.
 L87BE:  LDA RoundMinute
 L87C1:  CMP #$03
-L87C3:  BNE UpdateClockDisplay ;If the round hasn't reached 3 minutes, then we are done
+L87C3:  BNE UpdateClockDisplay  ;If the round hasn't reached 3 minutes, then we are done
 L87C5:  LDA #$02                ;Else we have reached the end of the round, so    -->
 L87C7:  STA RoundTmrCntrl       ;set RoundTmrCntrl=2 to signal the clock flash sequence
 L87CA:  LDA #$00
@@ -1536,13 +1539,13 @@ ChkTysonPassword:
 L8D68:  LDY #$32                ;Prepare to check entered password to start at Mike Tyson.
 L8D6A:  BNE FindSpecPassword    ;($8D8D)Look for a hard coded password.
 
-ChkCircuitPassword:
-L8D6C:  LDX #$00                ;Look for a A+B+select password(another world circuit).
+ChkAWCPassword2:
+L8D6C:  LDX #$00                ;Compare $0110 to AWC password
 L8D6E:  LDY #$1E                ;Start at the 4th entry in PswrdDatTbl.
 L8D70:  BNE _FindSpecPassword   ;Branch always.
 
-ChkCircuitPassword2:
-L8D72:  LDY #$1E                ;Compare $0120 to AWC password
+ChkAWCPassword:
+L8D72:  LDY #$1E                ;Look for a A+B+select password(another world circuit).
 L8D74:  JSR FindSpecPassword    ;($8D8D)Look for a hard coded password.
 
 L8D77:  BNE +
@@ -1561,7 +1564,7 @@ L8D89:  BEQ ChkPswdTblEnd
 L8D8B:  LDY #$14                ;Prepare to look for busy signal 3 password.
 
 FindSpecPassword:
-L8D8D:  LDX #$10                ;Prepare to look for normally entered password(no A+B+select).
+L8D8D:  LDX #$10                ;Prepare to look for a hard coded password
 
 _FindSpecPassword:
 L8D8F:  LDA #$0A                ;Prepare to check 10 password digits.
@@ -1735,7 +1738,7 @@ VerifyCheckPoint:
 L8EBA:  LDY #$00
 L8EBC:  BEQ $8EC3
 
-L8EBE:  JMP _PassKeyFailed      ;($8FC3)
+L8EBE:  JMP _PasswordFailed     ;($8FC3)
 
 ChkNormalPswd:
 L8EC1:  LDY #$10
@@ -1838,48 +1841,48 @@ L8F82:  LSR
 L8F83:  LSR
 L8F84:  STA $0136
 L8F87:  JSR $8EA9
-L8F8A:  BNE _PassKeyFailed      ;($8FC3)
+L8F8A:  BNE _PasswordFailed     ;($8FC3)
 L8F8C:  LDY $0137
 L8F8F:  LDA $90F1,Y
-L8F92:  BMI _PassKeyFailed      ;($8FC3)
+L8F92:  BMI _PasswordFailed     ;($8FC3)
 L8F94:  CMP $010E
-L8F97:  BNE _PassKeyFailed      ;($8FC3)
+L8F97:  BNE _PasswordFailed     ;($8FC3)
 L8F99:  LDX #$05
 L8F9B:  LDA $0130,X
 L8F9E:  CMP #$0A
-L8FA0:  BCS _PassKeyFailed      ;($8FC3)
+L8FA0:  BCS _PasswordFailed     ;($8FC3)
 L8FA2:  DEX
 L8FA3:  BPL $8F9B
 L8FA5:  LDA $0130
 L8FA8:  BNE $8FB1
 L8FAA:  LDA $0131
 L8FAD:  CMP #$03
-L8FAF:  BCC _PassKeyFailed      ;($8FC3)
+L8FAF:  BCC _PasswordFailed     ;($8FC3)
 L8FB1:  CMP $0134
-L8FB4:  BCC _PassKeyFailed      ;($8FC3)
+L8FB4:  BCC _PasswordFailed     ;($8FC3)
 L8FB6:  BNE $8FC0
 L8FB8:  LDA $0131
 L8FBB:  CMP $0135
-L8FBE:  BCC _PassKeyFailed      ;($8FC3)
+L8FBE:  BCC _PasswordFailed     ;($8FC3)
 L8FC0:  LDA #$00
 L8FC2:  RTS
 
-_PassKeyFailed:
+_PasswordFailed:
 L8FC3:  LDA #$01
 L8FC5:  RTS
 
 ; Save the password that was entered as the current checkpoint
 SavePassword:
 L8FC6:  LDY #$09
-L8FC8:  LDA PassKeyDigits,Y     ;($0120)
+L8FC8:  LDA PasswdDigits,Y      ;($0120)
 L8FCB:  STA EnteredPasswd,Y
 L8FCE:  DEY
 L8FCF:  BPL $8FC8
 L8FD1:  RTS
 
 LoadCheckPoint:
-L8FD2:  JSR DoVerifyCheckPoint    ;($8030)
-L8FD5:  BNE $8FE5
+L8FD2:  JSR DoVerifyCheckPoint  ;($8030)
+L8FD5:  BNE _Clear170           ;($8FE5)
 L8FD7:  LDY #$05
 L8FD9:  LDA $0130,Y
 L8FDC:  STA $0170,Y
