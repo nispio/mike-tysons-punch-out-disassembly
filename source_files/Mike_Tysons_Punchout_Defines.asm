@@ -9,6 +9,7 @@
 
 ;-----------------------------------------[Variable Defines]-----------------------------------------
 
+.alias FightNumber      $01     ;The current fight number (0=GJ, 1=VK, 2=PH, ... 13=Tyson)
 .alias FightBank        $02     ;The memory bank containing the data for the current fight
 .alias FightOffset      $03     ;Offset of the current fight within its memory bank
 .alias KnockdownSts     $05     ;Knockdown status #$01=Opp down, #$02=Mac down
@@ -146,9 +147,10 @@
 .alias IndJumpPtrLB     $EE     ;Pointer for indirect jump, lower byte.
 .alias IndJumpPtrUB     $EF     ;Pointer for indirect jump, upper byte.
 
-.alias EnteredPasswd    $0110   ;To $0119 and $0120 to $0129. The first 10 bytes are password data
+.alias SavedPasskey     $0110   ;To $0119 and $0120 to $0129. The first 10 bytes are password data
                                 ;that after A+B+select were pressed. The second 10 bytes are normal
                                 ;password data entered by the user.
+.alias PasskeyDigits    $0120
 
 .alias RoundTmrStart    $0300   ;Round timer started: 0=Not started, 1=Started, MSB=needs reset
 .alias RoundTmrCntrl    $0301   ;Round timer control. 0=running, 1=halt, 2=flash clock
@@ -225,6 +227,11 @@
 .alias ThisSprtPalette  $0490   ;Through $049F. Current sprite palette data.
 .alias UpdatePalFlag    $04A0   ;Non-zero value indicates the palettes need to be updated.
 
+.alias PasskeyStatus    $04C0   ;Pass key status...
+.alias PasskeyCursor    $04C1   ;Pass key cursor...
+.alias PasskeyModified  $04C2   ;Pass key modified...
+.alias DemoTimerSec     $04C6   ;Idle countdown timer to trigger demo from main menu (seconds, roughly)
+.alias DemoTimerFrac    $04C7   ;Idle countdown timer to trigger demo (fractional part, frames)
 .alias DatIndexTemp     $04C9   ;Temporary storage for data index.
 
 .alias VulnerableTimer  $04FD   ;Opponent is vunerable while counting down. Does not count on combos.

@@ -10,7 +10,7 @@
 .alias DoSavePassword           $8036
 .alias DoLoadCheckPoint         $8039
 .alias DoBusyPassword           $803F
-;; .alias DoCircuitPassword        $8042
+.alias DoAWCPassword2           $8042
 .alias DoAWCPassword            $8045
 .alias DoCreditsPassword        $8048
 .alias DoTysonPassword          $804E
@@ -330,8 +330,8 @@ LA2DA:  JSR $B6CB
 LA2DD:  LDA #$05
 LA2DF:  JSR $BC5F
 LA2E2:  LDX #$00
-LA2E4:  STX PasswdStatus        ;($04C0)
-LA2E7:  STX PasswdCursor        ;($04C1)
+LA2E4:  STX PasskeyStatus       ;($04C0)
+LA2E7:  STX PasskeyCursor       ;($04C1)
 LA2EA:  JSR $AE9B
 
 LA2ED:  LDA #SPRT_BKG_ON        ;Enable sprites and background.
@@ -340,13 +340,13 @@ LA2EF:  STA SprtBkgUpdt         ;
 LA2F1:  LDA #$FF
 LA2F3:  STA GameStatus
 LA2F5:  LDA #$40
-LA2F7:  STA DemoTimerFrm        ;($04C7)
+LA2F7:  STA DemoTimerFrac       ;($04C7)
 _MenuWaitNxtFrm:                ;
 LA2FA:  JSR WaitNextFrame       ;($AF02)
-LA2FD:  DEC DemoTimerFrm        ;($04C7)
+LA2FD:  DEC DemoTimerFrac       ;($04C7)
 LA300:  BNE $A365
 LA302:  LDA #$40
-LA304:  STA DemoTimerFrm        ;($04C7)
+LA304:  STA DemoTimerFrac       ;($04C7)
 LA307:  DEC DemoTimerSec        ;($04C6)
 LA30A:  BNE $A365
 LA30C:  LDA #$00
@@ -365,7 +365,7 @@ LA322:  JSR $BFF6
 LA325:  JSR LoadPRGBank07       ;($AA54)
 LA328:  JSR $801B
 LA32B:  LDX #$00
-LA32D:  STX PasswdStatus        ;($04C0)
+LA32D:  STX PasskeyStatus       ;($04C0)
 LA330:  BEQ _MenuWaitNxtFrm     ;($A2FA)
 
 ; Reload the current password (or underscores) into the Pass Key entry field
@@ -380,8 +380,8 @@ LA341:  JSR LoadPRGBank07       ;($AA54)
 LA344:  JSR $8024
 LA347:  JSR $8021
 LA34A:  LDX #$00
-LA34C:  STX PasswdCursor        ;($04C1)
-LA34F:  STX PasswdMod           ;($04C2)
+LA34C:  STX PasskeyCursor       ;($04C1)
+LA34F:  STX PasskeyModified     ;($04C2)
 LA352:  BEQ _MenuWaitNxtFrm     ;($A2FA)
 
 LA354:  LDA DPad1Status         ;($D2)
@@ -389,7 +389,7 @@ LA356:  LDX #$00
 LA358:  CMP #$08
 LA35A:  BEQ $A35E
 LA35C:  LDX #$FF
-LA35E:  STX PasswdStatus        ;($04C0)
+LA35E:  STX PasskeyStatus       ;($04C0)
 LA361:  BNE ResetPassword       ;($A332)
 LA363:  BEQ ClearPassword       ;($A316)
 
@@ -401,10 +401,10 @@ LA36D:  JSR ResetDemoTimer      ;($A4C6)
 LA370:  LDA DPad1Status         ;($D2)
 LA372:  AND #$03
 LA374:  BEQ $A354
-LA376:  LDA PasswdStatus        ;($04C0)
+LA376:  LDA PasskeyStatus       ;($04C0)
 LA379:  BEQ $A3DF
-LA37B:  LDX PasswdCursor        ;($04C1)
-LA37E:  LDA PasswdMod           ;($04C2)
+LA37B:  LDX PasskeyCursor       ;($04C1)
+LA37E:  LDA PasskeyModified     ;($04C2)
 LA381:  BEQ PasswdSetMod        ;($A3A5)
 LA383:  LDA DPad1Status         ;($D2)
 LA385:  AND #$03
@@ -412,8 +412,8 @@ LA387:  CMP #IN_RIGHT
 LA389:  BEQ PasswdDigitInc     ;($A3AA)
 
 PasswdDigitDec:
-LA38B:  DEC PasswdDigits,X      ;($0120)
-LA38E:  LDA PasswdDigits,X      ;($0120)
+LA38B:  DEC PasskeyDigits,X      ;($0120)
+LA38E:  LDA PasskeyDigits,X      ;($0120)
 LA391:  BPL UpdatePasswdDisp    ;($A395)
 LA393:  LDA #$09                ;If decremented past 0, wrap around to 9
 
@@ -421,26 +421,26 @@ UpdatePasswdDisp:
 LA395:  LDY #SQ1_DIGIT2         ;Beep SFX for password digits
 
 _UpdatePasswdDisp:
-LA397:  STA PasswdDigits,X      ;($0120)
+LA397:  STA PasskeyDigits,X      ;($0120)
 LA39A:  STY $F0
 LA39C:  JSR LoadPRGBank07       ;($AA54)
 LA39F:  JSR $8027
 LA3A2:  JMP _MenuWaitNxtFrm     ;($A2FA)
 
 PasswdSetMod:
-LA3A5:  INC PasswdMod           ;($04C2)
+LA3A5:  INC PasskeyModified     ;($04C2)
 LA3A8:  BNE UpdatePasswdDisp    ;($A395)
 
 PasswdDigitInc:
-LA3AA:  INC PasswdDigits,X      ;($0120)
-LA3AD:  LDA PasswdDigits,X      ;($0120)
+LA3AA:  INC PasskeyDigits,X      ;($0120)
+LA3AD:  LDA PasskeyDigits,X      ;($0120)
 LA3B0:  CMP #$0A                ;Check for wraparound
 LA3B2:  BNE UpdatePasswdDisp    ;($A395)
 LA3B4:  LDA #$00                ;If incremented past 9, wrap around to 0
-LA3B6:  STA PasswdDigits,X      ;($0120)
+LA3B6:  STA PasskeyDigits,X      ;($0120)
 LA3B9:  BEQ UpdatePasswdDisp    ;($A395)
 
-LA3BB:  LDA PasswdStatus        ;($04C0)
+LA3BB:  LDA PasskeyStatus       ;($04C0)
 LA3BE:  BEQ $A3DF
 LA3C0:  LDA A1History           ;($D5)
 LA3C2:  BPL $A3CA
@@ -451,10 +451,10 @@ LA3CA:  LDA B1History           ;($D7)
 LA3CC:  BPL $A3DF
 LA3CE:  AND #$7F
 LA3D0:  STA B1History           ;($D7)
-LA3D2:  LDX PasswdCursor        ;($04C1)
-LA3D5:  LDA PasswdMod           ;($04C2)
+LA3D2:  LDX PasskeyCursor       ;($04C1)
+LA3D5:  LDA PasskeyModified     ;($04C2)
 LA3D8:  BEQ PasswdSetMod        ;($A3A5)
-LA3DA:  BNE AdvPasswdCursor     ;($A400)
+LA3DA:  BNE AdvPasskeyCursor    ;($A400)
 
 _StartNewGame:
 LA3DC:  JMP StartNewGame        ;($A473)
@@ -463,20 +463,20 @@ LA3DF:  LDA Strt1History        ;($D9)
 LA3E1:  BPL $A3A2               ;Nothing left to do. RTS and await next frame
 LA3E3:  AND #$7F                ;This is the first frame where Start was pressed
 LA3E5:  STA Strt1History        ;($D9)Clear MSB in Start history
-LA3E7:  LDA PasswdStatus        ;($04C0) If the user has not entered a password, -->
+LA3E7:  LDA PasskeyStatus       ;($04C0) If the user has not entered a password, -->
 LA3EA:  BEQ _StartNewGame       ;($A3DC) then start a new game
-LA3EC:  LDA PasswdMod           ;($04C2)
-LA3EF:  BNE AdvPasswdCursor     ;($A400)
+LA3EC:  LDA PasskeyModified     ;($04C2)
+LA3EF:  BNE AdvPasskeyCursor    ;($A400)
 LA3F1:  JSR LoadPRGBank07       ;($AA54)
-LA3F4:  JSR DoCircuitPassword   ;($8042)Check if user entered another world circuit password.
+LA3F4:  JSR DoAWCPassword2      ;($8042)Check if user entered another world circuit password.
 LA3F7:  BEQ _StartAWCircuit     ;($A46A)
 LA3F9:  JSR DoVerifyCheckPoint  ;($8030)
 LA3FC:  BNE PasswordFailed      ;($A427)
 LA3FE:  BEQ $A44E
 
 AdvPasswdCursor:
-LA400:  INC PasswdCursor        ;($04C1)
-LA403:  LDX PasswdCursor        ;($04C1)
+LA400:  INC PasskeyCursor       ;($04C1)
+LA403:  LDX PasskeyCursor       ;($04C1)
 LA406:  CPX #$0A
 LA408:  BEQ ChkEnteredPasswd    ;($A443)
 LA40A:  JSR ResetDemoTimer      ;($A4C6)
@@ -501,7 +501,7 @@ LA42A:  JMP ClearPassword       ;($A316)
 CheckAltPasswords:
 LA42D:  JSR DoBusyPassword      ;($803F)Check for busy signal passwords.
 LA430:  BEQ PlayBusySignal      ;($A414)
-LA432:  JSR DoCircuitPassword2  ;($8045)Check for AWC password
+LA432:  JSR DoAWCPassword       ;($8045)Check for AWC password
 LA435:  BEQ StartAWCircuit      ;($A467)
 LA437:  JSR DoCreditsPassword   ;($8048)Check for end credits password.
 LA43A:  BEQ JumpToCredits       ;($A463)
@@ -547,7 +547,7 @@ LA473:  LDX #$00
 _StartCircuit:
 LA475:  STX $0B
 LA477:  LDA $A185,X
-LA47A:  STA FightNum            ;($01)
+LA47A:  STA FightNumber         ;($01)
 LA47C:  LDA #SND_OFF            ;Stop any playing music.
 LA47E:  STA MusicInit           ;
 
@@ -579,7 +579,7 @@ LA4AF:  INC $14
 LA4B1:  LDA #$60
 LA4B3:  JSR WaitFor             ;($AF04)
 LA4B6:  JSR FadeToBlack         ;($BF7E)
-LA4B9:  LDA FightNum            ;($01)
+LA4B9:  LDA FightNumber         ;($01)
 LA4BB:  BMI $A4C0
 LA4BD:  JMP $A829
 LA4C0:  JSR $BD42
@@ -645,7 +645,7 @@ LA537:  STA $013F
 LA53A:  LDA #$06
 LA53C:  JMP $A2B5
 LA53F:  LDA #$13
-LA541:  STA FightNum            ;($01)
+LA541:  STA FightNumber         ;($01)
 LA543:  LDX #$FF
 LA545:  TXS
 LA546:  JSR $AA1D
@@ -1371,7 +1371,7 @@ LAAE4:  RTS
 LAAE5:  JSR $AA1D
 LAAE8:  STA RoundNumber
 LAAEA:  JSR $AE89
-LAAED:  LDA FightNum            ;($01)
+LAAED:  LDA FightNumber         ;($01)
 LAAEF:  ASL
 LAAF0:  TAY
 LAAF1:  LDA $A0D1,Y
@@ -1729,14 +1729,14 @@ LAE07:  RTS
 LAE08:  .byte $38, $29, $3A, $2B, $3C, $21, $32, $23, $34, $25, $36, $27, $00, $00, $00, $00
 LAE18:  .byte $38, $29, $3A, $2B, $3C, $21, $32, $23, $34, $25, $36, $27, $00, $00, $00, $00
 
-LAE28:  LDA FightNum            ;($01)
+LAE28:  LDA FightNumber         ;($01)
 LAE2A:  ASL
 LAE2B:  ASL
 LAE2C:  TAY
 LAE2D:  DEX
 LAE2E:  BNE $AE3D
 LAE30:  LDA $A10D,Y
-LAE33:  STA FightNum            ;($01)
+LAE33:  STA FightNumber         ;($01)
 LAE35:  JSR $AE89
 LAE38:  LDX #$00
 LAE3A:  STX $0A
@@ -1775,7 +1775,7 @@ LAE82:  BCC $AE70
 LAE84:  LDA #$80
 LAE86:  STA MusicInit
 LAE88:  RTS
-LAE89:  LDY FightNum            ;($01)
+LAE89:  LDY FightNumber         ;($01)
 LAE8B:  LDA $A18D,Y
 LAE8E:  STA $09
 LAE90:  RTS

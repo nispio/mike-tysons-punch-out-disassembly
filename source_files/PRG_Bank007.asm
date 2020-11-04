@@ -1571,7 +1571,7 @@ L8D8F:  LDA #$0A                ;Prepare to check 10 password digits.
 L8D91:  STA GenByteE0           ;
 
 ChkPswdTblLoop:
-L8D93:  LDA EnteredPasswd,X     ;Does the current digit in the user entered password match the -->
+L8D93:  LDA SavedPasskey,X     ;Does the current digit in the user entered password match the -->
 L8D96:  CMP PswrdDatTbl,Y       ;entry in the hard coded password table?
 L8D99:  BNE ChkPswdTblEnd       ;If not, branch to exit.
 
@@ -1636,7 +1636,7 @@ L8E13:  LDA #$27
 
 _FillPassword:
 L8E15:  LDX #$0A
-L8E17:  STA EnteredPasswd,Y     ;($0110)
+L8E17:  STA SavedPasskey,Y     ;($0110)
 L8E1A:  INY
 L8E1B:  DEX
 L8E1C:  BNE $8E17
@@ -1665,7 +1665,7 @@ L8E3D:  LDX #$0A
 L8E3F:  LDA #$00
 L8E41:  STA $0140,X
 L8E44:  DEX
-L8E45:  LDA EnteredPasswd,Y
+L8E45:  LDA SavedPasskey,Y
 L8E48:  STA $0140,X
 L8E4B:  INC $0140,X
 L8E4E:  DEY
@@ -1745,7 +1745,7 @@ L8EC1:  LDY #$10
 
 _VerifyPassword:
 L8EC3:  LDX #$00
-L8EC5:  LDA EnteredPasswd,Y
+L8EC5:  LDA SavedPasskey,Y
 L8EC8:  SEC
 L8EC9:  SBC PasswordSalt,X      ;($9101)
 L8ECC:  BPL $8ED1
@@ -1874,8 +1874,8 @@ L8FC5:  RTS
 ; Save the password that was entered as the current checkpoint
 SavePassword:
 L8FC6:  LDY #$09
-L8FC8:  LDA PasswdDigits,Y      ;($0120)
-L8FCB:  STA EnteredPasswd,Y
+L8FC8:  LDA PasskeyDigits,Y      ;($0120)
+L8FCB:  STA SavedPasskey,Y
 L8FCE:  DEY
 L8FCF:  BPL $8FC8
 L8FD1:  RTS
@@ -1976,13 +1976,13 @@ L9085:  ASL
 L9086:  ASL
 L9087:  ASL
 L9088:  ASL
-L9089:  STA EnteredPasswd,Y
+L9089:  STA SavedPasskey,Y
 L908C:  DEY
 L908D:  LDA $0100,X
 L9090:  ASL
 L9091:  ASL
 L9092:  AND #$E0
-L9094:  STA EnteredPasswd,Y
+L9094:  STA SavedPasskey,Y
 L9097:  DEY
 L9098:  DEX
 L9099:  BPL $9081
@@ -1990,7 +1990,7 @@ L909B:  LDA $010D
 L909E:  BEQ $90C2
 L90A0:  STA $010B
 L90A3:  LDX #$09
-L90A5:  ASL EnteredPasswd,X
+L90A5:  ASL SavedPasskey,X
 L90A8:  LDA #$00
 L90AA:  ROR
 L90AB:  DEX
@@ -1998,20 +1998,20 @@ L90AC:  BMI $90BA
 L90AE:  ROR
 L90AF:  ROR
 L90B0:  ROR
-L90B1:  ORA EnteredPasswd,X
-L90B4:  STA EnteredPasswd,X
+L90B1:  ORA SavedPasskey,X
+L90B4:  STA SavedPasskey,X
 L90B7:  JMP $90A5
 L90BA:  STA $0119
 L90BD:  DEC $010B
 L90C0:  BNE $90A3
 L90C2:  LDX #$09
-L90C4:  LDA EnteredPasswd,X
+L90C4:  LDA SavedPasskey,X
 L90C7:  LSR
 L90C8:  LSR
 L90C9:  LSR
 L90CA:  LSR
 L90CB:  LSR
-L90CC:  STA EnteredPasswd,X
+L90CC:  STA SavedPasskey,X
 L90CF:  DEX
 L90D0:  BPL $90C4
 L90D2:  LDA $010D
@@ -2020,13 +2020,13 @@ L90D8:  STA $0119
 
 _AddSalt:
 L90DB:  LDY #$09
-L90DD:  LDA EnteredPasswd,Y
+L90DD:  LDA SavedPasskey,Y
 L90E0:  CLC
 L90E1:  ADC PasswordSalt,Y      ;($9101)
 L90E4:  CMP #$0A
 L90E6:  BCC $90EA
 L90E8:  SBC #$0A
-L90EA:  STA EnteredPasswd,Y
+L90EA:  STA SavedPasskey,Y
 L90ED:  DEY
 L90EE:  BPL $90DD
 L90F0:  RTS
