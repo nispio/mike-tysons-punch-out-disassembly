@@ -147,18 +147,35 @@ LA0E1:  .byte $04, $10, $03, $20, $00, $20, $03, $10, $04, $30, $05, $40, $FF, $
 LA0F1:  .byte $FF, $FF, $FF, $FF, $FF, $FF, $03, $00, $01, $00, $02, $10, $05, $20, $04, $10
 LA101:  .byte $03, $20, $00, $20, $03, $10, $04, $30, $05, $40, $FF, $FF
 
-LA10D:  .byte $01, $00, $81, $00
-LA111:  .byte $02, $00, $01, $00, $03, $01, $00, $00, $04, $03, $81, $00, $05, $03, $01, $00
-LA121:  .byte $06, $04, $01, $00, $07, $05, $00, $00, $08, $07, $81, $00, $09, $07, $01, $00
-LA131:  .byte $0A, $08, $01, $00, $0B, $09, $01, $00, $0C, $0A, $01, $00, $0D, $0A, $00, $00
-LA141:  .byte $0E, $0E, $00, $00, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF
+LA10D:  .byte $01, $00, $81, $00 ; 00 - Glass Joe
+LA111:  .byte $02, $00, $01, $00 ; 01 - Von Kaiser
+LA115:  .byte $03, $01, $00, $00 ; 02 - Piston Honda
+LA119:  .byte $04, $03, $81, $00 ; 03 - Don Flamenco
+LA11D:  .byte $05, $03, $01, $00 ; 04 - King Hippo
+LA121:  .byte $06, $04, $01, $00 ; 05 - Great Tiger
+LA125:  .byte $07, $05, $00, $00 ; 06 - Bald Bull
+LA129:  .byte $08, $07, $81, $00 ; 07 - Piston Honda 2
+LA12D:  .byte $09, $07, $01, $00 ; 08 - Soda Popinski
+LA131:  .byte $0A, $08, $01, $00 ; 09 - Bald Bull 2
+LA135:  .byte $0B, $09, $01, $00 ; 10 - Don Flamenco 2
+LA139:  .byte $0C, $0A, $01, $00 ; 11 - Sandman
+LA13D:  .byte $0D, $0A, $00, $00 ; 12 - Super Macho Man
+LA141:  .byte $0E, $0E, $00, $00 ; 13 - Mike Tyson
+LA145:  .byte $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF
 LA151:  .byte $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $0E, $0E, $00, $00, $15, $1D, $00, $00
 LA161:  .byte $16, $1D, $00, $00, $17, $1D, $00, $00, $18, $1D, $00, $00, $19, $1D, $00, $00
 LA171:  .byte $1A, $1D, $00, $00, $1B, $1D, $00, $00, $1C, $1D, $00, $00, $1D, $1D, $00, $00
 LA181:  .byte $FF, $FF, $FF, $FF
 
-LA185:  .byte $00, $03, $07, $0C, $14, $0D, $00, $80, $32, $31, $30, $23
-LA191:  .byte $22, $21, $20, $15, $14, $13, $12, $11, $10, $00, $FF, $FF, $FF, $FF, $FF, $20
+FirstFightOfCircuit:
+LA185:  .byte $00, $03, $07, $0C, $14, $0D, $00, $80
+RankWithinCircuit:
+LA18D:  .byte $32, $31, $30
+LA190:  .byte $23, $22, $21, $20
+LA194:  .byte $15, $14, $13, $12, $11, $10
+LA19A:  .byte $00
+LA19B:  .byte $FF, $FF, $FF, $FF, $FF
+LA1A0:  .byte $20
 LA1A1:  .byte $48, $47, $46, $45, $44, $43, $42, $41, $40, $FF
 
 ;; "NINTENDO.1987RD3"
@@ -1729,28 +1746,36 @@ LAE07:  RTS
 LAE08:  .byte $38, $29, $3A, $2B, $3C, $21, $32, $23, $34, $25, $36, $27, $00, $00, $00, $00
 LAE18:  .byte $38, $29, $3A, $2B, $3C, $21, $32, $23, $34, $25, $36, $27, $00, $00, $00, $00
 
+FightEnd:
 LAE28:  LDA FightNumber         ;($01)
 LAE2A:  ASL
 LAE2B:  ASL
 LAE2C:  TAY
 LAE2D:  DEX
 LAE2E:  BNE $AE3D
+_MacWins:
 LAE30:  LDA $A10D,Y
+_SetNextFight:
 LAE33:  STA FightNumber         ;($01)
-LAE35:  JSR $AE89
-LAE38:  LDX #$00
+LAE35:  JSR LoadRank            ;($AE89) Load Rank into $09
+LAE38:  LDX #$00                ;Reset losses
+_SetLossCount:
 LAE3A:  STX $0A
 LAE3C:  RTS
+_MacLoses:
 LAE3D:  LDA $0A
-LAE3F:  BEQ $AE4B
+LAE3F:  BEQ _RankDownMaybe      ;($AE4B)
 LAE41:  LDA $A10F,Y
-LAE44:  BMI $AE3C
+LAE44:  BMI $AE3C ;RTS
+_RankDown:
 LAE46:  LDA $A10E,Y
-LAE49:  BPL $AE33
+LAE49:  BPL _SetNextFight       ;($AE33)
+_RankDownMaybe:
 LAE4B:  LDA $A10F,Y
-LAE4E:  BEQ $AE46
+LAE4E:  BEQ _RankDown           ;($AE46)
 LAE50:  LDX #$01
-LAE52:  BNE $AE3A
+LAE52:  BNE _SetLossCount       ;($AE3A)
+
 LAE54:  ADC MacNextHP
 LAE57:  BEQ $AE5B
 LAE59:  BPL $AE70
@@ -1775,10 +1800,13 @@ LAE82:  BCC $AE70
 LAE84:  LDA #$80
 LAE86:  STA MusicInit
 LAE88:  RTS
+
+LoadRank:
 LAE89:  LDY FightNumber         ;($01)
 LAE8B:  LDA $A18D,Y
 LAE8E:  STA $09
 LAE90:  RTS
+
 LAE91:  LDX #$06
 LAE93:  JSR WaitNextFrame       ;($AF02)
 LAE96:  LDA $F0,X
@@ -4441,6 +4469,7 @@ LC2DB:  STA VulnerableTimer
 LC2DE:  LDA #$00
 LC2E0:  STA $04FE
 LC2E3:  BEQ $C2F7
+
 LC2E5:  DEX
 LC2E6:  CPX #$80
 LC2E8:  BNE $C2EC
@@ -4459,7 +4488,6 @@ LC301:  STY $E7
 LC303:  LDA VulnerableTimer
 LC306:  BEQ $C319
 LC308:  BMI $C318
-
 LC30A:  LDX $05BA
 LC30D:  CMP $05B9
 LC310:  BCS $C315
