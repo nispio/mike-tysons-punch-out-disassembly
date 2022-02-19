@@ -10,18 +10,29 @@ magenta=`tput setaf 5`
 cyan=`tput setaf 6`
 reset=`tput sgr0`
 
-
+# Get the location of this script and cd to it
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 cd -- "${SCRIPT_DIR}"
 
 # Prefer the python version of Ophis, but fall back on the Windows exe
-OPHIS_CMD=${SCRIPT_DIR}/ophis/unix/bin/ophis
-if ! ophis_version=$(${OPHIS_CMD} --version); then
-    OPHIS_CMD=${SCRIPT_DIR}/ophis/windows/ophis.exe
+OPHIS_PYTHON_CMD=${SCRIPT_DIR}/ophis/unix/bin/ophis
+OPHIS_WINDOWS_CMD=${SCRIPT_DIR}/ophis/windows/ophis.exe
+OPHIS_PLATFORM=python
+if ! ophis_version=$(${OPHIS_PYTHON_CMD} --version) >& /dev/null; then
+    OPHIS_PLATFORM=windows
 fi
-
+# This helper function works around the CLI difference between windows and
+#  python versions of Ophis
+function run_ophis() {
+    if [[ $OPHIS_PLATFORM = python ]]; then
+        ${OPHIS_PYTHON_CMD} $1 -o $2
+    else
+        ${OPHIS_WINDOWS_CMD} $1 $2
+    fi
+}
+# The md5sum command is not available on BSD, and md5 is used instead
 MD5_CMD="md5 -r"
-if ! test_hash=$(${MD5_CMD} <<< $(echo "test")); then
+if ! test_hash=$(${MD5_CMD} <<< $(echo "test")) >& /dev/null; then
     MD5_CMD=md5sum
 fi
 
@@ -31,20 +42,20 @@ rm -f ./output_files/*.bin
 
 printf "\n${magenta}Assembling individual PRG banks...${reset}\n\n"
 cd source_files
-${OPHIS_CMD} PRG_Bank000.asm -o ../output_files/PRG_Bank000.bin
-${OPHIS_CMD} PRG_Bank001.asm -o ../output_files/PRG_Bank001.bin
-${OPHIS_CMD} PRG_Bank002.asm -o ../output_files/PRG_Bank002.bin
-${OPHIS_CMD} PRG_Bank003.asm -o ../output_files/PRG_Bank003.bin
-${OPHIS_CMD} PRG_Bank004.asm -o ../output_files/PRG_Bank004.bin
-${OPHIS_CMD} PRG_Bank005.asm -o ../output_files/PRG_Bank005.bin
-${OPHIS_CMD} PRG_Bank006.asm -o ../output_files/PRG_Bank006.bin
-${OPHIS_CMD} PRG_Bank007.asm -o ../output_files/PRG_Bank007.bin
-${OPHIS_CMD} PRG_Bank008.asm -o ../output_files/PRG_Bank008.bin
-${OPHIS_CMD} PRG_Bank009.asm -o ../output_files/PRG_Bank009.bin
-${OPHIS_CMD} PRG_Bank00A.asm -o ../output_files/PRG_Bank00A.bin
-${OPHIS_CMD} PRG_Bank00B.asm -o ../output_files/PRG_Bank00B.bin
-${OPHIS_CMD} PRG_Bank00C.asm -o ../output_files/PRG_Bank00C.bin
-${OPHIS_CMD} PRG_BankDEF.asm -o ../output_files/PRG_BankDEF.bin
+run_ophis PRG_Bank000.asm ../output_files/PRG_Bank000.bin
+run_ophis PRG_Bank001.asm ../output_files/PRG_Bank001.bin
+run_ophis PRG_Bank002.asm ../output_files/PRG_Bank002.bin
+run_ophis PRG_Bank003.asm ../output_files/PRG_Bank003.bin
+run_ophis PRG_Bank004.asm ../output_files/PRG_Bank004.bin
+run_ophis PRG_Bank005.asm ../output_files/PRG_Bank005.bin
+run_ophis PRG_Bank006.asm ../output_files/PRG_Bank006.bin
+run_ophis PRG_Bank007.asm ../output_files/PRG_Bank007.bin
+run_ophis PRG_Bank008.asm ../output_files/PRG_Bank008.bin
+run_ophis PRG_Bank009.asm ../output_files/PRG_Bank009.bin
+run_ophis PRG_Bank00A.asm ../output_files/PRG_Bank00A.bin
+run_ophis PRG_Bank00B.asm ../output_files/PRG_Bank00B.bin
+run_ophis PRG_Bank00C.asm ../output_files/PRG_Bank00C.bin
+run_ophis PRG_BankDEF.asm ../output_files/PRG_BankDEF.bin
 cd ..
 
 printf "\n${magenta}Calculating checksums of individual PRG banks...${reset}\n\n"
