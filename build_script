@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -euo pipefail
+
 red=`tput setaf 1`
 green=`tput setaf 2`
 yellow=`tput setaf 3`
@@ -8,31 +10,47 @@ magenta=`tput setaf 5`
 cyan=`tput setaf 6`
 reset=`tput sgr0`
 
+
+SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+cd -- "${SCRIPT_DIR}"
+
+# Prefer the python version of Ophis, but fall back on the Windows exe
+OPHIS_CMD=${SCRIPT_DIR}/ophis/unix/bin/ophis
+if ! ophis_version=$(${OPHIS_CMD} --version); then
+    OPHIS_CMD=${SCRIPT_DIR}/ophis/windows/ophis.exe
+fi
+
+MD5_CMD="md5 -r"
+if ! test_hash=$(${MD5_CMD} <<< $(echo "test")); then
+    MD5_CMD=md5sum
+fi
+
+
 printf "\n${magenta}Deleting previous build files...${reset}\n"
-rm ./output_files/*
+rm -f ./output_files/*.bin
 
 printf "\n${magenta}Assembling individual PRG banks...${reset}\n\n"
 cd source_files
-../Ophis/ophis.exe PRG_Bank000.asm ../output_files/PRG_Bank000.bin
-../Ophis/ophis.exe PRG_Bank001.asm ../output_files/PRG_Bank001.bin
-../Ophis/ophis.exe PRG_Bank002.asm ../output_files/PRG_Bank002.bin
-../Ophis/ophis.exe PRG_Bank003.asm ../output_files/PRG_Bank003.bin
-../Ophis/ophis.exe PRG_Bank004.asm ../output_files/PRG_Bank004.bin
-../Ophis/ophis.exe PRG_Bank005.asm ../output_files/PRG_Bank005.bin
-../Ophis/ophis.exe PRG_Bank006.asm ../output_files/PRG_Bank006.bin
-../Ophis/ophis.exe PRG_Bank007.asm ../output_files/PRG_Bank007.bin
-../Ophis/ophis.exe PRG_Bank008.asm ../output_files/PRG_Bank008.bin
-../Ophis/ophis.exe PRG_Bank009.asm ../output_files/PRG_Bank009.bin
-../Ophis/ophis.exe PRG_Bank00A.asm ../output_files/PRG_Bank00A.bin
-../Ophis/ophis.exe PRG_Bank00B.asm ../output_files/PRG_Bank00B.bin
-../Ophis/ophis.exe PRG_Bank00C.asm ../output_files/PRG_Bank00C.bin
-../Ophis/ophis.exe PRG_BankDEF.asm ../output_files/PRG_BankDEF.bin
+${OPHIS_CMD} PRG_Bank000.asm -o ../output_files/PRG_Bank000.bin
+${OPHIS_CMD} PRG_Bank001.asm -o ../output_files/PRG_Bank001.bin
+${OPHIS_CMD} PRG_Bank002.asm -o ../output_files/PRG_Bank002.bin
+${OPHIS_CMD} PRG_Bank003.asm -o ../output_files/PRG_Bank003.bin
+${OPHIS_CMD} PRG_Bank004.asm -o ../output_files/PRG_Bank004.bin
+${OPHIS_CMD} PRG_Bank005.asm -o ../output_files/PRG_Bank005.bin
+${OPHIS_CMD} PRG_Bank006.asm -o ../output_files/PRG_Bank006.bin
+${OPHIS_CMD} PRG_Bank007.asm -o ../output_files/PRG_Bank007.bin
+${OPHIS_CMD} PRG_Bank008.asm -o ../output_files/PRG_Bank008.bin
+${OPHIS_CMD} PRG_Bank009.asm -o ../output_files/PRG_Bank009.bin
+${OPHIS_CMD} PRG_Bank00A.asm -o ../output_files/PRG_Bank00A.bin
+${OPHIS_CMD} PRG_Bank00B.asm -o ../output_files/PRG_Bank00B.bin
+${OPHIS_CMD} PRG_Bank00C.asm -o ../output_files/PRG_Bank00C.bin
+${OPHIS_CMD} PRG_BankDEF.asm -o ../output_files/PRG_BankDEF.bin
 cd ..
 
 printf "\n${magenta}Calculating checksums of individual PRG banks...${reset}\n\n"
 printf -- "${yellow}-------------------PRG Bank 000--------------------${reset}\n"
-out000=($(md5sum output_files/PRG_Bank000.bin))
-org000=($(md5sum original_files/PRG_Bank000.bin))
+out000=($(${MD5_CMD} output_files/PRG_Bank000.bin))
+org000=($(${MD5_CMD} original_files/PRG_Bank000.bin))
 printf "Assembled md5sum = $out000\n"
 printf "Original  md5sum = $org000\n"
 if [ "$out000" = "$org000" ]; then
@@ -42,8 +60,8 @@ else
 fi
 
 printf -- "${yellow}-------------------PRG Bank 001--------------------${reset}\n"
-out001=($(md5sum output_files/PRG_Bank001.bin))
-org001=($(md5sum original_files/PRG_Bank001.bin))
+out001=($(${MD5_CMD} output_files/PRG_Bank001.bin))
+org001=($(${MD5_CMD} original_files/PRG_Bank001.bin))
 printf "Assembled md5sum = $out001\n"
 printf "Original  md5sum = $org001\n"
 if [ "$out001" = "$org001" ]; then
@@ -53,8 +71,8 @@ else
 fi
 
 printf -- "${yellow}-------------------PRG Bank 002--------------------${reset}\n"
-out002=($(md5sum output_files/PRG_Bank002.bin))
-org002=($(md5sum original_files/PRG_Bank002.bin))
+out002=($(${MD5_CMD} output_files/PRG_Bank002.bin))
+org002=($(${MD5_CMD} original_files/PRG_Bank002.bin))
 printf "Assembled md5sum = $out002\n"
 printf "Original  md5sum = $org002\n"
 if [ "$out002" = "$org002" ]; then
@@ -64,8 +82,8 @@ else
 fi
 
 printf -- "${yellow}-------------------PRG Bank 003--------------------${reset}\n"
-out003=($(md5sum output_files/PRG_Bank003.bin))
-org003=($(md5sum original_files/PRG_Bank003.bin))
+out003=($(${MD5_CMD} output_files/PRG_Bank003.bin))
+org003=($(${MD5_CMD} original_files/PRG_Bank003.bin))
 printf "Assembled md5sum = $out003\n"
 printf "Original  md5sum = $org003\n"
 if [ "$out003" = "$org003" ]; then
@@ -75,8 +93,8 @@ else
 fi
 
 printf -- "${yellow}-------------------PRG Bank 004--------------------${reset}\n"
-out004=($(md5sum output_files/PRG_Bank004.bin))
-org004=($(md5sum original_files/PRG_Bank004.bin))
+out004=($(${MD5_CMD} output_files/PRG_Bank004.bin))
+org004=($(${MD5_CMD} original_files/PRG_Bank004.bin))
 printf "Assembled md5sum = $out004\n"
 printf "Original  md5sum = $org004\n"
 if [ "$out004" = "$org004" ]; then
@@ -86,8 +104,8 @@ else
 fi
 
 printf -- "${yellow}-------------------PRG Bank 005--------------------${reset}\n"
-out005=($(md5sum output_files/PRG_Bank005.bin))
-org005=($(md5sum original_files/PRG_Bank005.bin))
+out005=($(${MD5_CMD} output_files/PRG_Bank005.bin))
+org005=($(${MD5_CMD} original_files/PRG_Bank005.bin))
 printf "Assembled md5sum = $out005\n"
 printf "Original  md5sum = $org005\n"
 if [ "$out005" = "$org005" ]; then
@@ -97,8 +115,8 @@ else
 fi
 
 printf -- "${yellow}-------------------PRG Bank 006--------------------${reset}\n"
-out006=($(md5sum output_files/PRG_Bank006.bin))
-org006=($(md5sum original_files/PRG_Bank006.bin))
+out006=($(${MD5_CMD} output_files/PRG_Bank006.bin))
+org006=($(${MD5_CMD} original_files/PRG_Bank006.bin))
 printf "Assembled md5sum = $out006\n"
 printf "Original  md5sum = $org006\n"
 if [ "$out006" = "$org006" ]; then
@@ -108,8 +126,8 @@ else
 fi
 
 printf -- "${yellow}-------------------PRG Bank 007--------------------${reset}\n"
-out007=($(md5sum output_files/PRG_Bank007.bin))
-org007=($(md5sum original_files/PRG_Bank007.bin))
+out007=($(${MD5_CMD} output_files/PRG_Bank007.bin))
+org007=($(${MD5_CMD} original_files/PRG_Bank007.bin))
 printf "Assembled md5sum = $out007\n"
 printf "Original  md5sum = $org007\n"
 if [ "$out007" = "$org007" ]; then
@@ -119,8 +137,8 @@ else
 fi
 
 printf -- "${yellow}-------------------PRG Bank 008--------------------${reset}\n"
-out008=($(md5sum output_files/PRG_Bank008.bin))
-org008=($(md5sum original_files/PRG_Bank008.bin))
+out008=($(${MD5_CMD} output_files/PRG_Bank008.bin))
+org008=($(${MD5_CMD} original_files/PRG_Bank008.bin))
 printf "Assembled md5sum = $out008\n"
 printf "Original  md5sum = $org008\n"
 if [ "$out008" = "$org008" ]; then
@@ -130,8 +148,8 @@ else
 fi
 
 printf -- "${yellow}-------------------PRG Bank 009--------------------${reset}\n"
-out009=($(md5sum output_files/PRG_Bank009.bin))
-org009=($(md5sum original_files/PRG_Bank009.bin))
+out009=($(${MD5_CMD} output_files/PRG_Bank009.bin))
+org009=($(${MD5_CMD} original_files/PRG_Bank009.bin))
 printf "Assembled md5sum = $out009\n"
 printf "Original  md5sum = $org009\n"
 if [ "$out009" = "$org009" ]; then
@@ -141,8 +159,8 @@ else
 fi
 
 printf -- "${yellow}-------------------PRG Bank 00A--------------------${reset}\n"
-out00A=($(md5sum output_files/PRG_Bank00A.bin))
-org00A=($(md5sum original_files/PRG_Bank00A.bin))
+out00A=($(${MD5_CMD} output_files/PRG_Bank00A.bin))
+org00A=($(${MD5_CMD} original_files/PRG_Bank00A.bin))
 printf "Assembled md5sum = $out00A\n"
 printf "Original  md5sum = $org00A\n"
 if [ "$out00A" = "$org00A" ]; then
@@ -152,8 +170,8 @@ else
 fi
 
 printf -- "${yellow}-------------------PRG Bank 00B--------------------${reset}\n"
-out00B=($(md5sum output_files/PRG_Bank00B.bin))
-org00B=($(md5sum original_files/PRG_Bank00B.bin))
+out00B=($(${MD5_CMD} output_files/PRG_Bank00B.bin))
+org00B=($(${MD5_CMD} original_files/PRG_Bank00B.bin))
 printf "Assembled md5sum = $out00B\n"
 printf "Original  md5sum = $org00B\n"
 if [ "$out00B" = "$org00B" ]; then
@@ -163,8 +181,8 @@ else
 fi
 
 printf -- "${yellow}-------------------PRG Bank 00C--------------------${reset}\n"
-out00C=($(md5sum output_files/PRG_Bank00C.bin))
-org00C=($(md5sum original_files/PRG_Bank00C.bin))
+out00C=($(${MD5_CMD} output_files/PRG_Bank00C.bin))
+org00C=($(${MD5_CMD} original_files/PRG_Bank00C.bin))
 printf "Assembled md5sum = $out00C\n"
 printf "Original  md5sum = $org00C\n"
 if [ "$out00C" = "$org00C" ]; then
@@ -174,8 +192,8 @@ else
 fi
 
 printf -- "${yellow}-------------------PRG Bank DEF--------------------${reset}\n"
-outDEF=($(md5sum output_files/PRG_BankDEF.bin))
-orgDEF=($(md5sum original_files/PRG_BankDEF.bin))
+outDEF=($(${MD5_CMD} output_files/PRG_BankDEF.bin))
+orgDEF=($(${MD5_CMD} original_files/PRG_BankDEF.bin))
 printf "Assembled md5sum = $outDEF\n"
 printf "Original  md5sum = $orgDEF\n"
 if [ "$outDEF" = "$orgDEF" ]; then
