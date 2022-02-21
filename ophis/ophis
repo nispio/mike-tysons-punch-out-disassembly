@@ -5,8 +5,8 @@ set -euo pipefail
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 
 # Prefer the python version of Ophis, but fall back on the Windows exe
-OPHIS_PYTHON_CMD=${SCRIPT_DIR}/ophis/unix/bin/ophis
-OPHIS_WINDOWS_CMD=${SCRIPT_DIR}/ophis/windows/ophis.exe
+OPHIS_PYTHON_CMD=${SCRIPT_DIR}/unix/bin/ophis
+OPHIS_WINDOWS_CMD=${SCRIPT_DIR}/windows/ophis.exe
 
 if ophis_version=$(${OPHIS_PYTHON_CMD} --version) >& /dev/null; then
     exec ${OPHIS_PYTHON_CMD} $1 -o $2
