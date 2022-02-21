@@ -8,7 +8,7 @@ SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 OPHIS_PYTHON_CMD=${SCRIPT_DIR}/unix/bin/ophis
 OPHIS_WINDOWS_CMD=${SCRIPT_DIR}/windows/ophis.exe
 
-if ophis_version=$(${OPHIS_PYTHON_CMD} --version) >& /dev/null; then
+if ophis_version=$(${OPHIS_PYTHON_CMD} --version 2>/dev/null); then
     exec ${OPHIS_PYTHON_CMD} $1 -o $2
 else
     exec ${OPHIS_WINDOWS_CMD} $1 $2
