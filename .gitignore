@@ -1,3 +1,4 @@
 *.nes
 *.deb
 *.bak
+__pycache__/
