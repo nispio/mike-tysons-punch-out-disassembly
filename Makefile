@@ -3,8 +3,8 @@ green=$(shell tput setaf 2)
 magenta=$(shell tput setaf 6)
 reset=$(shell tput sgr0)
 
-ASM := ophis/unix/bin/ophis
-MD5 := md5sum
+ASM := ophis/ophis
+MD5 := $(CURDIR)/helper_programs/md5sum
 
 # Define the source and output directories
 SRC_DIR := source_files
@@ -30,17 +30,17 @@ all: $(BIN_FILES) check
 $(OUT_DIR)/%.bin: $(SRC_DIR)/%.asm $(INCLUDES)
 	@mkdir -p $(OUT_DIR)
 	@echo "${magenta}Assembling $<${reset}"
-	@$(ASM) -o $@ $<
+	@$(ASM) $< $@
 
 # One-time computation of reference checksums
 $(OUT_DIR)/checksums.md5: $(ORIG_FILES)
 	@echo "${magenta}Computing reference checksums...${reset}"
-	@(cd $(ORIG_DIR); md5sum PRG_Bank*.bin) > $@
+	@(cd $(ORIG_DIR); $(MD5) PRG_Bank*.bin) > $@
 
 # Check the assembled binaries against the reference checksums
 check: $(OUT_DIR)/checksums.md5 $(BIN_FILES)
 	@echo "${magenta}Verifying checksums of PRG banks...${reset}"
-	@(cd $(dir $<); md5sum -c $(notdir $<)) 2>&1 |\
+	@(cd $(dir $<); $(MD5) -c $(notdir $<)) 2>&1 |\
 	  sed -E 's/(.*OK)/${green}\1${reset}/;s/(.*FAILED)/${red}\1${reset}/'
 
 clean:
