@@ -3,65 +3,42 @@
 
 .include "Mike_Tysons_Punchout_Defines.asm"
 
-L8000:  JMP $8974
-L8003:  JMP $890D
-L8006:  JMP $881E
+L8000:  JMP UpdateStars         ;($8974)
+L8003:  JMP UpdateHeartsDisplay ;($890D)
+L8006:  JMP UpdateHealthBars    ;($881E)
 L8009:  JMP UpdateClock         ;($8759)
 L800C:  JMP UpdatePoints        ;($86D0)
-L800F:  JMP $8A6F
-
-DoUpdateRNG:
+L800F:  JMP CheckCrowdSpecial   ;($8A6F)
 L8012:  JMP UpdateRNG           ;($85E9)
-L8015:  JMP $805D
+L8015:  JMP PunchAnalyzer       ;($805D)
 L8018:  .byte $00, $00, $00
-L801B:  JMP $8DED
-
-DoPasswdDashes:
+L801B:  JMP ClearPassword       ;($8DED)
 L801E:  JMP FillPswdDashes      ;($8E11)
-
 L8021:  JMP $8E1F
 L8024:  JMP $8E23
 L8027:  JMP TranslatePswd2      ;($8E34)Translate password2 numbers into glyphs
 L802A:  JMP TranslatePswd       ;($8E3B)Translate password numbers into glyphs
 L802D:  JMP GroupPswdDigits     ;($8E53)Insert a space between digit groups
-
 DoVerifyCheckPoint:
 L8030:  JMP VerifyCheckPoint    ;($8EBA)
-
-DoNormalPswd:
 L8033:  JMP ChkNormalPswd       ;($8EC1)Check a normal password
-
-DoSavePassword:
 L8036:  JMP SavePassword        ;($8FC6)Save the entered password
-
-DoLoadCheckPoint:
 L8039:  JMP LoadCheckPoint      ;($8FD2)Verify checkpoint, clear password if invalid
-
 L803C:  JMP $8FF0
-
-DoBusyPassword:
 L803F:  JMP ChkBusyPassword     ;($8D7D)Check fur busy signal passwords.
-
-DoAWCPassword2:
 L8042:  JMP ChkAWCPassword2     ;($8D6C)Check for another world circuit password.
-
-DoAWCPassword:
-L8045:  JMP ChkAWCPassword     ;($8D72)Check for AWC password in $0120
-
-DoCreditsPassword:
+L8045:  JMP ChkAWCPassword      ;($8D72)Check for AWC password in $0120
 L8048:  JMP ChkCreditsPassword  ;($8D5D)Check for end credits password.
-
-DoClear170:
 L804B:  JMP _Clear170           ;($8FE5)Clear the entered password
-
-DoTysonPassword:
 L804E:  JMP ChkTysonPassword    ;($8D68)Check if player entered password to start at Mike Tyson.
 
 L8051:  JMP $FFD0
 L8054:  JMP $FFD3
 L8057:  JMP $FFD6
+
 L805A:  JMP $856F
 
+PunchAnalyzer:
 L805D:  LDY #$00
 L805F:  LDA OppPunchSts
 L8061:  BMI $8069
@@ -75,9 +52,9 @@ L8072:  LDA #$01
 L8074:  AND OppPunchSide
 L8076:  TAX
 L8077:  LDA MacDefense1,X
-L8079:  CMP #$80
+L8079:  CMP #$80                ;Was Mac ducking?
 L807B:  BEQ $8090
-L807D:  CMP #$FF
+L807D:  CMP #$FF                ;Was Mac dodging?
 L807F:  BNE $8066
 L8081:  LDA MacStatus           ;($50)
 L8083:  STA $03B0
@@ -130,8 +107,10 @@ L80DB:  LDA #$02
 L80DD:  LDX MacCanPunch
 L80DF:  BNE $80E3
 L80E1:  LDA #$04
-L80E3:  JSR $8503
+L80E3:  JSR DealDamageToMac     ;($8503)
 L80E6:  BEQ $80EF
+
+ClearNumbersAfterPunch:
 L80E8:  JSR $8540
 L80EB:  JSR $8550
 L80EE:  RTS
@@ -140,7 +119,9 @@ L80EF:  LDA #PUNCH_LANDED
 L80F1:  STA OppPunchSts
 L80F3:  STA OppLastPunchSts
 L80F5:  JSR $849F
-L80F8:  JSR $83EB
+
+KnockdownBoxer:
+L80F8:  JSR SetKnockdownFlags   ;($83EB)
 L80FB:  JSR $8550
 L80FE:  RTS
 
@@ -151,7 +132,7 @@ L8104:  BEQ $80BA
 L8106:  BMI $80BA
 L8108:  STA $E0
 L810A:  LDA MacPunchType
-L810C:  AND #$03
+L810C:  AND #$03                ;Filter everything but star punch
 L810E:  TAX
 L810F:  LDA MacPunchDamage
 L8111:  SEC
@@ -167,7 +148,7 @@ L8122:  LDA MacCanPunch
 L8124:  BNE $8131
 L8126:  LDA HeartTable          ;($05A3)
 L8129:  JSR $84B9
-L812C:  LDA #$01
+L812C:  LDA #$01                ;Flag set of some sort
 L812E:  STA $0329
 L8131:  LDA $0581
 L8134:  SEC
@@ -176,27 +157,29 @@ L8138:  CMP $0583
 L813B:  BCS $8140
 L813D:  LDA $0583
 L8140:  STA $0581
-L8143:  LDA #$03
+L8143:  LDA #$03                ;Parameter for update hearts
 L8145:  JSR $843E
 L8148:  LDA #$FF
 L814A:  STA $0341
 L814D:  JSR $849F
 L8150:  LDA $03C5
 L8153:  BNE $816E
-L8155:  LDA #$82
+L8155:  LDA #$82                ;Opponent threw last punch
 L8157:  STA LastPunchSts        ;($03D2)
-L815A:  JSR $852B
+L815A:  JSR $852B               ;Opponent gains health from landing punch
+
 L815D:  LDA $E0
 L815F:  CLC
 L8160:  ADC $05AF
-L8163:  JSR $8503
-L8166:  BNE $816B
-L8168:  JMP $80F8
-L816B:  JMP $80E8
+L8163:  JSR DealDamageToMac     ;($8503)
+L8166:  BNE $816B               ;Boxer still standing after punch
+L8168:  JMP KnockdownBoxer      ;($80F8)
+L816B:  JMP ClearNumbersAfterPunch ;($80E8)
 
+KnockdownLittleMac:
 L816E:  LDA #$00
 L8170:  STA $0391
-L8173:  JMP $80F8
+L8173:  JMP KnockdownBoxer      ;($80F8)
 
 L8176:  LDA #PUNCH_NONE
 L8178:  STA OppPunchSts
@@ -216,12 +199,12 @@ L8197:  LDX #$81
 L8199:  STX LastPunchSts        ;($03D2)
 L819C:  LDA $E1
 L819E:  LDA #$00
-L81A0:  JSR $84FF
+L81A0:  JSR DealDamageToOpponent ;($84FF)
 L81A3:  BEQ $81A9
 L81A5:  LDX #$82
 L81A7:  BNE $81AC
 L81A9:  JSR $8404
-L81AC:  STX LastPunchSts        ;($03D2)
+L81AC:  STX LastPunchSts        ;($03D2) X=0
 L81AF:  JMP $815D
 
 L81B2:  LDA $58
@@ -243,7 +226,7 @@ L81CF:  LDA OppHitDefense,X
 L81D1:  BEQ $81E0
 L81D3:  CMP #$08
 L81D5:  BNE $81DD
-L81D7:  JSR $8435
+L81D7:  JSR ResetCombo          ;($8435)
 L81DA:  JMP $8297
 L81DD:  JMP $8267
 L81E0:  LDA $0580
@@ -266,7 +249,7 @@ L8202:  BNE $8240
 L8204:  LDA $4C
 L8206:  AND #$01
 L8208:  BNE $823E
-L820A:  JSR $8435
+L820A:  JSR ResetCombo          ;($8435)
 L820D:  LDA #$03
 L820F:  STA $58
 L8211:  LDA #$8D
@@ -280,7 +263,7 @@ L8223:  BNE $8227
 L8225:  LDA #$00
 L8227:  STA LastPunchSts        ;($03D2)
 L822A:  LDA $05C5
-L822D:  JSR $84FF
+L822D:  JSR DealDamageToOpponent ;($84FF)
 L8230:  BEQ $8236
 L8232:  JSR $8540
 L8235:  RTS
@@ -302,7 +285,7 @@ L8254:  JSR $8562
 L8257:  BNE $8219
 L8259:  LDA MacPunchType
 L825B:  BPL $8260
-L825D:  JSR $8435
+L825D:  JSR ResetCombo          ;($8435)
 L8260:  AND #$03
 L8262:  TAX
 L8263:  LDA OppHitDefense,X
@@ -348,9 +331,9 @@ L82B1:  RTS
 L82B2:  LDA MacPunchDamage
 L82B4:  SEC
 L82B5:  SBC OppHitDefense,X
-L82B7:  BEQ $8288
-L82B9:  BMI $8288
-L82BB:  STA $E0
+L82B7:  BEQ $8288               ;Was opponent defense == Mac punch power?
+L82B9:  BMI $8288               ;Was opponent defense > Mac punch power?
+L82BB:  STA $E0                 ;Save Mac punch damage
 L82BD:  LDA OppPunchSide
 L82BF:  AND #$01
 L82C1:  TAX
@@ -359,8 +342,9 @@ L82C4:  SEC
 L82C5:  SBC MacDefense1,X
 L82C7:  BPL $82CB
 L82C9:  LDA #$00
-L82CB:  STA $E1
-L82CD:  BEQ $8319
+L82CB:  STA $E1                 ;Save opponent punch damage
+L82CD:  BEQ ProcessMacPunch     ;($8319)
+
 L82CF:  LDA #$00
 L82D1:  STA $58
 L82D3:  LDA #$8D
@@ -370,12 +354,12 @@ L82DB:  LDA #$01
 L82DD:  JSR $843E
 L82E0:  LDA #$FF
 L82E2:  STA $0341
-L82E5:  LDA #$82
+L82E5:  LDA #$82                ;Opponent made the last punch
 L82E7:  STA LastPunchSts        ;($03D2)
 L82EA:  LDA $E1
 L82EC:  CLC
 L82ED:  ADC $05AF
-L82F0:  JSR $8503
+L82F0:  JSR DealDamageToMac     ;($8503)
 L82F3:  BEQ $8302
 L82F5:  LDA SpecialKD           ;($03CB)
 L82F8:  LDX #$81
@@ -383,19 +367,20 @@ L82FA:  CMP #$09
 L82FC:  BNE $8305
 L82FE:  LDX #$00
 L8300:  BEQ $8305
-L8302:  JSR $83EB
+L8302:  JSR SetKnockdownFlags   ;($83EB)
 L8305:  STX LastPunchSts        ;($03D2)
 L8308:  LDA $E0
-L830A:  JSR $84FF
+L830A:  JSR DealDamageToOpponent ;($84FF)
 L830D:  BEQ $8312
 L830F:  JMP $83B9
 L8312:  JSR $8404
 L8315:  JSR $8550
 L8318:  RTS
 
+ProcessMacPunch:
 L8319:  LDA #$03
 L831B:  STA $58
-L831D:  LDA #$81
+L831D:  LDA #$81                ;Mac made the last punch
 L831F:  STA LastPunchSts        ;($03D2)
 L8322:  LDA #$05
 L8324:  LDX #$04
@@ -434,7 +419,7 @@ L836B:  LDX MacPunchType
 L836D:  BPL $8373
 L836F:  CLC
 L8370:  ADC $05D3
-L8373:  JSR $84FF
+L8373:  JSR DealDamageToOpponent ;($84FF)
 L8376:  BNE $8382
 L8378:  LDA MacPunchType
 L837A:  BPL $833E
@@ -486,48 +471,55 @@ L83E2:  BCC $83B9
 L83E4:  LDA #$80
 L83E6:  STA IncStars
 L83E9:  BNE $83B9
+
+SetKnockdownFlags:
 L83EB:  LDA #$80
 L83ED:  STA $0320
 L83F0:  STA $0340
 L83F3:  STA GameStatusBB
-L83F5:  JSR $8421
-L83F8:  LDX #$02
-L83FA:  STX $05
-L83FC:  DEX
-L83FD:  STX MacCanPunch
-L83FF:  DEX
+L83F5:  JSR HaltRoundTimer      ;($8421)
+L83F8:  LDX #$02                ;Mac is down (X=2)
+L83FA:  STX KnockdownSts        ;($05)
+L83FC:  DEX                     ;Mac can punch (X=1)
+L83FD:  STX MacCanPunch         ;($BC)
+L83FF:  DEX                     ;X=0
 L8400:  STX $03C5
 L8403:  RTS
 
-L8404:  JSR $8435
-L8407:  JSR $8421
+L8404:  JSR ResetCombo          ;($8435)
+L8407:  JSR HaltRoundTimer      ;($8421)
 L840A:  LDA #$01
 L840C:  STA $03E3
 L840F:  LDA #$80
 L8411:  STA PointsStatus        ;($03E0)
 L8414:  LDX #$01
-L8416:  STX $05
+L8416:  STX KnockdownSts        ;($05)
 L8418:  STX $36
 L841A:  DEX
 L841B:  STX GameStatusBB
 L841D:  STX SpecialKD           ;($03CB)
-L8420:  RTS
+L8420:  RTS                     ;Return A=$80, X=0
 
+HaltRoundTimer:
 L8421:  LDA RoundTmrCntrl
 L8424:  ORA #$01
 L8426:  STA RoundTmrCntrl
 L8429:  RTS
+
 L842A:  DEC StarCountDown
 L842D:  BNE $8434
 L842F:  LDA #$01
 L8431:  STA StarCountDown
 L8434:  RTS
+
+ResetCombo:
 L8435:  LDY #$00
 L8437:  STY ComboTimer
 L8439:  STY ComboCountDown
 L843B:  STY $4C
 L843D:  RTS
 
+UpdateHearts:
 L843E:  TAX
 L843F:  LDA CurHeartsLD
 L8442:  ORA CurHeartsUD
@@ -620,32 +612,39 @@ L84F8:  LDA $032A
 L84FB:  STA $0328
 L84FE:  RTS
 
+DealDamageToOpponent:
 L84FF:  LDX #$09
-L8501:  BNE $8505
+L8501:  BNE DealDamageLogic     ;($8505)
 
+DealDamageToMac:
 L8503:  LDX #$02
+
+DealDamageLogic:
 L8505:  STA $E7
 L8507:  LDA HealthPoints,X      ;($0390)
 L850A:  DEX
 L850B:  SEC
 L850C:  SBC $E7
-L850E:  BEQ $8512
-L8510:  BPL $851F
+L850E:  BEQ $8512               ;Health = 0 means knocked down
+L8510:  BPL DealDamageSetHealth ;($851F)
 L8512:  LDY LastPunchSts        ;($03D2)
-L8515:  BEQ $851D
+L8515:  BEQ DealDamageHealthZero ;($851D)
 L8517:  LDA #$00
 L8519:  STA HealthPoints,X      ;($0390)
 L851C:  RTS
 
+DealDamageHealthZero:
 L851D:  LDA #$00
 
+DealDamageSetHealth:
 L851F:  STA HealthPoints,X      ;($0390)
-L8522:  LDA #$01
+L8522:  LDA #$01                ;
 L8524:  RTS
 
 L8525:  LDA #$0F
 L8527:  LDX #$02
 L8529:  BNE $8530
+
 L852B:  LDA OppHPBoostCap       ;($05D7)
 L852E:  LDX #$09
 L8530:  CMP HealthPoints,X      ;($0390)
@@ -668,9 +667,10 @@ L854F:  RTS
 
 L8550:  LDA #$81
 L8552:  STA MacStateStatus      ;($51)
-L8554:  STA OppStateStatus
+L8554:  STA OppStateStatus      ;($91)
 L8556:  JSR $8051
 L8559:  RTS
+
 L855A:  LDX #$01
 L855C:  BNE $8564
 L855E:  LDX #$02
@@ -1036,6 +1036,7 @@ L8817:  STA $0391
 L881A:  STA $0398
 L881D:  RTS
 
+UpdateHealthBars:
 L881E:  LDA HealthPoints        ;($0390)
 L8821:  BEQ $881D
 L8823:  BMI $8806
@@ -1155,6 +1156,8 @@ L8905:  LDX #$02
 L8907:  BNE $892A
 L8909:  LDX #$04
 L890B:  BNE $892A
+
+UpdateHeartsDisplay:
 L890D:  LDA $0320
 L8910:  BEQ $894A
 L8912:  BMI $88FC
@@ -1200,6 +1203,7 @@ L896C:  LDX $05B3
 L896F:  STX $0348
 L8972:  BNE $898D
 
+UpdateStars:
 L8974:  LDA $0340
 L8977:  BEQ $89BD
 L8979:  BMI $894F
@@ -1310,6 +1314,7 @@ L8A69:  INY
 L8A6A:  LDA CrowdDataPtrs,Y     ;($8CD2)
 L8A6D:  STA CrowdStBasePtrUB    ;($45)
 
+CheckCrowdSpecial:
 L8A6F:  LDA CrowdCurState       ;($40)
 L8A71:  BMI $8A4B
 L8A73:  BEQ VQSetUpdateFlag     ;($8AD2)
@@ -1610,6 +1615,7 @@ L8DE8:  BEQ $8DEC
 L8DEA:  LDA #$01
 L8DEC:  RTS
 
+ClearPassword:
 L8DED:  LDY #$30
 L8DEF:  LDA #$FF
 L8DF1:  JSR _FillPassword       ;($8E15)Fill $0140 through $0149 with spaces

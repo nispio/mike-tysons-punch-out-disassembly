@@ -829,15 +829,15 @@ LA696:  JSR PushFightBank       ;($AA48)
 LA699:  JSR $B069
 LA69C:  JSR $B10A
 LA69F:  JSR $C291
-LA6A2:  JSR $B196
+LA6A2:  JSR $B196               ; Opponent Pattern Processing Sub
 LA6A5:  JSR $C3D9
-LA6A8:  JSR $C4E7
+LA6A8:  JSR $C4E7               ; Opponent Handler Base Sub
 LA6AB:  JSR PushFightBank       ;($AA48)
 LA6AE:  JSR $C890
 LA6B1:  JSR $AA87
 LA6B4:  JSR PushPRGBank07       ;($AA3C)
-LA6B7:  JSR $800F
-LA6BA:  JSR $8015
+LA6B7:  JSR $800F               ; Jump Check Crowd Special Case
+LA6BA:  JSR $8015               ; Punch Analyzer Sub
 LA6BD:  JSR PushFightBank       ;($AA48)
 LA6C0:  JSR $B457
 LA6C3:  JSR SetOppOutlineClr    ;($C440)Set opponent outline color.
@@ -2461,8 +2461,8 @@ LB280:  JMP PushPRGBank07       ;($AA3C)
 LB283:  JSR PushFightBank       ;($AA48)
 LB286:  STA $AFFF
 LB289:  JSR $B3A3
-
 LB28C:  JMP PushPRGBank07       ;($AA3C)
+
 LB28F:  JSR PushFightBank       ;($AA48)
 LB292:  JSR $B3EB
 LB295:  JMP PushPRGBank07       ;($AA3C)
@@ -2506,6 +2506,7 @@ LB2E6:  RTS
 LB2E7:  DEX
 LB2E8:  BEQ $B298
 LB2EA:  RTS
+
 LB2EB:  LDX $05
 LB2ED:  DEX
 LB2EE:  BNE $B2E7
@@ -2628,6 +2629,7 @@ LB3E5:  INY
 LB3E6:  LDA ($E6),Y
 LB3E8:  STA ComboCountDown
 LB3EA:  RTS
+
 LB3EB:  LDY $4D
 LB3ED:  LDA ($4E),Y
 LB3EF:  BMI $B408
@@ -4760,6 +4762,7 @@ LC4E2:  BNE $C50E
 _UpdateOppState:
 LC4E4:  JMP UpdateOppState      ;($C46B)
 
+_OpponentHandler:
 LC4E7:  LDA OppCurState         ;($90)
 LC4E9:  BEQ $C54F               ;If opponent state is zero, then RTS
 LC4EB:  BMI _UpdateOppState     ;($C4E4) If MSB set, then update opponent state
