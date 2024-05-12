@@ -1,3 +1,5 @@
 *.nes
 *.deb
 *.bak
+*.md5
+__pycache__/
