@@ -1,19 +1,21 @@
-.org $A000
-
 .include "Mike_Tysons_Punchout_Defines.asm"
+
+.org $A000
+.segment "PRG_BankD"
+
 
 ;--------------------------------------[ Forward Declarations ]--------------------------------------
 
-.alias DoUpdateRNG              $8012
-.alias DoVerifyCheckPoint       $8030
-.alias DoVerifyPassword         $8033
-.alias DoSavePassword           $8036
-.alias DoLoadCheckPoint         $8039
-.alias DoBusyPassword           $803F
-.alias DoAWCPassword2           $8042
-.alias DoAWCPassword            $8045
-.alias DoCreditsPassword        $8048
-.alias DoTysonPassword          $804E
+DoUpdateRNG                  := $8012
+DoVerifyCheckPoint           := $8030
+DoVerifyPassword             := $8033
+DoSavePassword               := $8036
+DoLoadCheckPoint             := $8039
+DoBusyPassword               := $803F
+DoAWCPassword2               := $8042
+DoAWCPassword                := $8045
+DoCreditsPassword            := $8048
+DoTysonPassword              := $804E
 
 ;-----------------------------------------[ Start of code ]------------------------------------------
 
@@ -193,8 +195,8 @@ LA1CB:  STA PPUControl1         ;
 LA1CE:  LDA PPUStatus           ;Wait for the vblank period.
 LA1D1:  BPL DoReset             ;
 
-LA1D3:* LDA PPUStatus           ;Wait for the vblank period.
-LA1D6:  BPL -                   ;
+LA1D3:  LDA PPUStatus           ;Wait for the vblank period.
+LA1D6:  BPL LA1D3               ;
 
 LA1D8:  LDA #%00010000          ;bg pt=$1000, sprt pt=$0000, base nt=$2000, row write, disable NMI.
 LA1DA:  STA PPUControl0         ;
@@ -2072,10 +2074,10 @@ LAFF5:  BNE Joy1BtnsEnd
 
 LAFF7:  LDX #$08
 
-LAFF9:* JSR DPad1NoRelMask      ;($B016)
+LAFF9:  JSR DPad1NoRelMask      ;($B016)
 LAFFC:  DEX
 LAFFD:  DEX
-LAFFE:  BNE -
+LAFFE:  BNE LAFF9
 
 Joy1BtnsEnd:
 LB000:  RTS
@@ -2101,13 +2103,13 @@ LB014:  STA Button1Status,X     ;Store dpad 1 status.
 DPad1NoRelMask:
 LB016:  LDA #$7F                ;Indicate dpad not released before direction was changed.
 
-LB018:* AND Button1History,X    ;
+LB018:  AND Button1History,X    ;
 LB01A:  STA Button1History,X    ;Update button history.
 LB01C:  RTS                     ;
 
 ClrDPad1History:
 LB01D:  LDA #$7E                ;Prepare to clear dpad history.
-LB01F:  BNE -                   ;
+LB01F:  BNE LB018               ;
 
 VerifyJoyRead:
 LB021:  LDA JoyRawReads,Y       ;Get the last controller buttons poll.
@@ -5409,10 +5411,10 @@ LC80B:  RTS                     ;
 
 OppComboWait:
 LC80C:  LDA ComboTimer          ;Has combo timer expired?
-LC80E:  BNE +                   ;If not, branch to stay on this state.
+LC80E:  BNE LC813                   ;If not, branch to stay on this state.
 
 LC810:  JMP OppStateUpdate      ;($C550)Advance to the opponent's next state.
-LC813:* JMP OppStateWait        ;($C74E)Stay on this state until combo timer expires.
+LC813:  JMP OppStateWait        ;($C74E)Stay on this state until combo timer expires.
 
 ;----------------------------------------------------------------------------------------------------
 
@@ -5464,9 +5466,9 @@ LC844:  JSR Div16               ;($BF99)Shift upper nibble to lower nibble.
 LoNibbleSignExtend:
 LC847:  AND #$0F                ;Keep only lower nibble.
 LC849:  CMP #$08                ;
-LC84B:  BCC +                   ;Sign extend into upper nibble.
+LC84B:  BCC LC84F                   ;Sign extend into upper nibble.
 LC84D:  ORA #$F0                ;
-LC84F:* RTS                     ;
+LC84F:  RTS                     ;
 
 ;----------------------------------------------------------------------------------------------------
 
@@ -7785,6 +7787,9 @@ LDFD8:  .byte $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $
 LDFE8:  .byte $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00
 LDFF8:  .byte $00, $00, $00, $00, $00, $00, $00, $00
 
+.org $E000
+.segment "PRG_BankE"
+
 ;---------------------------------[ DMC Audio Channel Sample Data ]----------------------------------
 
 ;DMC channel data.
@@ -8175,12 +8180,12 @@ LF42F:  BEQ GetNoteDone         ;If not, branch to exit.
 LF431:  STA SQ1Cntrl2,X         ;Update channel frequency lower bits hardware.
 
 LF434:  CPX #AUD_SQ1_INDEX      ;Is this SQ0?
-LF436:  BNE +                   ;If not, branch.
+LF436:  BNE LF43D               ;If not, branch.
 
 LF438:  STA SQ1LoFreqBits       ;Save lower frequenct bits of SQ1.
 LF43B:  BNE GetNoteUpperBits    ;
 
-LF43D:* CPX #AUD_SQ2_INDEX      ;Is this SQ1?
+LF43D:  CPX #AUD_SQ2_INDEX      ;Is this SQ1?
 LF43F:  BNE GetNoteUpperBits    ;If not, branch.
 
 LF441:  STA SQ2LoFreqBits       ;Save lower frequenct bits of SQ2.
@@ -8214,11 +8219,11 @@ LF450:  LSR                     ;
 LF451:  LSR                     ;Divide by 8.
 LF452:  LSR                     ;
 LF453:  STA GenByteE0           ;Is there anything left to subtract?
-LF455:  BNE +                   ;If so, branch. Frequency must increase a minimal amount.
+LF455:  BNE LF459               ;If so, branch. Frequency must increase a minimal amount.
 
 LF457:  INC GenByteE0           ;Set amount to subtract to 1.
 
-LF459:* TYA                     ;
+LF459:  TYA                     ;
 LF45A:  SEC                     ;Return the logarithmic increase in the frequency in A.
 LF45B:  SBC GenByteE0           ;
 LF45D:  RTS                     ;

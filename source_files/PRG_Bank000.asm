@@ -1,8 +1,9 @@
 ;This bank contains the data for Glass Joe, Don Flamenco 1 and Don Flamenco 2.
 
-.org $8000
-
 .include "Mike_Tysons_Punchout_Defines.asm"
+
+.org $8000
+.segment "PRG_Bank0"
 
 ;----------------------------------------------------------------------------------------------------
 

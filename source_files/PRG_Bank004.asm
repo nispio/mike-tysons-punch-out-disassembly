@@ -1,8 +1,9 @@
 ;This bank contains the data for Soda Popinski and Super MAcho Man.
 
-.org $8000
-
 .include "Mike_Tysons_Punchout_Defines.asm"
+
+.org $8000
+.segment "PRG_Bank4"
 
 L8000:  .word $0000, $0000, $0000, $0000, $0000, $0000, $0000, $0000
 L8010:  .word $8046, $8EA6, $8EDC, $9858, $0000, $0000, $0000, $9A4C

@@ -1,8 +1,9 @@
 ;This bank contains the data for Piston Honda 1, Piston Honda 2 and Mike Tyson.
 
-.org $8000
-
 .include "Mike_Tysons_Punchout_Defines.asm"
+
+.org $8000
+.segment "PRG_Bank5"
 
 L8000:  .word $0000, $0000, $0000, $0000, $0000, $0000, $0000, $0000
 L8010:  .word $0000, $0000, $0000, $0000, $0000, $0000, $0000, $0000

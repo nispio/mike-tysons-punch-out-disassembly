@@ -1,7 +1,8 @@
 
-.org $8000
-
 .include "Mike_Tysons_Punchout_Defines.asm"
+
+.org $8000
+.segment "PRG_BankB"
 
 L8000:  JMP $8020
 L8003:  JMP $8119

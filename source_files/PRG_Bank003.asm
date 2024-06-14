@@ -1,8 +1,9 @@
 ;This bank contains the data for Bald Bull 1, Mr. Sandman, Bald Bull 2 and Bald Bull 3.
 
-.org $8000
-
 .include "Mike_Tysons_Punchout_Defines.asm"
+
+.org $8000
+.segment "PRG_Bank3"
 
 L8000:  .word $8040, $8D1A, $8D50, $97F7, $0000, $0000, $0000, $9877
 L8010:  .word $8046, $8D8E, $8DCE, $9857, $0000, $0000, $0000, $9CF5

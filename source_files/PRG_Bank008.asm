@@ -1,35 +1,36 @@
 
-.org $8000
-
 .include "Mike_Tysons_Punchout_Defines.asm"
+
+.org $8000
+.segment "PRG_Bank8"
 
 ;--------------------------------------[ Forward Declarations ]--------------------------------------
 
-.alias GetNoteLength            $F400
-.alias SetSQ1Control            $F40B
-.alias SQ2CntrlAndSwpDis        $F412
-.alias SetSQ2Control            $F414
-.alias UpdateSQ2                $F41B
-.alias UpdateSQ2Note            $F41E
-.alias UpdateTriNote            $F422
-.alias UpdateSQ1                $F426
-.alias UpdateSQ1Note            $F429
-.alias LogDiv32                 $F44E
-.alias LogDiv16                 $F44F
-.alias LogDiv8                  $F450
-.alias InitSQ1SFX               $F4EF
-.alias InitSQ1SQ2SFX            $F518
-.alias SQDCEnvTbl               $F674
-.alias NoiseDecayTbl            $F714
-.alias NoiseDatTbl              $F73C
-.alias DMCSamplePtrTbl          $F768
-.alias FallSFXSweepTbl          $F776
-.alias PnchMs1SFXTbl            $F77E
-.alias PnchMs2SFXTbl            $F78E
-.alias Talk1CntrlTbl            $F798
-.alias Talk1NoteTbl             $F79C
-.alias Talk2NoteTbl             $F7AC
-.alias Talk3NoteTbl             $F7BC
+GetNoteLength          := $F400
+SetSQ1Control          := $F40B
+SQ2CntrlAndSwpDis      := $F412
+SetSQ2Control          := $F414
+UpdateSQ2              := $F41B
+UpdateSQ2Note          := $F41E
+UpdateTriNote          := $F422
+UpdateSQ1              := $F426
+UpdateSQ1Note          := $F429
+LogDiv32               := $F44E
+LogDiv16               := $F44F
+LogDiv8                := $F450
+InitSQ1SFX             := $F4EF
+InitSQ1SQ2SFX          := $F518
+SQDCEnvTbl             := $F674
+NoiseDecayTbl          := $F714
+NoiseDatTbl            := $F73C
+DMCSamplePtrTbl        := $F768
+FallSFXSweepTbl        := $F776
+PnchMs1SFXTbl          := $F77E
+PnchMs2SFXTbl          := $F78E
+Talk1CntrlTbl          := $F798
+Talk1NoteTbl           := $F79C
+Talk2NoteTbl           := $F7AC
+Talk3NoteTbl           := $F7BC
 
 ;-----------------------------------------[ Start Of Code ]------------------------------------------
 
@@ -91,10 +92,10 @@ L8047:  LDX #$05                ;Assume the DMC SFX is 5 frames long.
 
 L8049:  LDA DMCIndex            ;Is this the grunt SFX?
 L804B:  CMP #DMC_GRUNT          ;
-L804D:  BNE +                   ;If not, branch to keep length at 5 frames.
+L804D:  BNE L8051               ;If not, branch to keep length at 5 frames.
 
 L804F:  LDX #$03                ;Grunt SFX is only 3 frames long.
-L8051:* STX DMCLghAudLength     ;
+L8051:  STX DMCLghAudLength     ;
 
 L8054:  TYA                     ;
 L8055:  ASL                     ;*2. 2 bytes per DMCSamplePtrTbl entry.
@@ -239,12 +240,12 @@ L810B:  BNE SQ1FallEnd          ;Branch always.
 
 Fall2ndPart:
 L810D:  CMP #$6B                ;Is this the 21st frame of the SFX?
-L810F:  BNE +                   ;If not, branch.
+L810F:  BNE L8116               ;If not, branch.
 
 L8111:  LDY #$A5                ;Enable sweep. divider period=3 half frames, shift count=5, down.
 L8113:  STY SQ1Cntrl1           ;
 
-L8116:* CMP #$30                ;Is this the 80th or greater frame of the SFX?
+L8116:  CMP #$30                ;Is this the 80th or greater frame of the SFX?
 L8118:  BCS SQ1FallEnd          ;If so, branch.
 
 L811A:  LSR                     ;Use timer to set volume.
@@ -362,11 +363,11 @@ L81B5:  STA SQ1Cntrl3           ;
 
 L81B8:  LDA SQ1SFXTimer         ;Is SQ1SFXTimer at its minimum value?
 L81BB:  CMP #$0E                ;
-L81BD:  BCS +                   ;If so, branch.
+L81BD:  BCS L81C4               ;If so, branch.
 
 L81BF:  ORA #$90                ;Ensure 25% duty cycle and constant volume.
 L81C1:  STA SQ1Cntrl0           ;
-L81C4:* JMP FinishSQ1SFXFrame   ;($813E)Finish processing SQ1 SFX for this frame.
+L81C4:  JMP FinishSQ1SFXFrame   ;($813E)Finish processing SQ1 SFX for this frame.
 
 ;----------------------------------------------------------------------------------------------------
 
@@ -771,11 +772,11 @@ L842E:  JSR UpdateSQ1           ;($F426)Update SQ1 control and note bytes.
 SQ1HippoTalkCont:
 L8431:  LDA SQ1SFXTimer         ;Is the SFX timer on the 14th frame from the end?
 L8434:  CMP #$0E                ;
-L8436:  BNE +                   ;If not, branch.
+L8436:  BNE L843D               ;If not, branch.
 
 L8438:  LDA #SQ_F_4             ;Note F4.
 L843A:  JSR UpdateSQ1Note       ;($F429)Update SQ1 note frequency.
-L843D:* JMP FinishSQ1SFXFrame   ;($813E)Finish processing SQ1 SFX for this frame.
+L843D:  JMP FinishSQ1SFXFrame   ;($813E)Finish processing SQ1 SFX for this frame.
 
 ;----------------------------------------------------------------------------------------------------
 
@@ -1415,7 +1416,7 @@ L890B:  LDA SFXIndexSQ2         ;Is SFX using SQ2?
 L890D:  BEQ SilenceSQ2          ;If not, branch to silence SQ2.
 
 L890F:  LDA #$10                ;Silence SQ1 channel.
-L8911:* STA SQ1Cntrl0           ;
+L8911:  STA SQ1Cntrl0           ;
 
 L8914:  LDA #$00                ;Silence the triangle channel.
 L8916:  STA TriangleCntrl0      ;
@@ -1424,7 +1425,7 @@ L8919:  BEQ ResetSQ1SQ2Env      ;Branch always to reset SQ1, SQ2 envelope data i
 SilenceSQ2:
 L891B:  LDA #$10                ;Silence SQ2.
 L891D:  STA SQ2Cntrl0           ;
-L8920:  BNE -                   ;Branch always to silence SQ1.
+L8920:  BNE L8911               ;Branch always to silence SQ1.
 
 ChkSQ1Use:
 L8922:  LDA SQ1InUse            ;Is SQ1 being used by an SFX?
@@ -1687,11 +1688,11 @@ L8AAE:  JSR SQ2CntrlAndSwpDis   ;($F412)Disable SQ2 sweep and set control bits.
 
 UpdateSQ1Music:
 L8AB1:  LDA SQ1NoteIndex        ;Is there SQ1 music data that needs to be updated?
-L8AB3:  BNE +                   ;If not, jump to triangle music updates.
+L8AB3:  BNE L8AB8               ;If not, jump to triangle music updates.
 
 L8AB5:  JMP UpdateTRIMusic      ;($8B63)Update triangle musical note.
 
-L8AB8:* LDA SFXIndexSQ1
+L8AB8:  LDA SFXIndexSQ1
 L8ABA:  BEQ SQ1NoteCont
 
 L8ABC:  LDA SQ1EnvBase
@@ -1746,10 +1747,10 @@ L8B05:  CMP #$80
 L8B07:  BCC $8B0D
 
 L8B09:  LDA #$7F
-L8B0B:  BNE +
+L8B0B:  BNE L8B0F
 
 L8B0D:  LDA #$3F
-L8B0F:* STA SQ1EnvIndex
+L8B0F:  STA SQ1EnvIndex
 
 L8B12:  LDA SQ1NoteLength
 L8B15:  STA SQ1NoteRemain

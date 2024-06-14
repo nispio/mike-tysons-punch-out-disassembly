@@ -1,8 +1,9 @@
 ;This bank contains the data for King Hippo.
 
-.org $8000
-
 .include "Mike_Tysons_Punchout_Defines.asm"
+
+.org $8000
+.segment "PRG_Bank1"
 
 L8000:  .word $8010, $871B, $8751, $8C2E, $0000, $0000, $0000, $8C4E
 

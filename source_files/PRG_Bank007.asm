@@ -1,7 +1,8 @@
 
-.org $8000
-
 .include "Mike_Tysons_Punchout_Defines.asm"
+
+.org $8000
+.segment "PRG_Bank7"
 
 L8000:  JMP UpdateStars         ;($8974)
 L8003:  JMP UpdateHeartsDisplay ;($890D)
@@ -1536,9 +1537,9 @@ ChkCreditsPassword:
 L8D5D:  LDY #$28                ;Look for a A+B+select password(end credits).
 L8D5F:  JSR FindSpecPassword    ;($8D8D)Look for a hard coded password.
 
-L8D62:  BNE +
+L8D62:  BNE L8D67
 L8D64:  JSR CheckABSelect       ;($8DDE)Check that A+B+Select was pressed
-L8D67:* RTS
+L8D67:  RTS
 
 ChkTysonPassword:
 L8D68:  LDY #$32                ;Prepare to check entered password to start at Mike Tyson.
@@ -1553,9 +1554,9 @@ ChkAWCPassword:
 L8D72:  LDY #$1E                ;Look for a A+B+select password(another world circuit).
 L8D74:  JSR FindSpecPassword    ;($8D8D)Look for a hard coded password.
 
-L8D77:  BNE +
+L8D77:  BNE L8D7C
 L8D79:  JSR CheckABSelect       ;($8DDE)Check that A+B+Select was pressed
-L8D7C:* RTS
+L8D7C:  RTS
 
 ChkBusyPassword:
 L8D7D:  LDY #$00                ;Prepare to look for busy signal 1 password.
