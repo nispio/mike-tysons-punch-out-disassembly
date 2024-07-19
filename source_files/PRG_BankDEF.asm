@@ -489,7 +489,7 @@ LA3F4:  JSR DoAWCPassword2      ;($8042)Check if user entered another world circ
 LA3F7:  BEQ _StartAWCircuit     ;($A46A)
 LA3F9:  JSR DoVerifyCheckPoint  ;($8030)
 LA3FC:  BNE PasswordFailed      ;($A427)
-LA3FE:  BEQ $A44E
+LA3FE:  BEQ LoadCheckpoint      ;($A44E)
 
 AdvPasskeyCursor:
 LA400:  INC PasskeyCursor       ;($04C1)

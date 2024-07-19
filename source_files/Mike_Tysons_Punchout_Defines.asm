@@ -21,6 +21,10 @@
 .alias PPU0Load         $10     ;Value to load next into PPU control register 0.
 .alias PPU1Load         $11     ;Value to load next into PPU control register 1.
 
+ ; TODO: R:0013:Screen_Redraw_Offset_13  ;
+ ; TODO: R:0016:Init_Mac_Draw_OnScreen_16:1 = Draw Mac\n0 = No Mac ;
+ ; TODO: R:0017:Init_Opponent_Draw_onScreen_17 ;
+
 .alias RNGValue         $18     ;Random number generator
 .alias InputAccum       $19     ;Controller 1 input accumulator
 
@@ -38,6 +42,17 @@
 .alias FrameCounter     $1E     ;Increments every frame and rolls over when maxed out.
 .alias TransTimer       $1F     ;Countdown timer for various transitions.
 
+ ; TODO: R:0030:Opp_Phase_Processing_Flag_30:Sets fighting pattern for opponent at start of fight
+ ; TODO: R:0031:OppCurrentPhase_LB_31
+ ; TODO: R:0032:OppCurrentPhase_HB_32
+ ; TODO: R:0033:OppCurrentOther_33
+ ; TODO: $36
+ ; TODO: R:0038:Opp_Fight_Pattern_Processing_Flag_38
+ ; TODO: R:0039:OppFightPatternTimer_39:Next action happens when timer reaches zero
+ ; TODO: R:003A:OppActionNextIndex_3A:Offset for Opponent Action Table
+ ; TODO: R:003B:OppActionBasePtrLB_3B:Base pointer to opponent's action table, lower byte.
+ ; TODO: R:003C:OppActionBasePtrHB_3C:Base pointer to opponent's action table, high byte.
+
 .alias CrowdCurState    $40     ;Crowd's current state. Set MSB=initialize new state.
 .alias CrowdStateStatus $41     ;Status of Crowd's current state.
 .alias CrowdStateTimer  $42     ;Timer for Crowds current state.
@@ -46,10 +61,11 @@
 .alias CrowdStBasePtrLB $44     ;Pase pointer to Crowd's current state data, lower byte.
 .alias CrowdStBasePtrUB $45     ;Pase pointer to Crowd's current state data, upper byte.
 .alias CrowdStRptCntr   $46     ;Counter used to repeat the Crowd's current state.
-
+                                ; TODO: DG: SpecialCrowdGraphics
 
 .alias ComboTimer       $4A     ;Frames left until another punch must be landed to keep combo alive.
 .alias ComboCountDown   $4B     ;Hits left in current combo.
+ ; TODO: $4C
 
 .alias MacStatus        $50     ;Status of Little Mac during a fight. MSB set=status update.
 .alias MacStateStatus   $51     ;Status of Mac's current state
@@ -59,6 +75,9 @@
 .alias MacStBasePtrLB   $54     ;Base pointer to Mac's current state data, lower byte.
 .alias MacStBasePtrUB   $55     ;Base pointer to Mac's current state data, upper byte.
 .alias MacStateRptCntr  $56     ;Counter used to repeat Mac's current state.
+
+ ; TODO: $58 -- Mac punch status?
+ ; TODO: R:0061:MacBaseAnimIndex_A1
 
 .alias MacPunchType     $74     ;Little Mac punch type.
                                 ;#$00=Right punch to face.
@@ -147,6 +166,9 @@
 .alias IndJumpPtrLB     $EE     ;Pointer for indirect jump, lower byte.
 .alias IndJumpPtrUB     $EF     ;Pointer for indirect jump, upper byte.
 
+; TODO: R:00F0:SoundInitBase_F0
+; TODO: R:00F2:MusicInit_F2:The music index to be started
+
 .alias SavedPasskey     $0110   ;To $0119 and $0120 to $0129. The first 10 bytes are password data
                                 ;that after A+B+select were pressed. The second 10 bytes are normal
                                 ;password data entered by the user.
@@ -172,6 +194,7 @@
 .alias ClockDispSecUD   $030D   ;Clock digit index for tens of seconds
 .alias ClockDispSecLD   $030E   ;Clock digit index for seconds
 
+ ; TODO: $0320 -- HeartsState?  #$80 = Update
 .alias NewHeartsUD      $0321   ;New amount of hearts, upper digit(base 10).
 .alias NewHeartsLD      $0322   ;New amount of hearts, lower digit(base 10).
 .alias CurHeartsUD      $0323   ;Current amount of hearts, upper digit(base 10).
@@ -186,6 +209,7 @@
 .alias HeartNormRedUD   $032F   ;recover hearts this round, reduced amount, upper digit(base 10).
 .alias HeartNormRedLD   $0330   ;recover hearts this round, reduced amount, lower digit(base 10).
 
+ ; TODO: $0340 -- StarsState?  #$80 = Update
 .alias NumStars         $0342   ;Current number of stars Little Mac has.
 .alias IncStars         $0343   ;#$01=Increment number of stars.
 
@@ -206,6 +230,8 @@
 .alias OppKDRound       $03CA   ;Number of times opponent has been knocked down this round
 .alias SpecialKD        $03CB   ;Special knockdown condition
 
+ ; TODO: $03C5
+
 .alias MacKDFight       $03D0   ;Number of times Mac has been knocked down in this fight
 .alias OppKDFight       $03D1   ;Number of times opponent has been knocked down this fight
 .alias LastPunchSts     $03D2   ;Who made the last punch? #$81=Mac #$82=Opp
@@ -214,6 +240,7 @@
 
 .alias PointsStatus     $03E0   ;Status of points
 .alias PointsNew        $03E1   ;New points that should be added to the total (base 10)
+ ; TODO: $03E3
 .alias PointsTotal      $03E8   ;Total points for this round (base 10)
 
 .alias VRAMQueue        $0410   ;Base pointer for the VRAM queue
@@ -236,6 +263,8 @@
 
 .alias VulnerableTimer  $04FD   ;Opponent is vunerable while counting down. Does not count on combos.
 
+ ; TODO: R:04FF:__04FF_Opponent_Guard_04FF
+
 .alias VariableStTime   $0581   ;A vaiable time for states. Usually decreases after being punched.
 
 .alias TimerVal0585     $0585   ;A variable used to load special timer values.
@@ -248,6 +277,8 @@
 
 .alias ComboDataPtrLB   $05C2   ;Pointer to combo data for the current opponent, lower byte
 .alias ComboDataPtrUB   $05C3   ;Pointer to combo data for the current opponent, upper byte
+
+ ; TODO: R:05C5:ComboDamage_5C5:Damage from Mac Punch during a Combo
 
 .alias OppRefillPtr     $05D5   ;Pointer to beginning of table of random refill values
 .alias OppRefillPtrLB   $05D5   ;Pointer to random refill table, lower byte
